@@ -1,15 +1,20 @@
+#pragma once
 #ifndef QUBIT_H
-#define QUBIT_H
+#	define QUBIT_H
 
 class Qubit
 {
-	private:
-		int id;
+  private:
+	int id;
+	int state[1][2] = {1, 2};
 
-	public:
-		Qubit(int id);
-		int getId() { return id; };
-		int add(int a, int b);
+  public:
+	Qubit(int id);
+	int getId() { return id; };
+	typedef int (*state_pointer)[2];
+	state_pointer getState() { return state; };
+	void printState();
+	int add(int a, int b);
 };
 
 #endif

@@ -1,15 +1,17 @@
-#include "aux.h"
 #include "Qubit.h"
+#include "aux.h"
+#include <iostream>
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-		cout << "Hello simulator!" << endl;
+	printf("\n");
+	cout << "Hello simulator!" << endl;
 
-		Qubit q1(1);
+	Qubit q1(1);
 
-		cout << q1.getId() << endl;
+	q1.printState();
 
-		return 0;
+	return 0;
 }
