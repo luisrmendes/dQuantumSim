@@ -13,5 +13,7 @@ int main(int argc, char* argv[])
 
 	q1.printState();
 
+	// TODO: Aplicar operacoes de gates no qubit
+
 	return 0;
 }

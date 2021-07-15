@@ -6,7 +6,7 @@ class Qubit
 {
   private:
 	int id;
-	int state[1][2] = {1, 2};
+	int state[1][2] = {0, 0};
 
   public:
 	Qubit(int id);
