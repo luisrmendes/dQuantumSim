@@ -14,7 +14,6 @@ class Qubit
 	typedef int (*state_pointer)[2];
 	state_pointer getState() { return state; };
 	void printState();
-	int add(int a, int b);
 };
 
 #endif

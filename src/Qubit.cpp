@@ -11,4 +11,5 @@ void Qubit::printState()
 			std::cout << state[i][j] << std::endl;
 		}
 	}
+	std::cout << std::endl;
 }
