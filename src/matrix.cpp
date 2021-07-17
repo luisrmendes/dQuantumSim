@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "matrix.h"
 
 void generateRandomMatrix(double* mat, std::size_t dim, int minvalue, int maxvalue, int seed) {
 

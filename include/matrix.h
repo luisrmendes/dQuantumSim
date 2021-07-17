@@ -1,6 +1,6 @@
 #pragma once
-#ifndef UTILS_H
-#	define UTILS_H
+#ifndef MATRIX_H
+#	define MATRIX_H
 
 #include <iostream>
 #include <iomanip>
