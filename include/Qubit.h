@@ -2,17 +2,20 @@
 #ifndef QUBIT_H
 #	define QUBIT_H
 
+#include <vector>
+
+using namespace std;
+
 class Qubit
 {
   private:
 	int id;
-	int state[1][2] = {0, 0};
+	vector<double> state = {0, 0};
 
   public:
 	Qubit(int id);
 	int getId() { return id; };
-	typedef int (*state_pointer)[2];
-	state_pointer getState() { return state; };
+	void setState(vector<double> state) { this->state = state; };
 	void printState();
 };
 

@@ -25,6 +25,6 @@ void printMatrix(double* mat, std::size_t dim) {
 	std::cout << std::endl;
 }
 
-void reset_matrix(double *A, std::size_t dim) {
+void resetMatrix(double *A, std::size_t dim) {
 	memset(A, 0, dim * dim * sizeof(double));
 }

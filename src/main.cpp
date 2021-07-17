@@ -11,17 +11,17 @@ int main(int argc, char* argv[])
 	cout << "Hello simulator!" << endl;
 
 	Qubit q1(1);
+	Qubit q2(2);
 
 	q1.printState();
+	
 
 	// TODO: Aplicar operacoes de gates no qubit
 
-	int dim = 3;
-	double* matA = new double[dim * dim];
-	generateRandomMatrix(matA, dim, 1, 3, 2);
+	// generateRandomMatrix(matA, dim, 1, 3, 2);
 
-	printMatrix(matA, dim);
-	// tensorMultiplication()
+	// printMatrix(matA, dim);
+	// tensorMultiplication
 
 	return 0;
 }
