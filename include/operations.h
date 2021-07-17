@@ -3,23 +3,23 @@
 #	define OPERATION_H
 
 #include <vector>
+#include <variant>
+#include <complex>
 
-using namespace std;
+std::vector<double> gateOperation(std::vector<double> state, std::variant<double, std::complex<double>>* mat);
 
-vector<double> pauli_X(vector<double> state);
-
-vector<double> gateOperation(vector<double> state, double* mat);
+std::vector<double> gateOperation(std::vector<double> state, double* mat);
 
 /**
  * Applies tensor multiplication between a qubit and a matrix
  * for gate operations 
  */
-vector<double> tensorMultiplication(vector<double> state1, double* mat);
+std::vector<double> tensorMultiplication(std::vector<double> state1, double* mat);
 
 /**
  * Applies tensor multiplication between two qubits
  */
-vector<double> tensorMultiplication(vector<double> state1, vector<double> state2);
+std::vector<double> tensorMultiplication(std::vector<double> state1, std::vector<double> state2);
 
 
 #endif

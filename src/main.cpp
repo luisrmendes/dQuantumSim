@@ -15,6 +15,8 @@ int main(int argc, char* argv[])
 	q1.printState();
 	q1.pauli_Z();
 	q1.printState();
+	q1.pauli_Y();
+	q1.printState();
 
 	return 0;
 }
