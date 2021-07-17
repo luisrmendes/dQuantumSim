@@ -3,14 +3,16 @@
 #	define QUBIT_H
 
 #include <vector>
+#include "operations.h"
 
 using namespace std;
+
 
 class Qubit
 {
   private:
 	int id;
-	vector<double> state = {1, 0};
+	vector<double> state = {0, 1};
 
   public:
 	Qubit(int id);
@@ -18,6 +20,7 @@ class Qubit
 	void setState(vector<double> state) { this->state = state; };
 	vector<double> getState() { return this->state; };
 	void printState();
+	void pauli_X();
 };
 
 #endif

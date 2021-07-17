@@ -6,14 +6,20 @@
 
 using namespace std;
 
-/**
- * Applies tensor multiplication in two qubits
- */
-vector<double> tensorMultiplication(vector<double> state1, vector<double> state2);
+vector<double> pauli_X(vector<double> state);
+
+vector<double> gateOperation(vector<double> state, double* mat);
 
 /**
  * Applies tensor multiplication between a qubit and a matrix
+ * for gate operations 
  */
-vector<double> tensorMultiplication(vector<double> state1, double* state2);
+vector<double> tensorMultiplication(vector<double> state1, double* mat);
+
+/**
+ * Applies tensor multiplication between two qubits
+ */
+vector<double> tensorMultiplication(vector<double> state1, vector<double> state2);
+
 
 #endif

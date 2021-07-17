@@ -1,7 +1,7 @@
 #include "matrix.h"
 
-void generateRandomMatrix(double* mat, std::size_t dim, int minvalue, int maxvalue, int seed) {
-
+void generateRandomMatrix(double* mat, std::size_t dim, int minvalue, int maxvalue, int seed)
+{
 	// random_device rd;
 	// mt19937 rng(rd());
 	std::mt19937 rng(seed);
@@ -14,7 +14,8 @@ void generateRandomMatrix(double* mat, std::size_t dim, int minvalue, int maxval
 	}
 }
 
-void printMatrix(double* mat, std::size_t dim) {
+void printMatrix(double* mat, std::size_t dim)
+{
 	std::cout << std::left << std::setw(9) << std::setprecision(3);
 	std::size_t i, j;
 	for (i = 0; i < dim; i++) {
@@ -25,6 +26,7 @@ void printMatrix(double* mat, std::size_t dim) {
 	std::cout << std::endl;
 }
 
-void resetMatrix(double *A, std::size_t dim) {
+void resetMatrix(double *A, std::size_t dim)
+{
 	memset(A, 0, dim * dim * sizeof(double));
 }
