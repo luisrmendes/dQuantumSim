@@ -2,7 +2,6 @@
 #ifndef QUBIT_H
 #define QUBIT_H
 
-#include "MultiQubit.h"
 #include "operations.h"
 #include <complex>
 #include <iostream>
@@ -30,12 +29,6 @@ class Qubit
 	void pauli_Y();
 	void pauli_Z();
 	void hadamard();
-
-	/**
-	 * Applies tensor multiplication between two qubits
-	 * Only applies to size 2 vectors (qubit state)
-	 */
-	static MultiQubit tensorMultiplication(Qubit q1, Qubit q2);
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "Qubit.h"
+#include "MultiQubit.h"
 #include "matrix.h"
 #include "operations.h"
 #include <iostream>
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
 	// q1.printState();
 	// q1.hadamard();
-	MultiQubit entangledQubit = Qubit::tensorMultiplication(q1, q2);
+	MultiQubit entangledQubit = MultiQubit::tensorMultiplication(q1, q2);
 
 	entangledQubit.printState();
 
