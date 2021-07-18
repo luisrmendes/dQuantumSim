@@ -21,7 +21,7 @@ MultiQubit MultiQubit::tensorMultiplication(Qubit q1, Qubit q2)
 
 void MultiQubit::printState()
 {
-	cout << "State of entangled qubits :" << endl;
+	cout << "State of entangled qubits:" << endl;
 	for(unsigned int i = 0; i < this->state.size(); i++) {
 		cout << noshowpos << state[i].real();
 		if(state[i].imag() != 0)
