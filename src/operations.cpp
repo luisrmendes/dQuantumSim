@@ -18,17 +18,4 @@ vector<std::complex<double>> gateOperation(vector<std::complex<double>> state,
 	return result;
 }
 
-vector<std::complex<double>>
-tensorMultiplication(vector<std::complex<double>> state1,
-					 vector<std::complex<double>> state2)
-{
-	vector<std::complex<double>> result;
 
-	for(auto it = state2.begin(); it != state2.end(); ++it) {
-		for(auto it2 = state1.begin(); it2 != state1.end(); ++it2) {
-			result.push_back(*it2 * *it);
-		}
-	}
-
-	return result;
-}

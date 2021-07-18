@@ -9,12 +9,15 @@ int main(int argc, char* argv[])
 {
 	printf("\n");
 
-	Qubit q1(1);
-	Qubit q2(2);
+	// Initialize both qubits as |0>
+	Qubit q1(1, {1, 0});
+	Qubit q2(2, {1, 0});
 
-	q1.printState();
-	q1.hadamard();
-	q1.printState();
+	// q1.printState();
+	// q1.hadamard();
+	MultiQubit entangledQubit = Qubit::tensorMultiplication(q1, q2);
+
+	entangledQubit.printState();
 
 	return 0;
 }

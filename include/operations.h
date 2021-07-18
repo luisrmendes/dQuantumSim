@@ -6,6 +6,10 @@
 #include <variant>
 #include <vector>
 
+/**
+ * Applies the gate operation (correct name?)
+ * Fixed to size 2 vector (qubit state) and 2x2 matrix (single qubit gates)
+ */
 std::vector<std::complex<double>>
 gateOperation(std::vector<std::complex<double>> state, std::complex<double>* mat);
 
@@ -13,14 +17,7 @@ gateOperation(std::vector<std::complex<double>> state, std::complex<double>* mat
  * Applies tensor multiplication between a qubit and a matrix
  * for gate operations 
  */
-std::vector<double> tensorMultiplication(std::vector<double> state1, double* mat);
-
-/**
- * Applies tensor multiplication between two qubits
- * Only applies to size 2 vectors (qubit state)
- */
 std::vector<std::complex<double>>
-tensorMultiplication(std::vector<std::complex<double>> state1,
-					 std::vector<std::complex<double>> state2);
+tensorMultiplication(std::vector<std::complex<double>> state1, double* mat);
 
 #endif

@@ -4,6 +4,7 @@
 
 #include "operations.h"
 #include <complex>
+#include <iostream>
 #include <math.h>
 #include <variant>
 #include <vector>
@@ -14,11 +15,13 @@
 class MultiQubit
 {
   private:
-	int id;
-	std::vector<std::complex<double>> state = {0, 0, 0, 0};
+	std::vector<std::complex<double>> state;
 
   public:
-	MultiQubit();
+	MultiQubit(std::vector<std::complex<double>> state) { this->state = state; };
+	void setState(std::vector<std::complex<double>> state) { this->state = state; };
+	std::vector<std::complex<double>> getState() { return this->state; };
+	void printState();
 };
 
 #endif
