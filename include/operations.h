@@ -6,8 +6,8 @@
 #include <variant>
 #include <vector>
 
-std::vector<std::complex<double>> gateOperation(std::vector<std::complex<double>> state,
-												std::complex<double>* mat);
+std::vector<std::complex<double>>
+gateOperation(std::vector<std::complex<double>> state, std::complex<double>* mat);
 
 /**
  * Applies tensor multiplication between a qubit and a matrix
@@ -18,7 +18,8 @@ std::vector<double> tensorMultiplication(std::vector<double> state1, double* mat
 /**
  * Applies tensor multiplication between two qubits
  */
-std::vector<double> tensorMultiplication(std::vector<std::complex<double>> state1,
-										 std::vector<std::complex<double>> state2);
+std::vector<std::complex<double>>
+tensorMultiplication(std::vector<std::complex<double>> state1,
+					 std::vector<std::complex<double>> state2);
 
 #endif
