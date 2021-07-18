@@ -18,6 +18,7 @@ class MultiQubit
 	std::vector<std::complex<double>> state = {0, 0, 0, 0};
 
   public:
+	MultiQubit();
 };
 
 #endif
