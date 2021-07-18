@@ -23,6 +23,7 @@ class Qubit
 	void pauli_X();
 	void pauli_Y();
 	void pauli_Z();
+	void hadamard();
 };
 
 #endif

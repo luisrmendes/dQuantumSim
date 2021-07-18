@@ -3,6 +3,17 @@
 
 using namespace std;
 
+void Qubit::hadamard()
+{
+	std::complex<double> mat[] = {
+		1/sqrt(2), 1/sqrt(2),
+		1/sqrt(2), -1/sqrt(2)
+	};
+
+	this->state = gateOperation(this->state, mat);
+}
+
+
 void Qubit::pauli_Z()
 {
 	using namespace std::complex_literals;
