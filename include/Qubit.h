@@ -2,14 +2,14 @@
 #ifndef QUBIT_H
 #define QUBIT_H
 
-#include <vector>
-#include <math.h>
-#include <complex>
-#include <variant>
 #include "operations.h"
+#include <complex>
+#include <math.h>
+#include <variant>
+#include <vector>
 
 class Qubit
-{ 
+{
   private:
 	int id;
 	std::vector<std::complex<double>> state = {0, 1};

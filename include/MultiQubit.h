@@ -2,28 +2,22 @@
 #ifndef MULTIQUBIT_H
 #define MULTIQUBIT_H
 
-#include <vector>
-#include <math.h>
-#include <complex>
-#include <variant>
 #include "operations.h"
+#include <complex>
+#include <math.h>
+#include <variant>
+#include <vector>
 
-class Qubit
+/**
+ * Defines entangled qubits
+ */
+class MultiQubit
 {
   private:
 	int id;
-	std::vector<std::complex<double>> state = {0, 1};
+	std::vector<std::complex<double>> state = {0, 0, 0, 0};
 
   public:
-	Qubit(int id) { this->id = id; };
-	int getId() { return id; };
-	void setState(std::vector<std::complex<double>> state) { this->state = state; };
-	std::vector<std::complex<double>> getState() { return this->state; };
-	void printState();
-	void pauli_X();
-	void pauli_Y();
-	void pauli_Z();
-	void hadamard();
 };
 
 #endif

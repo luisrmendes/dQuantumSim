@@ -9,7 +9,7 @@ void generateRandomMatrix(double* mat, std::size_t dim, int minvalue, int maxval
 
 	std::size_t i;
 
-	for (i = 0; i < dim * dim; i++) {
+	for(i = 0; i < dim * dim; i++) {
 		mat[i] = distr(rng);
 	}
 }
@@ -18,15 +18,11 @@ void printMatrix(double* mat, std::size_t dim)
 {
 	std::cout << std::left << std::setw(9) << std::setprecision(3);
 	std::size_t i, j;
-	for (i = 0; i < dim; i++) {
-		for (j = 0; j < dim; j++)
-			std::cout << std::left << std::setw(9) << mat[i * dim + j] << " ";
+	for(i = 0; i < dim; i++) {
+		for(j = 0; j < dim; j++) std::cout << std::left << std::setw(9) << mat[i * dim + j] << " ";
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
 }
 
-void resetMatrix(double *A, std::size_t dim)
-{
-	memset(A, 0, dim * dim * sizeof(double));
-}
+void resetMatrix(double* A, std::size_t dim) { memset(A, 0, dim * dim * sizeof(double)); }
