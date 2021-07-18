@@ -17,7 +17,7 @@ std::vector<double> tensorMultiplication(std::vector<double> state1, double* mat
 /**
  * Applies tensor multiplication between two qubits
  */
-std::vector<double> tensorMultiplication(std::vector<double> state1, std::vector<double> state2);
+std::vector<double> tensorMultiplication(std::vector<std::complex<double>> state1, std::vector<std::complex<double>> state2);
 
 
 #endif

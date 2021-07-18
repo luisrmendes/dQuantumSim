@@ -17,7 +17,7 @@ vector<std::complex<double>> gateOperation(vector<std::complex<double>> state, s
     return result;
 }
 
-vector<double> tensorMultiplication(vector<double> state1, vector<double> state2)
+vector<double> tensorMultiplication(std::complex<double> state1, std::complex<double> state2)
 {
     vector<double> result;
 

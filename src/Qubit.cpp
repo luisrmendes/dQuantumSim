@@ -13,7 +13,6 @@ void Qubit::hadamard()
 	this->state = gateOperation(this->state, mat);
 }
 
-
 void Qubit::pauli_Z()
 {
 	using namespace std::complex_literals;
