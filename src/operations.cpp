@@ -3,28 +3,9 @@
 
 using namespace std;
 
-vector<double> gateOperation(vector<double> state, std::variant<double, std::complex<double>>* mat)
+vector<std::complex<double>> gateOperation(vector<std::complex<double>> state, std::complex<double>* mat)
 {
-    vector<double> result = {0, 0};
-
-    struct VisitMatrix {
-        void operator()(double& mat, double state, double& result) { result = result + (mat * state); }
-        void operator()(std::complex<double>& mat, double state, std::complex<double>& result) { result = result + (mat * state); }
-    };
-
-    for (unsigned int i = 0; i < 4; i++) {
-        if (i<2) 
-            visit(VisitMatrix(), mat[i], state[i % 2], &result[0]);
-        else
-            visit(VisitMatrix(), mat[i], state[i % 2], &result[1]);
-    }
-
-    return result;
-}
-
-vector<double> gateOperation(vector<double> state, double* mat)
-{
-    vector<double> result = {0, 0};
+    vector<std::complex<double>> result = {0, 0};
 
     for (unsigned int i = 0; i < 4; i++) {
         if (i<2) 

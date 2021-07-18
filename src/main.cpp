@@ -13,8 +13,6 @@ int main(int argc, char* argv[])
 	Qubit q2(2);
 
 	q1.printState();
-	q1.pauli_Z();
-	q1.printState();
 	q1.pauli_Y();
 	q1.printState();
 

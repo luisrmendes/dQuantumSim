@@ -6,9 +6,7 @@
 #include <variant>
 #include <complex>
 
-std::vector<double> gateOperation(std::vector<double> state, std::variant<double, std::complex<double>>* mat);
-
-std::vector<double> gateOperation(std::vector<double> state, double* mat);
+std::vector<std::complex<double>> gateOperation(std::vector<std::complex<double>> state, std::complex<double>* mat);
 
 /**
  * Applies tensor multiplication between a qubit and a matrix

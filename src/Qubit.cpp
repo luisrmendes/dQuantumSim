@@ -5,7 +5,9 @@ using namespace std;
 
 void Qubit::pauli_Z()
 {
-    double mat[] = {
+	using namespace std::complex_literals;
+
+    std::complex<double> mat[] = {
 		1, 0,
 		0, -1
 	};
@@ -17,7 +19,7 @@ void Qubit::pauli_Y()
 {
 	using namespace std::complex_literals;
 
-    std::variant<double, std::complex<double>> mat[] = {
+    std::complex<double> mat[] = {
 		0, 1i,
 		1i, 0
 	};
@@ -27,7 +29,9 @@ void Qubit::pauli_Y()
 
 void Qubit::pauli_X()
 {
-    double mat[] = {
+	using namespace std::complex_literals;
+
+    std::complex<double> mat[] = {
 		0, 1,
 		1, 0
 	};
@@ -39,7 +43,9 @@ void Qubit::printState()
 {
 	cout << "State of qubit " << this->id << ":" << endl;
 	for(unsigned int i=0; i<this->state.size(); i++) {
-		cout << state[i] << endl;
+		cout << noshowpos << state[i].real();
+		if (state[i].imag() != 0)
+    		cout << showpos << state[i].imag() << "i";
+		cout << endl;
 	}
-	cout << endl;
 }
