@@ -2,6 +2,18 @@
 
 using namespace std;
 
+void MultiQubit::controlledNot()
+{
+	std::complex<double> mat[] = {
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 0, 1,
+		0, 0, 1, 0
+	};
+
+	this->state = gateOperation(this->state, mat, 4);
+}
+
 MultiQubit MultiQubit::tensorMultiplication(Qubit q1, Qubit q2)
 {
 	vector<std::complex<double>> result;
