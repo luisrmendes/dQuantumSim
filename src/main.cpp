@@ -13,11 +13,12 @@ int main(int argc, char* argv[])
 	Qubit q1(1, {1, 0});
 	Qubit q2(2, {1, 0});
 
-	// q1.printState();
-	// q1.hadamard();
-	MultiQubit entangledQubit = MultiQubit::tensorMultiplication(q1, q2);
+	q1.printState();
+	q1.pauli_Z();
+	q1.printState();
 
-	entangledQubit.printState();
+	//MultiQubit entangledQubit = MultiQubit::tensorMultiplication(q1, q2);
+	//entangledQubit.printState();
 
 	return 0;
 }

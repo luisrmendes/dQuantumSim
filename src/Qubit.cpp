@@ -7,7 +7,7 @@ void Qubit::hadamard()
 	std::complex<double> mat[] = {
 		1 / sqrt(2), 1 / sqrt(2), 1 / sqrt(2), -1 / sqrt(2)};
 
-	this->state = gateOperation(this->state, mat);
+	this->state = gateOperation(this->state, mat, 2);
 }
 
 void Qubit::pauli_Z()
@@ -16,7 +16,7 @@ void Qubit::pauli_Z()
 
 	std::complex<double> mat[] = {1, 0, 0, -1};
 
-	this->state = gateOperation(this->state, mat);
+	this->state = gateOperation(this->state, mat, 2);
 }
 
 void Qubit::pauli_Y()
@@ -25,7 +25,7 @@ void Qubit::pauli_Y()
 
 	std::complex<double> mat[] = {0, 1i, 1i, 0};
 
-	this->state = gateOperation(this->state, mat);
+	this->state = gateOperation(this->state, mat, 2);
 }
 
 void Qubit::pauli_X()
@@ -34,7 +34,7 @@ void Qubit::pauli_X()
 
 	std::complex<double> mat[] = {0, 1, 1, 0};
 
-	this->state = gateOperation(this->state, mat);
+	this->state = gateOperation(this->state, mat, 2);
 }
 
 void Qubit::printState()
