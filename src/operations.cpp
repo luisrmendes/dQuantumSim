@@ -3,11 +3,11 @@
 
 using namespace std;
 
-vector<std::complex<double>> matrixMultiplication(vector<std::complex<double>> state,
-												  std::complex<double>* mat,
+vector<complex<double>> matrixMultiplication(vector<complex<double>> state,
+												  complex<double>* mat,
 												  size_t dim)
 {
-	vector<std::complex<double>> result(dim, 0);
+	vector<complex<double>> result(dim, 0);
 
 	for(unsigned int j = 0; j < dim; j++) {
 		for(unsigned int i = 0; i < dim; i++) {

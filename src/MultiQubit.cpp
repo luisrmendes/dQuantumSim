@@ -4,7 +4,7 @@ using namespace std;
 
 void MultiQubit::controlledNot()
 {
-	std::complex<double> mat[] {
+	complex<double> mat[] {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 0, 1,
@@ -16,10 +16,10 @@ void MultiQubit::controlledNot()
 
 MultiQubit MultiQubit::tensorMultiplication(Qubit q1, Qubit q2)
 {
-	vector<std::complex<double>> result;
+	vector<complex<double>> result;
 
-	vector<std::complex<double>> state1 = q1.getState();
-	vector<std::complex<double>> state2 = q2.getState();
+	vector<complex<double>> state1 = q1.getState();
+	vector<complex<double>> state2 = q2.getState();
 
 	for(auto it = state1.begin(); it != state1.end(); ++it) {
 		for(auto it2 = state2.begin(); it2 != state2.end(); ++it2) {
