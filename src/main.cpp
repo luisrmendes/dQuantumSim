@@ -10,12 +10,12 @@ int main(int argc, char* argv[])
 	printf("\n");
 
 	// Initialize both qubits as |0>
-	Qubit q1(1, {1, 0});
-	Qubit q2(2, {1, 0});
+	Qubit q1({1, 0});
+	Qubit q2({1, 0});
 
 	q1.printState();
 	q2.printState();
-	// q1.pauli_Z();
+	// q1.hadamard();
 	// q1.printState();
 
 	MultiQubit entangledQubit = MultiQubit::tensorMultiplication(q1, q2);

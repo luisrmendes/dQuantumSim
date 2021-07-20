@@ -13,7 +13,7 @@
  * @param mat The matrix of the single qubit gate operation (Pauli-X, Pauli-Y etc)
  * @param dim The Dimension of mat (dim*dim)
  */
-std::vector<std::complex<double>> gateOperation(
+std::vector<std::complex<double>> matrixMultiplication(
 	std::vector<std::complex<double>> state, std::complex<double>* mat, size_t dim);
 
 #endif

@@ -12,16 +12,10 @@
 class Qubit
 {
   private:
-	int id;
 	std::vector<std::complex<double>> state;
 
   public:
-	Qubit(int id, std::vector<std::complex<double>> state)
-	{
-		this->id = id;
-		this->state = state;
-	};
-	int getId() { return id; };
+	Qubit(std::vector<std::complex<double>> state) { this->state = state; };
 	void setState(std::vector<std::complex<double>> state) { this->state = state; };
 	std::vector<std::complex<double>> getState() { return this->state; };
 	void printState();
