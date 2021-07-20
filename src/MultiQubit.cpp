@@ -4,7 +4,7 @@ using namespace std;
 
 void MultiQubit::controlledNot()
 {
-	std::complex<double> mat[] = {
+	std::complex<double> mat[] {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 0, 1,
