@@ -15,7 +15,7 @@ class Qubit
 	std::vector<std::complex<double>> state;
 
   public:
-	Qubit(std::vector<std::complex<double>> state) { this->state = state; };
+	Qubit(std::vector<std::complex<double>> state) : state(state) {};
 	void setState(std::vector<std::complex<double>> state) { this->state = state; };
 	std::vector<std::complex<double>> getState() { return this->state; };
 	void printState();
