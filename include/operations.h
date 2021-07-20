@@ -7,8 +7,7 @@
 #include <vector>
 
 /**
- * Applies the gate operation (correct name?)
- * Fixed to size 2 vector (qubit state) and 2x2 matrix (single qubit gates)
+ * Applies the matrix multiplication (correct name?)
  * @param state The state of a qubit
  * @param mat The matrix of the single qubit gate operation (Pauli-X, Pauli-Y etc)
  * @param dim The Dimension of mat (dim*dim)
