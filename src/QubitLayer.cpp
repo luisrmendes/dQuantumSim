@@ -7,6 +7,7 @@ void QubitLayer::measure()
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		float result = abs(this->states[i]);
 
+		// TODO: proper string formatter
 		cout << "|" << bitset<3>(i / 2) << "> -> " << result << endl;
 	}
 }
@@ -29,6 +30,8 @@ void QubitLayer::pauliX(int targetQubit)
 		this->states[i].real() == 0 ? this->states[i + 1].real(1)
 									: this->states[i + 1].real(0);
 	}
+
+	updateStates();
 }
 
 QubitLayer::QubitLayer(int qubitCount)
@@ -45,7 +48,7 @@ QubitLayer::QubitLayer(int qubitCount)
 	}
 }
 
-void QubitLayer::printStates()
+void QubitLayer::printStateVector()
 {
 	for(auto it = this->states.begin(); it != this->states.end(); ++it) {
 		cout << *it << endl;

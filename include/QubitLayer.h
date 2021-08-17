@@ -24,10 +24,20 @@ class QubitLayer
 	QubitLayer(int qubitCount);
 	qubitStates getStates() { return this->states; }
 	int getQubitCount() { return this->qubitCount; }
-	void printStates();
-	void pauliX(int targetQubit);
 	void updateStates();
+	void printStateVector();
 	void measure();
+	void pauliX(int targetQubit);
+
+	/**
+	 * TODO: Pauli Z
+	 */
+	void pauliZ(int targetQubit);
+
+	/**
+	 * TODO: Hadamard
+	 */
+	void hadamard(int targetQubit);
 };
 
 #endif

@@ -14,8 +14,6 @@ int main(int argc, char* argv[])
 	// Apply pauliX gate to the first qubit
 	qL.pauliX(1);
 
-	qL.updateStates();
-
 	// qL.printStates();
 
 	qL.measure();
