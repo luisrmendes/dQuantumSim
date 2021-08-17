@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -c
+CXXFLAGS = -Wall -c
 PROJ_NAME = simulator
 
 OBJS_DIR := obj
@@ -8,7 +8,7 @@ INC_DIR := include
 SRCS_FILES := $(SRCS_DIR)/main.cpp $(SRCS_DIR)/matrix.cpp \
 $(SRCS_DIR)/QubitLayer.cpp $(SRCS_DIR)/utils.cpp
 
-OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o, $(SRCS_FILES))
+OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
 
 .PHONY: all clean test
 
