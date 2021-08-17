@@ -8,12 +8,17 @@ int main(int argc, char* argv[])
 {
 	printf("\n");
 
-	// TODO: initialize a qubit state vector, specifying number of qubits
-	QubitLayer qL(5);
+	// initialize a qubit state vector, specifying number of qubits
+	QubitLayer qL(3);
+	
+	// Apply pauliX gate to the first qubit
+	qL.pauliX(1);
 
-	qL.printStates();
+	qL.updateStates();
 
-	// TODO: add Pauli X
+	// qL.printStates();
+
+	qL.measure();
 
 	return 0;
 }

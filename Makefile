@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -c 
+CXXFLAGS = -std=c++20 -Wall -c
 PROJ_NAME = simulator
 
 OBJS_DIR := obj

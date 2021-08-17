@@ -10,9 +10,7 @@ void generateRandomMatrix(
 	mt19937 rng(seed);
 	uniform_int_distribution<> distr(minvalue, maxvalue);
 
-	size_t i;
-
-	for(i = 0; i < dim * dim; i++) {
+	for(size_t i = 0; i < dim * dim; i++) {
 		mat[i] = distr(rng);
 	}
 }
