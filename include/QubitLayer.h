@@ -30,6 +30,11 @@ class QubitLayer
 	void pauliX(int targetQubit);
 
 	/**
+	 * TODO: Pauli Y
+	 */
+	void pauliY(int targetQubit);
+
+	/**
 	 * TODO: Pauli Z
 	 */
 	void pauliZ(int targetQubit);
