@@ -13,8 +13,8 @@ int main(int argc, char* argv[])
 	QubitLayer qL(3);
 
 	// Apply pauliX gate to the first qubit
-	qL.pauliX(3);
-	qL.pauliZ(3);
+	qL.pauliX(1);
+	qL.pauliZ(1);
 	// qL.hadamard(1);
 
 	qL.measure();
