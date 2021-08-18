@@ -6,7 +6,7 @@ OBJS_DIR := obj
 SRCS_DIR := src
 INC_DIR := include
 SRCS_FILES := $(SRCS_DIR)/main.cpp $(SRCS_DIR)/matrix.cpp \
-$(SRCS_DIR)/QubitLayer.cpp $(SRCS_DIR)/utils.cpp
+$(SRCS_DIR)/QubitLayer.cpp $(SRCS_DIR)/utils.cpp $(SRCS_DIR)/StateAccess.cpp
 
 OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
 
