@@ -2,10 +2,7 @@
 
 using namespace std;
 
-bool QubitLayer::checkZeroState(int i)
-{
-	return this->states[i].real() != 0;
-}
+bool QubitLayer::checkZeroState(int i) { return this->states[i].real() != 0; }
 
 size_t QubitLayer::calculateJump(int targetQubit)
 {
@@ -26,8 +23,18 @@ void QubitLayer::hadamard(int targetQubit)
 	updateStates();
 }
 
-// TODO
-void QubitLayer::pauliZ(int targetQubit) { return; }
+void QubitLayer::pauliZ(int targetQubit)
+{
+	size_t jump = calculateJump(targetQubit);
+
+	for(size_t i = 0; i < this->states.size(); i += jump) {
+		if(!checkZeroState(i)) {
+			this->states[i + jump + 1].real(-1);
+		}
+	}
+
+	updateStates();
+}
 
 // TODO
 void QubitLayer::pauliY(int targetQubit) { return; }

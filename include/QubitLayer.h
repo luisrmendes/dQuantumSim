@@ -34,9 +34,6 @@ class QubitLayer
 	 */
 	void pauliY(int targetQubit);
 
-	/**
-	 * TODO: Pauli Z
-	 */
 	void pauliZ(int targetQubit);
 
 	/**
