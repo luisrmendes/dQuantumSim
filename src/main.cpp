@@ -1,4 +1,5 @@
 #include "QubitLayer.h"
+#include "StateAccess.h"
 #include "matrix.h"
 #include <iostream>
 
@@ -10,10 +11,10 @@ int main(int argc, char* argv[])
 
 	// initialize a qubit state vector, specifying number of qubits
 	QubitLayer qL(3);
-	
+
 	// Apply pauliX gate to the first qubit
-	qL.pauliX(1);
-	qL.hadamard(1);
+	qL.pauliX(3);
+	// qL.hadamard(1);
 
 	qL.measure();
 

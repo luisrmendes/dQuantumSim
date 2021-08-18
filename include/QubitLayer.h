@@ -43,6 +43,14 @@ class QubitLayer
 	 * TODO: Hadamard
 	 */
 	void hadamard(int targetQubit);
+
+	size_t calculateJump(int targetQubit);
+
+	/**
+	 * Returns true if state has non-zero real component
+	 * @param i State vector iterator position
+	 */
+	bool checkZeroState(int i);
 };
 
 #endif

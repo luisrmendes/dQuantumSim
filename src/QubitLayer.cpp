@@ -2,10 +2,22 @@
 
 using namespace std;
 
+bool QubitLayer::checkZeroState(int i)
+{
+	return this->states[i].real() != 0;
+}
+
+size_t QubitLayer::calculateJump(int targetQubit)
+{
+	size_t jump = pow(2, targetQubit - 1) * 2;
+
+	return jump;
+}
+
 void QubitLayer::hadamard(int targetQubit)
 {
 	// calculate jump
-	size_t jump = pow(2, qubitCount - targetQubit) * 2;
+	size_t jump = calculateJump(targetQubit);
 
 	for(size_t i = 0; i < this->states.size(); i += jump) {
 		this->states[i + 1] = this->states[i].real() * (1 / sqrt(2));
@@ -23,11 +35,12 @@ void QubitLayer::pauliY(int targetQubit) { return; }
 void QubitLayer::pauliX(int targetQubit)
 {
 	// calculate jump
-	size_t jump = pow(2, qubitCount - targetQubit) * 2;
+	size_t jump = calculateJump(targetQubit);
 
 	for(size_t i = 0; i < this->states.size(); i += jump) {
-		this->states[i].real() == 0 ? this->states[i + 1].real(1)
-									: this->states[i + 1].real(0);
+		if(checkZeroState(i)) {
+			this->states[i + jump + 1].real(1);
+		}
 	}
 
 	updateStates();
@@ -66,8 +79,10 @@ QubitLayer::QubitLayer(int qubitCount)
 	// calculate total size
 	size_t v_size = 2 * pow(2, qubitCount);
 
-	// populate vector with all (0,0)
+	// populate vector with all (0,0), except (1,0) for |00>
 	size_t i = 0;
+	++i;
+	this->states.push_back(1);
 	while(i < v_size) {
 		this->states.push_back(0);
 		++i;
