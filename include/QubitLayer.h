@@ -17,6 +17,7 @@ class QubitLayer
 
   public:
 	/**
+	 * Starts circuit with all qubits |0>, id est |000> == {1,0}
 	 * Initializes state vector with (0,0), calculates 
 	 * vector size with input and output values
 	 * @param qubitCount Number of qubits 
