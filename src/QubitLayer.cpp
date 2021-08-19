@@ -61,7 +61,13 @@ void QubitLayer::pauliX(int targetQubit)
 	for(size_t i = 0; i < this->states.size(); i += jump) {
 		if(checkZeroState(i)) {
 			if(jumpCounter % 2 == 0) {
-				this->states[i + jump + 1].real(this->states[i].real());
+				// PauliX behaving with superposition qubits, probabily not well done
+				if(this->states[i].real() != 1) {
+					this->states[i + 1].real(this->states[i].real());
+					this->states[i + jump + 1].real(this->states[i].real());
+				} else {
+					this->states[i + jump + 1].real(this->states[i].real());
+				}
 			}
 		}
 		jumpCounter++;
