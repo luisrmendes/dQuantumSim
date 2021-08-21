@@ -32,3 +32,5 @@ simulator
 *.exe
 *.out
 *.app
+
+.vscode

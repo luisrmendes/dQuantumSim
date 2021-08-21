@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+constexpr int numQubits = 3;
+
 typedef std::vector<std::complex<float>> qubitStates;
 
 class QubitLayer

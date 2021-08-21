@@ -10,14 +10,21 @@ int main(int argc, char* argv[])
 	printf("\n");
 
 	// initialize a qubit state vector, specifying number of qubits
+
 	QubitLayer qL(3);
 
 	// Apply pauliX gate to the first qubit
-	qL.hadamard(1);
-	qL.pauliX(1);
-	// qL.pauliZ(1);
-	// qL.hadamard(1);
+	// qL.pauliX(2);
+	// qL.pauliX(1);
 
+	qL.hadamard(1);
+	qL.hadamard(1);
+
+	// qL.pauliX(1);
+	// qL.hadamard(2);
+	// qL.pauliZ(1);
+
+	qL.printStateVector();
 	qL.measure();
 
 	return 0;
