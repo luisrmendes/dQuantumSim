@@ -110,9 +110,11 @@ void QubitLayer::updateStates()
 
 void QubitLayer::printStateVector()
 {
-	for(auto it = this->states.begin(); it != this->states.end(); ++it) {
-		cout << *it << endl;
+	for(size_t i = 0; i < this->states.size(); i++) {
+		cout << this->states[i];
+        if (i % 2 == 1) cout << " | ";
 	}
+    cout << endl;
 
 	cout << "State vector size: " << this->states.size() << endl;
 }
