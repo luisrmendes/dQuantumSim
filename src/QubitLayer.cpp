@@ -87,6 +87,12 @@ void QubitLayer::pauliX(int targetQubit)
 		}
 		jumpCounter++;
 	}
+    
+    /** problema esta aqui, pauliX tem de atualizar os estados que já têm 1. 
+     * Com esta implementação, com o jump, apenas se alteram os estados do qubit que se pretende.
+     * É preciso ter em conta os estados que estão a (1,0), porque com o updateStates() passam
+     * a (0,0), cancelando-se. É preciso mudar a lógica de mudar os estados
+     */    
 	updateStates();
 }
 
