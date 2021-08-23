@@ -55,8 +55,25 @@ void QubitLayer::pauliZ(int targetQubit)
 	updateStates();
 }
 
-// TODO
-void QubitLayer::pauliY(int targetQubit) { return; }
+void QubitLayer::pauliY(int targetQubit)
+{
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			bitset<numQubits> state = i;
+			// if |0>, scalar 1i applies to |1>
+			// if |1>, scalar -1i aaplies to |0>
+			// probabily room for optimization here
+			bitset<numQubits> flippedState = state.flip(targetQubit);
+			state[targetQubit] == 0 ? this->states[2 * flippedState.to_ulong() + 1] =
+										  this->states[2 * i] * 1i
+									: this->states[2 * flippedState.to_ulong() + 1] =
+										  this->states[2 * i] * -1i;
+		}
+	}
+	printStateVector();
+	updateStates();
+	printStateVector();
+}
 
 void QubitLayer::pauliX(int targetQubit)
 {

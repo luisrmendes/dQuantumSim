@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-typedef std::vector<std::complex<float>> qubitStates;
+typedef std::vector<std::complex<double>> qubitStates;
 
 class StateAccess
 {
