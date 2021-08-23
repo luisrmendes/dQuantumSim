@@ -2,7 +2,10 @@
 
 using namespace std;
 
-bool QubitLayer::checkZeroState(int i) { return this->states[i * 2].real() != 0; }
+bool QubitLayer::checkZeroState(int i)
+{
+	return (this->states[i * 2].real() != 0) || this->states[i * 2].imag() != 0;
+}
 
 size_t QubitLayer::calculateJump(int targetQubit)
 {
