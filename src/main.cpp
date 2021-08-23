@@ -18,10 +18,9 @@ int main(int argc, char* argv[])
 	// qL.pauliX(1);
 	// qL.pauliX(0);
 	// qL.pauliX(1);
-	qL.pauliX(2);
-	qL.pauliZ(1);
-
-
+	qL.pauliX(0);
+	qL.pauliZ(0);
+	qL.pauliZ(0);
 
 	// qL.hadamard(1);
 	// qL.hadamard(1);
