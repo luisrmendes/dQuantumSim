@@ -16,7 +16,12 @@ int main(int argc, char* argv[])
 	// Apply pauliX gate to the first qubit
 	// qL.pauliX(2);
 	// qL.pauliX(1);
-	qL.pauliX(0);
+	// qL.pauliX(0);
+	// qL.pauliX(1);
+	qL.pauliX(2);
+	qL.pauliZ(1);
+
+
 
 	// qL.hadamard(1);
 	// qL.hadamard(1);

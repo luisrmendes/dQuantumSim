@@ -44,20 +44,18 @@ void QubitLayer::hadamard(int targetQubit)
 
 void QubitLayer::pauliZ(int targetQubit)
 {
-	size_t jump = calculateJump(targetQubit);
-	unsigned int jumpCounter = 0;
-
-	for(size_t i = 0; i < this->states.size(); i += jump) {
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			if(jumpCounter % 2 == 0) { // if state is |0>
-				this->states[i + 1] = this->states[i];
-			} else { // if state is |1>
-				this->states[i + 1].real(this->states[i].real() * -1);
+			bitset<numQubits> state = i;
+			cout << state[targetQubit] << endl;
+			if (state[targetQubit] != 0) {
+				this->states[2*i + 1].real(this->states[2*i].real() * -1);
+			}
+			else {
+				this->states[2*i + 1].real(this->states[2*i].real());
 			}
 		}
-		jumpCounter++;
 	}
-
 	updateStates();
 }
 
