@@ -2,7 +2,7 @@
 
 using namespace std;
 
-bool QubitLayer::checkZeroState(int i) { return this->states[i*2].real() != 0; }
+bool QubitLayer::checkZeroState(int i) { return this->states[i * 2].real() != 0; }
 
 size_t QubitLayer::calculateJump(int targetQubit)
 {
@@ -73,45 +73,8 @@ void QubitLayer::pauliX(int targetQubit)
 			this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 		}
 	}
-	cout << "Before:" << endl;
-	printStateVector();
 	updateStates();
-	cout << "After:" << endl;
-	printStateVector();
 }
-
-// void QubitLayer::pauliX(int targetQubit)
-// {
-// 	// calculate jump
-// 	size_t jump = calculateJump(targetQubit);
-// 	unsigned int jumpCounter = 0;
-
-// 	for(size_t i = 0; i < this->states.size(); i += jump) {
-// 		// check if real value is different than 0
-// 		if(checkZeroState(i)) {
-// 			// check if real value is 1
-// 			if(this->states[i].real() != 0) {
-// 				// check if state is |0>
-// 				if(jumpCounter % 2 == 0) {
-// 					// state |1> has value of previous |0>
-// 					this->states[i + jump + 1].real(this->states[i].real());
-// 				}
-// 				// if state is |1>
-// 				else {
-// 					this->states[i - jump + 1].real(this->states[i].real());
-// 				}
-// 			}
-// 		}
-// 		jumpCounter++;
-// 	}
-
-//     // problema esta aqui, pauliX tem de atualizar os estados que já têm 1.
-//     // Com esta implementação, com o jump, apenas se alteram os estados do qubit que se pretende.
-//     // É preciso ter em conta os estados que estão a (1,0), porque com o updateStates() passam
-//     // a (0,0), cancelando-se. É preciso mudar a lógica de mudar os estados
-
-// 	updateStates();
-// }
 
 void QubitLayer::measure()
 {

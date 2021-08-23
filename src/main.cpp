@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
 	QubitLayer qL(3);
 
 	// Apply pauliX gate to the first qubit
-	qL.pauliX(2);
-	qL.pauliX(1);
+	// qL.pauliX(2);
+	// qL.pauliX(1);
 	qL.pauliX(0);
 
 	// qL.hadamard(1);
@@ -27,11 +27,6 @@ int main(int argc, char* argv[])
 
 	// qL.printStateVector();
 	qL.measure();
-
-	bitset<numQubits> state = 2;
-	cout << state << endl;
-	state.flip(1);
-	cout << state << endl;
 
 	return 0;
 }
