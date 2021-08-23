@@ -73,9 +73,7 @@ void QubitLayer::pauliY(int targetQubit)
 										  this->states[2 * i] * -1i;
 		}
 	}
-	printStateVector();
 	updateStates();
-	printStateVector();
 }
 
 void QubitLayer::pauliX(int targetQubit)

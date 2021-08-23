@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
 	qL.pauliY(1);
 	qL.pauliY(0);
 	qL.pauliY(2);
+	qL.pauliY(0);
 	
 
 	// qL.hadamard(1);
