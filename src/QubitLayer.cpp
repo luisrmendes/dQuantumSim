@@ -16,33 +16,27 @@ size_t QubitLayer::calculateJump(int targetQubit)
 
 void QubitLayer::hadamard(int targetQubit)
 {
-	// calculate jump
-	size_t jump = calculateJump(targetQubit);
-	unsigned int jumpCounter = 0;
-
-	for(size_t i = 0; i < this->states.size(); i += jump) {
-		// check if real value is different than 0
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			// check if state is |0>
-			if(jumpCounter % 2 == 0) {
-				// |0> = 1/sqrt(2) |0>
-				this->states[i + 1].real(this->states[i].real() * (1 / sqrt(2)));
-				// |0> = 1/sqrt(2) |1>
-				this->states[i + jump + 1].real(this->states[i].real() *
-												(1 / sqrt(2)));
-			}
-			// if state is |1>
-			else {
-				// |1> = -1/sqrt(2) |1>
-				this->states[i + 1].real(this->states[i].real() * (-1 / sqrt(2)));
-				// |1> = 1/sqrt(2) |0>
-				this->states[i - jump + 1].real(this->states[i].real() *
-												(1 / sqrt(2)));
+			bitset<numQubits> state = i;
+			if(state.test(targetQubit)) {
+				this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i];
+			} else {
+				this->states[2 * i + 1] += (1 / sqrt(2)) * this->states[2 * i];
 			}
 		}
-		jumpCounter++;
 	}
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			bitset<numQubits> state = i;
+			state.flip(targetQubit);
+			this->states[2 * state.to_ulong() + 1] -=
+				(1 / sqrt(2)) * this->states[2 * i];
+		}
+	}
+	printStateVector();
 	updateStates();
+	printStateVector();
 }
 
 void QubitLayer::pauliZ(int targetQubit)
