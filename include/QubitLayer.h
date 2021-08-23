@@ -31,19 +31,9 @@ class QubitLayer
 	void printStateVector();
 	void measure();
 	void pauliX(int targetQubit);
-
-	/**
-	 * TODO: Pauli Y
-	 */
 	void pauliY(int targetQubit);
-
 	void pauliZ(int targetQubit);
-
-	/**
-	 * TODO: Hadamard
-	 */
 	void hadamard(int targetQubit);
-
 	size_t calculateJump(int targetQubit);
 
 	/**
