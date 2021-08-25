@@ -34,9 +34,7 @@ void QubitLayer::hadamard(int targetQubit)
 				(1 / sqrt(2)) * this->states[2 * i];
 		}
 	}
-	printStateVector();
 	updateStates();
-	printStateVector();
 }
 
 void QubitLayer::pauliZ(int targetQubit)
