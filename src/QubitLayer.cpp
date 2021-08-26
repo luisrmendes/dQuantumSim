@@ -11,6 +11,8 @@ void QubitLayer::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 				bitset<numQubits> state = i;
 				state.flip(targetQubit);
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
+			} else {
+				this->states[2 * i + 1].real(this->states[2 * i].real());
 			}
 		}
 	}
@@ -26,6 +28,8 @@ void QubitLayer::controlledX(int controlQubit, int targetQubit)
 				bitset<numQubits> state = i;
 				state.flip(targetQubit);
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
+			} else {
+				this->states[2 * i + 1].real(this->states[2 * i].real());
 			}
 		}
 	}

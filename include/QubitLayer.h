@@ -52,7 +52,7 @@ class QubitLayer
 	void controlledX(int controlQubit, int targetQubit);
 
 	/**
-	 * executes pauliX if both control qubits are set to |1>
+	 * Executes pauliX if both control qubits are set to |1>
 	 */
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 };
