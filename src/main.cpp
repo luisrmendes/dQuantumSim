@@ -18,8 +18,10 @@ int main(int argc, char* argv[])
 	qL.hadamard(1);
 	qL.pauliX(1);
 	qL.controlledZ(1, 2);
-	qL.measure();
 	qL.controlledX(0,1);
+	qL.hadamard(1);
+	qL.measure();
+
 
 	return 0;
 }

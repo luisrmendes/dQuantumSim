@@ -9,12 +9,12 @@
 
 constexpr int numQubits = 3;
 
-typedef std::vector<std::complex<double>> qubitStates;
+typedef std::vector<std::complex<double>> qubitLayer;
 
 class QubitLayer
 {
   private:
-	qubitStates states;
+	qubitLayer states;
 	int qubitCount;
 
   public:
@@ -25,7 +25,7 @@ class QubitLayer
 	 * @param qubitCount Number of qubits 
 	 */
 	QubitLayer(int qubitCount);
-	qubitStates getStates() { return this->states; }
+	qubitLayer getStates() { return this->states; }
 	int getQubitCount() { return this->qubitCount; }
 	void updateStates();
 	void printStateVector();
@@ -45,6 +45,7 @@ class QubitLayer
 	 * Executes pauliZ if control qubit is |1>
 	 */
 	void controlledZ(int controlQubit, int targetQubit);
+
 	/**
 	 * Executes pauliX if control qubit is |1>
 	 */

@@ -110,7 +110,6 @@ void QubitLayer::measure()
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		float result = pow(abs(this->states[i]), 2); // not sure...
 
-		// TODO: proper string formatter
 		cout << "|" << bitset<numQubits>(i / 2) << "> -> " << result << endl;
 	}
 }
