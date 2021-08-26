@@ -74,7 +74,7 @@ void QubitLayer::hadamard(int targetQubit)
 		if(checkZeroState(i)) {
 			bitset<numQubits> state = i;
 			state.flip(targetQubit);
-			this->states[2 * state.to_ulong() + 1] -=
+			this->states[2 * state.to_ulong() + 1] +=
 				(1 / sqrt(2)) * this->states[2 * i];
 		}
 	}
