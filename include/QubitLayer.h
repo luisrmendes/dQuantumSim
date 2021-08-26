@@ -40,11 +40,15 @@ class QubitLayer
 	void pauliY(int targetQubit);
 	void pauliZ(int targetQubit);
 	void hadamard(int targetQubit);
-	
+
 	/**
-	 * Executes pauli Z if control qubit is |1>
+	 * Executes pauliZ if control qubit is |1>
 	 */
 	void controlledZ(int controlQubit, int targetQubit);
+	/**
+	 * Executes pauliX if control qubit is |1>
+	 */
+	void controlledX(int controlQubit, int targetQubit);
 };
 
 #endif
