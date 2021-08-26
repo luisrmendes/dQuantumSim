@@ -30,16 +30,21 @@ class QubitLayer
 	void updateStates();
 	void printStateVector();
 	void measure();
-	void pauliX(int targetQubit);
-	void pauliY(int targetQubit);
-	void pauliZ(int targetQubit);
-	void hadamard(int targetQubit);
 
 	/**
 	 * Returns true if state has non-zero real component
 	 * @param i State vector iterator position
 	 */
 	bool checkZeroState(int i);
+	void pauliX(int targetQubit);
+	void pauliY(int targetQubit);
+	void pauliZ(int targetQubit);
+	void hadamard(int targetQubit);
+	
+	/**
+	 * Executes pauli Z if control qubit is |1>
+	 */
+	void controlledZ(int controlQubit, int targetQubit);
 };
 
 #endif

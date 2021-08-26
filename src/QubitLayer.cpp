@@ -2,6 +2,25 @@
 
 using namespace std;
 
+void QubitLayer::controlledZ(int controlQubit, int targetQubit)
+{
+	// Executes Pauli Z if control Qubit is set at |1>
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			bitset<numQubits> state = i;
+			if(state.test(controlQubit)) {
+				state[targetQubit] != 0
+					? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
+					: this->states[2 * i + 1].real(this->states[2 * i].real());
+			}
+			else {
+				this->states[2 * i + 1].real(this->states[2 * i].real());
+			}
+		}
+	}
+	updateStates();
+}
+
 bool QubitLayer::checkZeroState(int i)
 {
 	return (this->states[i * 2].real() != 0) || this->states[i * 2].imag() != 0;
