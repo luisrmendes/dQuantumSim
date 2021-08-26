@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-constexpr int numQubits = 3;
+constexpr int numQubits = 2;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
