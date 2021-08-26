@@ -7,13 +7,6 @@ bool QubitLayer::checkZeroState(int i)
 	return (this->states[i * 2].real() != 0) || this->states[i * 2].imag() != 0;
 }
 
-size_t QubitLayer::calculateJump(int targetQubit)
-{
-	size_t jump = pow(2, targetQubit - 1) * 2;
-
-	return jump;
-}
-
 void QubitLayer::hadamard(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {

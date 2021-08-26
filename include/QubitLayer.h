@@ -34,7 +34,6 @@ class QubitLayer
 	void pauliY(int targetQubit);
 	void pauliZ(int targetQubit);
 	void hadamard(int targetQubit);
-	size_t calculateJump(int targetQubit);
 
 	/**
 	 * Returns true if state has non-zero real component
