@@ -2,6 +2,21 @@
 
 using namespace std;
 
+void QubitLayer::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
+{
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			bitset<numQubits> state = i;
+			if(state.test(controlQubit1) && state.test(controlQubit2)) {
+				bitset<numQubits> state = i;
+				state.flip(targetQubit);
+				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
+			}
+		}
+	}
+	updateStates();
+}
+
 void QubitLayer::controlledX(int controlQubit, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {

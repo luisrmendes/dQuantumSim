@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-constexpr int numQubits = 2;
+constexpr int numQubits = 3;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
@@ -50,6 +50,11 @@ class QubitLayer
 	 * Executes pauliX if control qubit is |1>
 	 */
 	void controlledX(int controlQubit, int targetQubit);
+
+	/**
+	 * executes pauliX if both control qubits are set to |1>
+	 */
+	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 };
 
 #endif
