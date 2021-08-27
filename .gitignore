@@ -1,5 +1,5 @@
 simulator
-main
+mpi_sim
 
 # Prerequisites
 *.d
