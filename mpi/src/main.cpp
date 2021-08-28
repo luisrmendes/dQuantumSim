@@ -1,5 +1,4 @@
 #include "mpi.h"
-// #include "../../q_simulator/include/QubitLayer.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[])
