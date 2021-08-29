@@ -151,17 +151,13 @@ void QubitLayer::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayer::QubitLayer(int qubitCount)
+QubitLayer::QubitLayer(size_t qLayerSize)
 {
-	this->qubitCount = qubitCount;
-	// calculate total size
-	size_t v_size = 2 * pow(2, qubitCount);
-
 	// populate vector with all (0,0), except (1,0) for |00>
 	size_t i = 0;
 	++i;
 	this->states.push_back(1);
-	while(i < v_size) {
+	while(i < qLayerSize) {
 		this->states.push_back(0);
 		++i;
 	}

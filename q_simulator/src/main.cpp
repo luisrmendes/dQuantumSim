@@ -40,8 +40,10 @@ int main(int argc, char* argv[])
 	printf("\n");
 
 	// Specify number of qubits, also in QubitLayer.h
-
-	QubitLayer qL(3);
+	// calculate total size
+	int qubitCount = 3;
+	size_t v_size = 2 * pow(2, qubitCount);
+	QubitLayer qL(v_size);
 
 	// init
 	qL.hadamard(0);

@@ -24,7 +24,7 @@ class QubitLayer
 	 * vector size with input and output values
 	 * @param qubitCount Number of qubits 
 	 */
-	QubitLayer(int qubitCount);
+	QubitLayer(size_t qLayerSize);
 	qubitLayer getStates() { return this->states; }
 	int getQubitCount() { return this->qubitCount; }
 	void updateStates();
