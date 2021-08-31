@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#define USING_MPI
+
 #ifdef USING_MPI
 #include "mpi.h"
 #include <stdio.h>
@@ -18,17 +20,32 @@ int main(int argc, char* argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-	do {
-		if(rank == 0) {
-			scanf("%d", &value);
-			MPI_Send(&value, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
-		} else {
-			MPI_Recv(&value, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, &status);
-			if(rank < size - 1)
-				MPI_Send(&value, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
-		}
-		printf("Process %d got %d\n", rank, value);
-	} while(value >= 0);
+	// Specify number of qubits, also in QubitLayer.h
+	// calculate total size
+	int qubitCount = 3;
+	size_t layerSize = 2 * pow(2, qubitCount);
+
+	size_t segSize = layerSize / size;
+	if (rank == size-1) {
+		QubitLayer qL(segSize);
+		qL.printStateVector();
+	}
+	else {
+		QubitLayer qL(segSize);
+		qL.printStateVector();
+	}
+
+	// do {
+	// 	if(rank == 0) {
+	// 		size_t qLayerSegSize = layerSize / size;
+	// 		MPI_Send(&value, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+	// 	} else {
+	// 		MPI_Recv(&value, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, &status);
+	// 		if(rank < size - 1)
+	// 			MPI_Send(&value, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
+	// 	}
+	// 	printf("Process %d got %d\n", rank, value);
+	// } while(value >= 0);
 
 	MPI_Finalize();
 
@@ -43,7 +60,7 @@ int main(int argc, char* argv[])
 	// calculate total size
 	int qubitCount = 3;
 	size_t v_size = 2 * pow(2, qubitCount);
-	QubitLayer qL(v_size);
+	QubitLayer qL(0, v_size);
 
 	// init
 	qL.hadamard(0);
