@@ -10,22 +10,22 @@ vector<int> calculateLayerAlloc(int qubitCount, int nodeCount)
 	int quocient = layerSize / nodeCount;
 	int remainder = layerSize % nodeCount;
 
-	for(size_t i = 0; i < qubitCount; ++i) {
+	for(size_t i = 0; i < nodeCount; ++i) {
 		result.push_back(quocient);
 	}
 
-    // Spreads the remainder through the vector
-	if(remainder != 0) {
-		for(size_t i = 0; i < result.size(); ++i) {
-			result[i] += 1;
-			remainder--;
-		}
+	// Spreads the remainder through the vector
+	int i = 0;
+	while(remainder != 0) {
+		result[i] += 1;
+		--remainder;
+		++i;
 	}
 
-    // Duplicate the size of each number
-    for(size_t i = 0; i < result.size(); ++i) {
+	// Duplicate the size of each number
+	for(size_t i = 0; i < result.size(); ++i) {
 		result[i] *= 2;
-	} 
+	}
 
 	return result;
 }

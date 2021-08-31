@@ -23,16 +23,20 @@ int main(int argc, char* argv[])
 	// Specify number of qubits, also in QubitLayer.h
 	// calculate total size
 	int qubitCount = 3;
-	vector<int> layerAllocs = calculateLayerAlloc(qubitCount, size);
+	vector<int> layerAllocs = calculateLayerAlloc(10, 5);
 
-	if (rank == size-1) {
-		QubitLayer qL(layerAllocs[rank]);
-		qL.printStateVector();
-	}
-	else {
-		QubitLayer qL(layerAllocs[rank]);
-		qL.printStateVector();
-	}
+	for(size_t i = 0; i < layerAllocs.size(); ++i) {
+		cout << layerAllocs[i] << endl;
+	} 
+
+	// if (rank == size-1) {
+	// 	QubitLayer qL(layerAllocs[rank]);
+	// 	// qL.printStateVector();
+	// }
+	// else {
+	// 	QubitLayer qL(layerAllocs[rank]);
+	// 	// qL.printStateVector();
+	// }
 
 	// do {
 	// 	if(rank == 0) {
