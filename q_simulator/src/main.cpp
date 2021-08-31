@@ -1,6 +1,6 @@
 #include "QubitLayer.h"
 #include "StateAccess.h"
-#include "matrix.h"
+#include "utils.h"
 #include <iostream>
 
 using namespace std;
@@ -23,15 +23,14 @@ int main(int argc, char* argv[])
 	// Specify number of qubits, also in QubitLayer.h
 	// calculate total size
 	int qubitCount = 3;
-	size_t layerSize = 2 * pow(2, qubitCount);
+	vector<int> layerAllocs = calculateLayerAlloc(qubitCount, size);
 
-	size_t segSize = layerSize / size;
 	if (rank == size-1) {
-		QubitLayer qL(segSize);
+		QubitLayer qL(layerAllocs[rank]);
 		qL.printStateVector();
 	}
 	else {
-		QubitLayer qL(segSize);
+		QubitLayer qL(layerAllocs[rank]);
 		qL.printStateVector();
 	}
 
