@@ -2,6 +2,12 @@
 
 using namespace std;
 
+int getNodeOfState(unsigned long state)
+{
+	
+	return 0;
+}
+
 vector<int> calculateLayerAlloc(int qubitCount, int nodeCount)
 {
 	vector<int> result;

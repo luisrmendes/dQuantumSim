@@ -7,6 +7,7 @@ using namespace std;
 #define USING_MPI
 
 #ifdef USING_MPI
+#include "QubitLayerMPI.h"
 #include "mpi.h"
 #include <stdio.h>
 
@@ -30,7 +31,7 @@ int main(int argc, char* argv[])
 	// calculate total size
 	vector<int> layerAllocs = calculateLayerAlloc(qubitCount, size);
 
-	QubitLayer qL(layerAllocs[rank]);
+	QubitLayerMPI qL(layerAllocs[rank], rank);
 
 	if(rank == 0) {
 		// Initialze state vector as |0...0>
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.pauliX(0);
+	qL.pauliX(0, rank);
 	qL.measure(rank);
 
 	// do {

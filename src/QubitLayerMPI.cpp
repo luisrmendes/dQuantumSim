@@ -1,8 +1,9 @@
-#include "QubitLayer.h"
+#include "QubitLayerMPI.h"
 
 using namespace std;
 
-void QubitLayer::measure(int rank)
+
+void QubitLayerMPI::measure(int rank)
 {
 	int i = rank * this->states.size();
 	size_t j = 0;
@@ -16,7 +17,7 @@ void QubitLayer::measure(int rank)
 	}
 }
 
-void QubitLayer::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
+void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -33,7 +34,7 @@ void QubitLayer::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 	updateStates();
 }
 
-void QubitLayer::controlledX(int controlQubit, int targetQubit)
+void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -50,7 +51,7 @@ void QubitLayer::controlledX(int controlQubit, int targetQubit)
 	updateStates();
 }
 
-void QubitLayer::controlledZ(int controlQubit, int targetQubit)
+void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -67,12 +68,12 @@ void QubitLayer::controlledZ(int controlQubit, int targetQubit)
 	updateStates();
 }
 
-bool QubitLayer::checkZeroState(int i)
+bool QubitLayerMPI::checkZeroState(int i)
 {
 	return (this->states[i * 2].real() != 0) || this->states[i * 2].imag() != 0;
 }
 
-void QubitLayer::hadamard(int targetQubit)
+void QubitLayerMPI::hadamard(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -95,7 +96,7 @@ void QubitLayer::hadamard(int targetQubit)
 	updateStates();
 }
 
-void QubitLayer::pauliZ(int targetQubit)
+void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -108,7 +109,7 @@ void QubitLayer::pauliZ(int targetQubit)
 	updateStates();
 }
 
-void QubitLayer::pauliY(int targetQubit)
+void QubitLayerMPI::pauliY(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -126,19 +127,28 @@ void QubitLayer::pauliY(int targetQubit)
 	updateStates();
 }
 
-void QubitLayer::pauliX(int targetQubit)
+void QubitLayerMPI::pauliX(int targetQubit, int rank)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubits> state = i;
 			state.flip(targetQubit);
+
+			int lowerBound = rank * (this->states.size() / 2);
+			int upperBound = (rank + 1) * (this->states.size() / 2);
+
+			if(state.to_ulong() < lowerBound || state.to_ulong() > upperBound) {
+				cout << "State out of bounds " << endl;
+				int node = getNodeOfState(state.to_ulong());
+			}
+
 			this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 		}
 	}
 	updateStates();
 }
 
-void QubitLayer::measure()
+void QubitLayerMPI::measure()
 {
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		float result = pow(abs(this->states[i]), 2); // not sure...
@@ -147,7 +157,7 @@ void QubitLayer::measure()
 	}
 }
 
-void QubitLayer::updateStates()
+void QubitLayerMPI::updateStates()
 {
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		this->states[i] = this->states[i + 1];
@@ -155,7 +165,7 @@ void QubitLayer::updateStates()
 	}
 }
 
-void QubitLayer::printStateVector()
+void QubitLayerMPI::printStateVector()
 {
 	for(size_t i = 0; i < this->states.size(); i++) {
 		cout << this->states[i];
@@ -165,8 +175,9 @@ void QubitLayer::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayer::QubitLayer(size_t qLayerSize)
+QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank)
 {
+    this->rank = rank;
 	// populate vector with all (0,0)
 	size_t i = 0;
 	while(i < qLayerSize) {

@@ -1,6 +1,7 @@
+#include <bitset>
+#include <cmath>
 #include <iostream>
 #include <vector>
-#include <cmath>
 
 /**
  * BUG: 3 qubits (vector size 16) +4 processes  
@@ -11,3 +12,5 @@
  * @returns Size of the layer for each node ordered by node rank
  */
 std::vector<int> calculateLayerAlloc(int qubitCount, int nodeCount);
+
+int getNodeOfState(unsigned long state);
