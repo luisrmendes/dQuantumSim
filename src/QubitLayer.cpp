@@ -7,7 +7,7 @@ void QubitLayer::measure(int rank)
 	int i = rank * (this->states.size());
 	size_t j = 0;
 
-	while(j <= this->states.size() / 2) {
+	while(j < this->states.size()) {
 		float result = pow(abs(this->states[i]), 2); // not sure...
 		cout << "|" << bitset<numQubits>(i / 2) << "> -> " << result << endl;
 

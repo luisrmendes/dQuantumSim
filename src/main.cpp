@@ -41,7 +41,6 @@ int main(int argc, char* argv[])
 
 	qL.pauliX(0);
 	qL.measure(rank);
-	// qL.printStateVector();
 
 	// do {
 	// 	if(rank == 0) {
