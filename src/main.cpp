@@ -13,6 +13,13 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+	if(argc != 2) {
+		cerr << "Usage: ./simulator <number_of_qubits>" << endl << endl;
+		exit(-1);
+	}
+
+	int qubitCount = stoi(argv[1]);
+
 	int rank, value, size;
 
 	MPI_Status status;
@@ -22,22 +29,19 @@ int main(int argc, char* argv[])
 
 	// Specify number of qubits, also in QubitLayer.h
 	// calculate total size
-	int qubitCount = 3;
 	vector<int> layerAllocs = calculateLayerAlloc(qubitCount, size);
 
-	// for(size_t i = 0; i < layerAllocs.size(); ++i) {
-	// 	cout << layerAllocs[i] << endl;
-	// } 
-	// cout << endl;
+	QubitLayer qL(layerAllocs[rank]);
 
-	if (rank == size-1) {
-		QubitLayer qL(layerAllocs[rank]);
-		qL.printStateVector();
+	if(rank == 0) {
+		// Initialze state vector as |0...0>
+		qubitLayer states = qL.getStates();
+		states[0] = 1;
+		qL.setStates(states);
 	}
-	else {
-		QubitLayer qL(layerAllocs[rank]);
-		qL.printStateVector();
-	}
+
+	qL.pauliX(0);
+	qL.measure();
 
 	// do {
 	// 	if(rank == 0) {
@@ -64,7 +68,10 @@ int main(int argc, char* argv[])
 	// calculate total size
 	int qubitCount = 3;
 	size_t v_size = 2 * pow(2, qubitCount);
-	QubitLayer qL(0, v_size);
+	QubitLayer qL(v_size);
+	qubitLayer states = qL.getStates();
+	states[0] = 1;
+	qL.setStates(states);
 
 	// init
 	qL.hadamard(0);

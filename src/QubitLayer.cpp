@@ -153,10 +153,8 @@ void QubitLayer::printStateVector()
 
 QubitLayer::QubitLayer(size_t qLayerSize)
 {
-	// populate vector with all (0,0), except (1,0) for |00>
+	// populate vector with all (0,0)
 	size_t i = 0;
-	++i;
-	this->states.push_back(1);
 	while(i < qLayerSize) {
 		this->states.push_back(0);
 		++i;
