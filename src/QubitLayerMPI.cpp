@@ -2,15 +2,14 @@
 
 using namespace std;
 
-
-void QubitLayerMPI::measure(int rank)
+void QubitLayerMPI::measure()
 {
-	int i = rank * this->states.size();
+	int i = this->rank * this->states.size();
 	size_t j = 0;
 
 	while(j < this->states.size()) {
 		float result = pow(abs(this->states[i]), 2); // not sure...
-		cout << "|" << bitset<numQubits>(i / 2) << "> -> " << result << endl;
+		cout << "|" << bitset<numQubitsMPI>(i / 2) << "> -> " << result << endl;
 
 		i += 2;
 		j += 2;
@@ -21,9 +20,9 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			if(state.test(controlQubit1) && state.test(controlQubit2)) {
-				bitset<numQubits> state = i;
+				bitset<numQubitsMPI> state = i;
 				state.flip(targetQubit);
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 			} else {
@@ -38,9 +37,9 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			if(state.test(controlQubit)) {
-				bitset<numQubits> state = i;
+				bitset<numQubitsMPI> state = i;
 				state.flip(targetQubit);
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 			} else {
@@ -55,7 +54,7 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			if(state.test(controlQubit)) {
 				state[targetQubit] != 0
 					? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
@@ -77,7 +76,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			if(state.test(targetQubit)) {
 				this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i];
 			} else {
@@ -87,7 +86,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	}
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			state.flip(targetQubit);
 			this->states[2 * state.to_ulong() + 1] +=
 				(1 / sqrt(2)) * this->states[2 * i];
@@ -100,7 +99,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			state[targetQubit] != 0
 				? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
 				: this->states[2 * i + 1].real(this->states[2 * i].real());
@@ -113,11 +112,11 @@ void QubitLayerMPI::pauliY(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			// if |0>, scalar 1i applies to |1>
 			// if |1>, scalar -1i aaplies to |0>
 			// probabily room for optimization here
-			bitset<numQubits> flippedState = state.flip(targetQubit);
+			bitset<numQubitsMPI> flippedState = state.flip(targetQubit);
 			state[targetQubit] == 0 ? this->states[2 * flippedState.to_ulong() + 1] =
 										  this->states[2 * i] * 1i
 									: this->states[2 * flippedState.to_ulong() + 1] =
@@ -127,17 +126,21 @@ void QubitLayerMPI::pauliY(int targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::pauliX(int targetQubit, int rank)
+void QubitLayerMPI::pauliX(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubits> state = i;
+			bitset<numQubitsMPI> state = i;
 			state.flip(targetQubit);
 
-			int lowerBound = rank * (this->states.size() / 2);
-			int upperBound = (rank + 1) * (this->states.size() / 2);
+			int lowerBound = this->rank * (this->states.size() / 2);
+			int upperBound = (this->rank + 1) * (this->states.size() / 2);
 
-			if(state.to_ulong() < lowerBound || state.to_ulong() > upperBound) {
+            cout << "lower: " << lowerBound << endl;
+            cout << "upper: " << upperBound << endl;
+            cout << "State: " << state.to_ulong() << endl;
+
+			if(state.to_ulong() < lowerBound || state.to_ulong() >= upperBound) {
 				cout << "State out of bounds " << endl;
 				int node = getNodeOfState(state.to_ulong());
 			}
@@ -146,15 +149,6 @@ void QubitLayerMPI::pauliX(int targetQubit, int rank)
 		}
 	}
 	updateStates();
-}
-
-void QubitLayerMPI::measure()
-{
-	for(size_t i = 0; i < this->states.size(); i += 2) {
-		float result = pow(abs(this->states[i]), 2); // not sure...
-
-		cout << "|" << bitset<numQubits>(i / 2) << "> -> " << result << endl;
-	}
 }
 
 void QubitLayerMPI::updateStates()

@@ -2,13 +2,13 @@
 #ifndef QUBITLAYERMPI_H
 #define QUBITLAYERMPI_H
 
+#include "utils.h"
 #include <bitset>
 #include <complex>
 #include <iostream>
 #include <vector>
-#include "utils.h"
 
-constexpr int numQubits = 3;
+constexpr int numQubitsMPI = 3;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
@@ -16,7 +16,7 @@ class QubitLayerMPI
 {
   private:
 	qubitLayer states;
-    int rank;
+	int rank;
 
   public:
 	/**
@@ -29,9 +29,9 @@ class QubitLayerMPI
 	void setStates(qubitLayer states) { this->states = states; }
 	void updateStates();
 	void printStateVector();
-	
+
 	/**
-	 * Displays qubit values on a single process not using MPI
+	 * Displays qubit values according to processes rank
 	 */
 	void measure();
 
@@ -40,7 +40,7 @@ class QubitLayerMPI
 	 * @param i State vector iterator position
 	 */
 	bool checkZeroState(int i);
-	void pauliX(int targetQubit, int rank);
+	void pauliX(int targetQubit);
 	void pauliY(int targetQubit);
 	void pauliZ(int targetQubit);
 	void hadamard(int targetQubit);
@@ -59,11 +59,6 @@ class QubitLayerMPI
 	 * Executes pauliX if both control qubits are set to |1>
 	 */
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
-
-	/**
-	 * Displays qubit values according to processes rank
-	 */
-	void measure(int rank);
 };
 
 #endif

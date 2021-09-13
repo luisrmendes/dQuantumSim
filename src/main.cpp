@@ -40,8 +40,8 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.pauliX(0, rank);
-	qL.measure(rank);
+	qL.pauliX(1);
+	qL.measure();
 
 	// do {
 	// 	if(rank == 0) {
