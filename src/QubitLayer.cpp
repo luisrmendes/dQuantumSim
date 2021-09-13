@@ -2,6 +2,20 @@
 
 using namespace std;
 
+void QubitLayer::measure(int rank)
+{
+	int i = rank * (this->states.size());
+	size_t j = 0;
+
+	while(j <= this->states.size() / 2) {
+		float result = pow(abs(this->states[i]), 2); // not sure...
+		cout << "|" << bitset<numQubits>(i / 2) << "> -> " << result << endl;
+
+		i += 2;
+		j += 2;
+	}
+}
+
 void QubitLayer::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {

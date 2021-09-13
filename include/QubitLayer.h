@@ -29,6 +29,10 @@ class QubitLayer
 	int getQubitCount() { return this->qubitCount; }
 	void updateStates();
 	void printStateVector();
+	
+	/**
+	 * Displays qubit values on a single process not using MPI
+	 */
 	void measure();
 
 	/**
@@ -55,6 +59,11 @@ class QubitLayer
 	 * Executes pauliX if both control qubits are set to |1>
 	 */
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
+
+	/**
+	 * Displays qubit values according to processes rank
+	 */
+	void measure(int rank);
 };
 
 #endif
