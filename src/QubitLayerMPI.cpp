@@ -136,29 +136,27 @@ void QubitLayerMPI::pauliY(int targetQubit)
 void QubitLayerMPI::pauliX(int targetQubit)
 {
 	// vector of (stateOTB, value) pairs
-	vector<int> statesOTB;
+	using msg_pair = pair<complex<double>, complex<double>>;
+	vector<msg_pair> statesOTB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
 			state.flip(targetQubit);
 
-			int lowerBound = this->rank * (this->states.size() / 2);
-			int upperBound = (this->rank + 1) * (this->states.size() / 2);
+			long unsigned lowerBound = this->rank * (this->states.size() / 2);
+			long unsigned upperBound = (this->rank + 1) * (this->states.size() / 2);
 
-			// cout << "lower: " << lowerBound << endl;
-			// cout << "upper: " << upperBound << endl;
-			// cout << "State: " << state.to_ulong() << endl;
-
-			int value;
-
-			// if a state is OTB, store those states to a vector
+			// if a state is OTB, store tuple (state, intended_value) to a vector
 			if(state.to_ulong() < lowerBound || state.to_ulong() >= upperBound) {
-				cout << "Process " << rank << "State out of bounds " << endl;
-				// construir um array com (state, valor)
-				int msg;
-				msg = state.to_ulong();
-				// msg[1] = this->states[2 * i];
+				cout << "Process " << rank << " says : State |" << state
+					 << "> out of bounds!" << endl;
+
+				// pair (state, intended_value)
+				msg_pair msg;
+				msg.first = state.to_ulong();
+				msg.second = this->states[2 * i];
+
 				statesOTB.push_back(msg);
 			} else {
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
@@ -170,31 +168,48 @@ void QubitLayerMPI::pauliX(int targetQubit)
 	if(statesOTB.size() != 0) {
 		// int value = 1; // means pauliX
 		for(size_t i = 0; i < statesOTB.size(); i++) {
-			int node = getNodeOfState(statesOTB[i]);
+			// calculate node for the intended message
+			int node = getNodeOfState(statesOTB[i].first.real());
 
-			MPI_Send(&statesOTB[i], 1, MPI_INT, node, 0, MPI_COMM_WORLD);
+			// Convert pair into an array acceptable for MPI
+			complex<double> msg[2];
+			msg[0] = statesOTB[i].first;
+			msg[1] = statesOTB[i].second;
+
+			MPI_Send(msg, 2, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
 			cout << "Rank " << rank << " has sent to " << node << endl;
 		}
 	}
 
 	// Mensagem de fim para todas as nodes
-	int end[2];
+	complex<double> end[2];
 	end[0] = -1;
 	end[1] = -1;
+
 	for(int node = 0; node < this->size; node++) {
 		if(node == this->rank)
 			continue;
-		MPI_Send(&end, 1, MPI_INT, node, 0, MPI_COMM_WORLD);
+		MPI_Send(&end, 2, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
 	}
 
 	// Receber todas as mensagens até receber mensagem de fim
 	MPI_Status status;
-	int msg;
-	while(msg != -1) {
-		MPI_Recv(&msg, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
-		cout << "Node " << status.MPI_SOURCE << " value: " << msg << endl;
-		if(msg != -1) {
-			this->states[2 * msg + 1] = 1;
+	complex<double> msg[2];
+	msg[0] = 0;
+	while(msg[0].real() != -1) {
+		MPI_Recv(
+			&msg, 2, MPI_DOUBLE_COMPLEX, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+
+		if(msg[0].real() != -1) {
+			cout << endl
+				 << "Process " << rank << " received from " << status.MPI_SOURCE
+				 << endl
+				 << "\tstate: " << msg[0].real() << endl
+				 << "\tvalue: " << msg[1] << endl
+				 << endl;
+		}
+		if(msg[0].real() != -1) {
+			this->states[2 * msg[0].real() + 1] = msg[1];
 		}
 	}
 
