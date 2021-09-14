@@ -2,6 +2,7 @@
 #ifndef QUBITLAYERMPI_H
 #define QUBITLAYERMPI_H
 
+#include "mpi.h"
 #include "utils.h"
 #include <bitset>
 #include <complex>
@@ -17,6 +18,7 @@ class QubitLayerMPI
   private:
 	qubitLayer states;
 	int rank;
+	int size;
 
   public:
 	/**
@@ -24,7 +26,7 @@ class QubitLayerMPI
 	 * Initializes state vector with (0,0)
 	 * @param qubitCount Number of qubits 
 	 */
-	QubitLayerMPI(size_t qLayerSize, int rank);
+	QubitLayerMPI(size_t qLayerSize, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
 	void updateStates();
@@ -59,6 +61,8 @@ class QubitLayerMPI
 	 * Executes pauliX if both control qubits are set to |1>
 	 */
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
+
+	int getNodeOfState(unsigned long state);
 };
 
 #endif

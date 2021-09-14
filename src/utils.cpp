@@ -2,18 +2,12 @@
 
 using namespace std;
 
-int getNodeOfState(unsigned long state)
-{
-	
-	return 0;
-}
-
 vector<int> calculateLayerAlloc(int qubitCount, int nodeCount)
 {
 	vector<int> result;
 	size_t layerSize = pow(2, qubitCount);
 
-	if (layerSize / 2 < (size_t) nodeCount) {
+	if(layerSize / 2 < (size_t)nodeCount) {
 		cerr << "Known allocation bug, too many processes for few qubits" << endl;
 		exit(-1);
 	}

@@ -2,6 +2,13 @@
 
 using namespace std;
 
+int QubitLayerMPI::getNodeOfState(unsigned long state)
+{
+	int node = floor(state / (this->states.size() / 2));
+
+	return node;
+}
+
 void QubitLayerMPI::measure()
 {
 	int i = this->rank * this->states.size();
@@ -128,6 +135,9 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 void QubitLayerMPI::pauliX(int targetQubit)
 {
+	// vector of (stateOTB, value) pairs
+	vector<int> statesOTB;
+
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
@@ -136,18 +146,58 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			int lowerBound = this->rank * (this->states.size() / 2);
 			int upperBound = (this->rank + 1) * (this->states.size() / 2);
 
-            cout << "lower: " << lowerBound << endl;
-            cout << "upper: " << upperBound << endl;
-            cout << "State: " << state.to_ulong() << endl;
+			// cout << "lower: " << lowerBound << endl;
+			// cout << "upper: " << upperBound << endl;
+			// cout << "State: " << state.to_ulong() << endl;
 
+			int value;
+
+			// if a state is OTB, store those states to a vector
 			if(state.to_ulong() < lowerBound || state.to_ulong() >= upperBound) {
-				cout << "State out of bounds " << endl;
-				int node = getNodeOfState(state.to_ulong());
+				cout << "Process " << rank << "State out of bounds " << endl;
+				// construir um array com (state, valor)
+				int msg;
+				msg = state.to_ulong();
+				// msg[1] = this->states[2 * i];
+				statesOTB.push_back(msg);
+			} else {
+				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 			}
-
-			this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 		}
 	}
+
+	// send messages for all states in the vector
+	if(statesOTB.size() != 0) {
+		// int value = 1; // means pauliX
+		for(size_t i = 0; i < statesOTB.size(); i++) {
+			int node = getNodeOfState(statesOTB[i]);
+
+			MPI_Send(&statesOTB[i], 1, MPI_INT, node, 0, MPI_COMM_WORLD);
+			cout << "Rank " << rank << " has sent to " << node << endl;
+		}
+	}
+
+	// Mensagem de fim para todas as nodes
+	int end[2];
+	end[0] = -1;
+	end[1] = -1;
+	for(int node = 0; node < this->size; node++) {
+		if(node == this->rank)
+			continue;
+		MPI_Send(&end, 1, MPI_INT, node, 0, MPI_COMM_WORLD);
+	}
+
+	// Receber todas as mensagens até receber mensagem de fim
+	MPI_Status status;
+	int msg;
+	while(msg != -1) {
+		MPI_Recv(&msg, 1, MPI_INT, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+		cout << "Node " << status.MPI_SOURCE << " value: " << msg << endl;
+		if(msg != -1) {
+			this->states[2 * msg + 1] = 1;
+		}
+	}
+
 	updateStates();
 }
 
@@ -169,9 +219,10 @@ void QubitLayerMPI::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank)
+QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
 {
-    this->rank = rank;
+	this->rank = rank;
+	this->size = size;
 	// populate vector with all (0,0)
 	size_t i = 0;
 	while(i < qLayerSize) {

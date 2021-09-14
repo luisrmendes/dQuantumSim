@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 
 	int qubitCount = stoi(argv[1]);
 
-	int rank, value, size;
+	int rank, size;
 
 	MPI_Status status;
 	MPI_Init(&argc, &argv);
@@ -31,16 +31,16 @@ int main(int argc, char* argv[])
 	// calculate total size
 	vector<int> layerAllocs = calculateLayerAlloc(qubitCount, size);
 
-	QubitLayerMPI qL(layerAllocs[rank], rank);
+	QubitLayerMPI qL(layerAllocs[rank], rank, size);
 
+	// Initialze state vector as |0...0>
 	if(rank == 0) {
-		// Initialze state vector as |0...0>
 		qubitLayer states = qL.getStates();
 		states[0] = 1;
 		qL.setStates(states);
 	}
 
-	qL.pauliX(1);
+	qL.pauliX(2);
 	qL.measure();
 
 	// do {
