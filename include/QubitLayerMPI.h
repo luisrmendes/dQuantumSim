@@ -42,6 +42,7 @@ class QubitLayerMPI
 	 * @param i State vector iterator position
 	 */
 	bool checkZeroState(int i);
+
 	void pauliX(int targetQubit);
 	void pauliY(int targetQubit);
 	void pauliZ(int targetQubit);
@@ -62,7 +63,20 @@ class QubitLayerMPI
 	 */
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 
+	/**
+	 * Gets the node that posesses the state
+	 * @param state 
+	 * @returns The node that contains the state
+	 */
 	int getNodeOfState(unsigned long state);
+
+	/**
+	 * Handles states Out Of Bounds for each process.
+	 * Sends operation and exit messages and applies the received messages 
+	 * for each process
+	 * @param statesOOB Vector of (state, intended_value) pairs
+	 */
+	void handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
 };
 
 #endif

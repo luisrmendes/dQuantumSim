@@ -20,6 +20,9 @@ int main(int argc, char* argv[])
 
 	int qubitCount = stoi(argv[1]);
 
+	if(qubitCount != numQubitsMPI)
+		cout << "Warning: qubitCount != constexpr numQubits!" << endl;
+
 	int rank, size;
 
 	MPI_Status status;
@@ -41,23 +44,7 @@ int main(int argc, char* argv[])
 	}
 
 	qL.pauliX(2);
-
 	qL.measure();
-	// qL.printStateVector();
-
-	// qL.printStateVector();
-
-	// do {
-	// 	if(rank == 0) {
-	// 		size_t qLayerSegSize = layerSize / size;
-	// 		MPI_Send(&value, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
-	// 	} else {
-	// 		MPI_Recv(&value, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD, &status);
-	// 		if(rank < size - 1)
-	// 			MPI_Send(&value, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD);
-	// 	}
-	// 	printf("Process %d got %d\n", rank, value);
-	// } while(value >= 0);
 
 	MPI_Finalize();
 

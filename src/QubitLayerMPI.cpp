@@ -2,6 +2,89 @@
 
 using namespace std;
 
+void QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
+{
+	// Receives the vector statesOOB that contains (state, intended_value) pairs,
+	// Searches for each state the node that owns the state,
+	// Sends a message for the respective node, the state and value for the operation,
+	// Sends -1 for every node that had no intended message
+	// Receives every message, applies the operation of a received message if its not -1
+
+	// Create vector with all ranks to keep track ranks that have no intended operations
+	vector<int> ranks;
+	for(long unsigned int i = 0; i < size; i++) {
+		ranks.push_back(i);
+	}
+
+	// send messages for all states in the vector
+	if(statesOOB.size() != 0) {
+		for(size_t i = 0; i < statesOOB.size(); i += 2) {
+
+			int node = getNodeOfState(statesOOB[i].real());
+
+			// Erase the rank that has a intended operation
+			ranks.erase(ranks.begin() + node);
+
+			// Convert vector into an array acceptable for MPI
+			complex<double> msg[statesOOB.size()];
+			copy(statesOOB.begin(), statesOOB.end(), msg);
+
+			// Send the array to the intended node, MPI_TAG = tamanho da mensagem
+			MPI_Send(msg,
+					 statesOOB.size(),
+					 MPI_DOUBLE_COMPLEX,
+					 node,
+					 statesOOB.size(),
+					 MPI_COMM_WORLD);
+		}
+	}
+
+	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
+	complex<double> end = -1;
+	for(int i = 0; i < ranks.size(); i++) {
+		// exceto a ele proprio
+		if(ranks[i] == this->rank)
+			continue;
+
+		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+	}
+
+	// Receber todas as mensagens
+	MPI_Status status;
+	int MPI_RECV_BUFFER_SIZE = 10;
+	complex<double> msg[MPI_RECV_BUFFER_SIZE];
+	msg[0] = 0;
+	for(int node = 0; node < this->size; node++) {
+		// exceto a dele proprio
+		if(node == this->rank)
+			continue;
+
+		MPI_Recv(&msg,
+				 MPI_RECV_BUFFER_SIZE,
+				 MPI_DOUBLE_COMPLEX,
+				 node,
+				 MPI_ANY_TAG,
+				 MPI_COMM_WORLD,
+				 &status);
+
+		// Se mensagem for de uma operacao
+		if(status.MPI_TAG != 0) {
+			for(int i = 0; i < status.MPI_TAG; i++) {
+				cout << msg[i] << endl;
+			}
+
+			for(int i = 0; i < status.MPI_TAG; i += 2) {
+				// calcula o index local do state recebido
+				int localIndex =
+					msg[i].real() - (this->rank * (this->states.size() / 2));
+
+				// operacao especifica ao pauliX
+				this->states[2 * localIndex + 1] = msg[i + 1];
+			}
+		}
+	}
+}
+
 int QubitLayerMPI::getNodeOfState(unsigned long state)
 {
 	int node = floor(state / (this->states.size() / 2));
@@ -121,7 +204,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
 			// if |0>, scalar 1i applies to |1>
-			// if |1>, scalar -1i aaplies to |0>
+			// if |1>, scalar -1i applies to |0>
 			// probabily room for optimization here
 			bitset<numQubitsMPI> flippedState = state.flip(targetQubit);
 			state[targetQubit] == 0 ? this->states[2 * flippedState.to_ulong() + 1] =
@@ -136,7 +219,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 void QubitLayerMPI::pauliX(int targetQubit)
 {
 	// vector of (stateOTB, value) pairs
-	vector<complex<double>> statesOTB;
+	vector<complex<double>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -152,102 +235,16 @@ void QubitLayerMPI::pauliX(int targetQubit)
 					 << "> out of bounds!" << endl;
 
 				// pair (state, intended_value)
-				statesOTB.push_back(state.to_ulong());
-				statesOTB.push_back(this->states[2 * i]);
+				statesOOB.push_back(state.to_ulong());
+				statesOOB.push_back(this->states[2 * i]);
 			} else {
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 			}
 		}
 	}
 
-	// Create vector with all ranks
-	vector<int> ranks;
-	for(long unsigned int i = 0; i < size; i++) {
-		ranks.push_back(i);
-	}
+	handlerStatesOOB(statesOOB);
 
-	// send messages for all states in the vector
-	if(statesOTB.size() != 0) {
-		// int value = 1; // means pauliX
-		for(size_t i = 0; i < statesOTB.size(); i += 2) {
-			// calculate node for the intended message
-			int node = getNodeOfState(statesOTB[i].real());
-			ranks.erase(ranks.begin() + node);
-
-			// Convert vector into an array acceptable for MPI
-			complex<double> msg[statesOTB.size()];
-			copy(statesOTB.begin(), statesOTB.end(), msg);
-
-			MPI_Send(msg,
-					 statesOTB.size(),
-					 MPI_DOUBLE_COMPLEX,
-					 node,
-					 statesOTB.size(),
-					 MPI_COMM_WORLD);
-
-			// cout << endl
-			// 	 << "Process " << rank << " sent to " << node << endl
-			// 	 << "\tstate: " << msg[0] << endl
-			// 	 << "\tvalue: " << msg[1] << endl
-			// 	 << endl;
-		}
-	}
-
-	complex<double> end = -1;
-
-	// Se o processo tinha coisas para enviar, envia -1 a todos os restantes
-	if(statesOTB.size() != 0) {
-		for(int i = 0; i < ranks.size(); i++) {
-			// exceto a ele proprio
-			if(ranks[i] == this->rank)
-				continue;
-
-			// cout << "Process " << ranks[i] << " sending exit!" << endl;
-			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
-		}
-	}
-	// Se o processo não tinha nada para enviar, envia -1 a todos
-	else {
-		for(int node = 0; node < this->size; node++) {
-			// exceto a ele proprio
-			if(node == this->rank)
-				continue;
-
-			// cout << "Process " << node << " sending exit!" << endl;
-			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
-		}
-	}
-
-	MPI_Status status;
-	complex<double> msg[9];
-	msg[0] = 0;
-
-	// Receber todas as mensagens
-	for(int node = 0; node < this->size; node++) {
-		// exceto a dele proprio
-		if(node == this->rank)
-			continue;
-
-		MPI_Recv(
-			&msg, 9, MPI_DOUBLE_COMPLEX, node, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-
-		// Se mensagem for especial
-		if(status.MPI_TAG != 0) {
-			cout << "Sou o processo " << this->rank << ", Special packet from "
-				 << node << ": " << endl;
-			for(int i = 0; i < status.MPI_TAG; i++) {
-				cout << msg[i] << endl;
-			}
-			// calculate local index of state
-			int localIndex =
-				msg[0].real() - (this->rank * (this->states.size() / 2));
-			cout << "local index: " << localIndex << endl;
-			this->states[2 * localIndex + 1] = msg[1];
-			printStateVector();
-		} else {
-			// cout << "Exit packet from " << node << ": " << msg[0] << endl;
-		}
-	}
 	updateStates();
 }
 
