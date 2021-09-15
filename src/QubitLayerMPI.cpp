@@ -13,7 +13,7 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 	// Create vector with all ranks to keep track ranks that have no intended operations
 	vector<int> ranks;
-	for(long unsigned int i = 0; i < size; i++) {
+	for(int i = 0; i < size; i++) {
 		ranks.push_back(i);
 	}
 
@@ -42,7 +42,7 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
 	complex<double> end = -1;
-	for(int i = 0; i < ranks.size(); i++) {
+	for(size_t i = 0; i < ranks.size(); i++) {
 		// exceto a ele proprio
 		if(ranks[i] == this->rank)
 			continue;
@@ -244,7 +244,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
 
-	for(int i = 0; i < receivedOps.size(); i += 2) {
+	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
 		int localIndex =
 			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
