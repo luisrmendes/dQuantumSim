@@ -24,7 +24,6 @@ int main(int argc, char* argv[])
 		cout << "Warning: qubitCount != constexpr numQubits!" << endl;
 
 	int rank, size;
-
 	MPI_Status status;
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -43,7 +42,7 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.pauliX(2);
+	qL.pauliX(1);
 	qL.measure();
 
 	MPI_Finalize();

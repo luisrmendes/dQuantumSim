@@ -2,7 +2,8 @@
 
 using namespace std;
 
-void QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
+vector<complex<double>>
+QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 {
 	// Receives the vector statesOOB that contains (state, intended_value) pairs,
 	// Searches for each state the node that owns the state,
@@ -50,6 +51,10 @@ void QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	}
 
 	// Receber todas as mensagens
+
+	// Constroi um vetor com as operacoes recebidas
+	vector<complex<double>> receivedOperations;
+
 	MPI_Status status;
 	int MPI_RECV_BUFFER_SIZE = 10;
 	complex<double> msg[MPI_RECV_BUFFER_SIZE];
@@ -70,19 +75,13 @@ void QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
 			for(int i = 0; i < status.MPI_TAG; i++) {
-				cout << msg[i] << endl;
-			}
-
-			for(int i = 0; i < status.MPI_TAG; i += 2) {
-				// calcula o index local do state recebido
-				int localIndex =
-					msg[i].real() - (this->rank * (this->states.size() / 2));
-
-				// operacao especifica ao pauliX
-				this->states[2 * localIndex + 1] = msg[i + 1];
+				// cout << msg[i] << endl;
+				receivedOperations.push_back(msg[i]);
 			}
 		}
 	}
+
+	return receivedOperations;
 }
 
 int QubitLayerMPI::getNodeOfState(unsigned long state)
@@ -243,7 +242,16 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		}
 	}
 
-	handlerStatesOOB(statesOOB);
+	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+
+	for(int i = 0; i < receivedOps.size(); i += 2) {
+		// calcula o index local do state recebido
+		int localIndex =
+			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+
+		// operacao especifica ao pauliX
+		this->states[2 * localIndex + 1] = receivedOps[i + 1];
+	}
 
 	updateStates();
 }

@@ -72,11 +72,13 @@ class QubitLayerMPI
 
 	/**
 	 * Handles states Out Of Bounds for each process.
-	 * Sends operation and exit messages and applies the received messages 
-	 * for each process
-	 * @param statesOOB Vector of (state, intended_value) pairs
+	 * Sends operation and exit messages,
+	 * Receives and returns operations messages.
+	 * @param statesOOB Vector of (state, intended_value) operations to send
+	 * @returns Vector with (state, intended_value) received operations
 	 */
-	void handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
+	std::vector<std::complex<double>>
+	handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
 };
 
 #endif
