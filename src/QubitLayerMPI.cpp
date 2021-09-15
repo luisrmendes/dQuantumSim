@@ -136,8 +136,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 void QubitLayerMPI::pauliX(int targetQubit)
 {
 	// vector of (stateOTB, value) pairs
-	using msg_pair = pair<complex<double>, complex<double>>;
-	vector<msg_pair> statesOTB;
+	vector<complex<double>> statesOTB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -153,65 +152,116 @@ void QubitLayerMPI::pauliX(int targetQubit)
 					 << "> out of bounds!" << endl;
 
 				// pair (state, intended_value)
-				msg_pair msg;
-				msg.first = state.to_ulong();
-				msg.second = this->states[2 * i];
-
-				statesOTB.push_back(msg);
+				statesOTB.push_back(state.to_ulong());
+				statesOTB.push_back(this->states[2 * i]);
 			} else {
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 			}
 		}
 	}
 
+	// Create vector with all ranks
+	vector<int> ranks;
+	for(long unsigned int i = 0; i < size; i++) {
+		ranks.push_back(i);
+	}
+
 	// send messages for all states in the vector
 	if(statesOTB.size() != 0) {
 		// int value = 1; // means pauliX
-		for(size_t i = 0; i < statesOTB.size(); i++) {
+		for(size_t i = 0; i < statesOTB.size(); i += 2) {
 			// calculate node for the intended message
-			int node = getNodeOfState(statesOTB[i].first.real());
+			int node = getNodeOfState(statesOTB[i].real());
+			ranks.erase(ranks.begin() + node);
 
-			// Convert pair into an array acceptable for MPI
-			complex<double> msg[2];
-			msg[0] = statesOTB[i].first;
-			msg[1] = statesOTB[i].second;
+			// Convert vector into an array acceptable for MPI
+			complex<double> msg[statesOTB.size()];
+			copy(statesOTB.begin(), statesOTB.end(), msg);
 
-			MPI_Send(msg, 2, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
-			cout << "Rank " << rank << " has sent to " << node << endl;
+			MPI_Send(msg,
+					 statesOTB.size(),
+					 MPI_DOUBLE_COMPLEX,
+					 node,
+					 statesOTB.size(),
+					 MPI_COMM_WORLD);
+
+			// cout << endl
+			// 	 << "Process " << rank << " sent to " << node << endl
+			// 	 << "\tstate: " << msg[0] << endl
+			// 	 << "\tvalue: " << msg[1] << endl
+			// 	 << endl;
 		}
 	}
 
-	// Mensagem de fim para todas as nodes
-	complex<double> end[2];
-	end[0] = -1;
-	end[1] = -1;
+	// Send exit messages for all states except the one that we sent messages
+	for(long unsigned int i = 0; i < ranks.size(); i++) {
+		cout << ranks[i] << endl;
+	}
 
+	complex<double> end = -1;
+
+	// Se o processo tinha coisas para enviar, envia -1 a todos os restantes
+	if(statesOTB.size() != 0) {
+		for(int i = 0; i < ranks.size(); i++) {
+			// exceto a ele proprio
+			if(ranks[i] == this->rank)
+				continue;
+
+			cout << "Process " << ranks[i] << " sending exit!" << endl;
+			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+		}
+	}
+	// Se o processo não tinha nada para enviar, envia -1 a todos
+	else {
+		for(int node = 0; node < this->size; node++) {
+			// exceto a ele proprio
+			if(node == this->rank)
+				continue;
+
+			cout << "Process " << node << " sending exit!" << endl;
+			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
+		}
+	}
+
+	MPI_Status status;
+	complex<double> msg[9];
+	msg[0] = 0;
+
+	// Receber todas as mensagens
 	for(int node = 0; node < this->size; node++) {
+		// exceto a dele proprio
 		if(node == this->rank)
 			continue;
-		MPI_Send(&end, 2, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
-	}
 
-	// Receber todas as mensagens até receber mensagem de fim
-	MPI_Status status;
-	complex<double> msg[2];
-	msg[0] = 0;
-	while(msg[0].real() != -1) {
 		MPI_Recv(
-			&msg, 2, MPI_DOUBLE_COMPLEX, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &status);
+			&msg, 9, MPI_DOUBLE_COMPLEX, node, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-		if(msg[0].real() != -1) {
-			cout << endl
-				 << "Process " << rank << " received from " << status.MPI_SOURCE
-				 << endl
-				 << "\tstate: " << msg[0].real() << endl
-				 << "\tvalue: " << msg[1] << endl
-				 << endl;
-		}
-		if(msg[0].real() != -1) {
-			this->states[2 * msg[0].real() + 1] = msg[1];
+		if(status.MPI_TAG != 0) {
+			cout << "Special packet from " << node << ": " << endl;
+			for(int i = 0; i < status.MPI_TAG; i++) {
+				cout << msg[i] << endl;
+			}
+		} else {
+			cout << "Exit packet from " << node << ": " << msg[0] << endl;
 		}
 	}
+
+	cout << "Process " << rank << " received messages: " << msg[0].real() << endl;
+
+	if(msg[0].real() != -1) {
+		cout << endl
+			 << "Process " << rank << " received from " << status.MPI_SOURCE << endl
+			 << "\tstate: " << msg[0].real() << endl
+			 << "\tvalue: " << msg[1] << endl
+			 << endl;
+		this->states[2 * msg[0].real() + 1] = msg[1];
+	}
+	// if(msg[0].real() != -1) {
+	// 	cout << "State: " << msg[0].real() << endl;
+	// 	cout << "State: " << msg[1] << endl;
+	// 	this->states[2 * msg[0].real() + 1] = msg[1];
+	// 	printStateVector();
+	// }
 
 	updateStates();
 }
