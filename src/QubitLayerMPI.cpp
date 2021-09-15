@@ -193,11 +193,6 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		}
 	}
 
-	// Send exit messages for all states except the one that we sent messages
-	for(long unsigned int i = 0; i < ranks.size(); i++) {
-		cout << ranks[i] << endl;
-	}
-
 	complex<double> end = -1;
 
 	// Se o processo tinha coisas para enviar, envia -1 a todos os restantes
@@ -207,7 +202,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			if(ranks[i] == this->rank)
 				continue;
 
-			cout << "Process " << ranks[i] << " sending exit!" << endl;
+			// cout << "Process " << ranks[i] << " sending exit!" << endl;
 			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
 		}
 	}
@@ -218,7 +213,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			if(node == this->rank)
 				continue;
 
-			cout << "Process " << node << " sending exit!" << endl;
+			// cout << "Process " << node << " sending exit!" << endl;
 			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, node, 0, MPI_COMM_WORLD);
 		}
 	}
@@ -236,33 +231,23 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		MPI_Recv(
 			&msg, 9, MPI_DOUBLE_COMPLEX, node, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
+		// Se mensagem for especial
 		if(status.MPI_TAG != 0) {
-			cout << "Special packet from " << node << ": " << endl;
+			cout << "Sou o processo " << this->rank << ", Special packet from "
+				 << node << ": " << endl;
 			for(int i = 0; i < status.MPI_TAG; i++) {
 				cout << msg[i] << endl;
 			}
+			// calculate local index of state
+			int localIndex =
+				msg[0].real() - (this->rank * (this->states.size() / 2));
+			cout << "local index: " << localIndex << endl;
+			this->states[2 * localIndex + 1] = msg[1];
+			printStateVector();
 		} else {
-			cout << "Exit packet from " << node << ": " << msg[0] << endl;
+			// cout << "Exit packet from " << node << ": " << msg[0] << endl;
 		}
 	}
-
-	cout << "Process " << rank << " received messages: " << msg[0].real() << endl;
-
-	if(msg[0].real() != -1) {
-		cout << endl
-			 << "Process " << rank << " received from " << status.MPI_SOURCE << endl
-			 << "\tstate: " << msg[0].real() << endl
-			 << "\tvalue: " << msg[1] << endl
-			 << endl;
-		this->states[2 * msg[0].real() + 1] = msg[1];
-	}
-	// if(msg[0].real() != -1) {
-	// 	cout << "State: " << msg[0].real() << endl;
-	// 	cout << "State: " << msg[1] << endl;
-	// 	this->states[2 * msg[0].real() + 1] = msg[1];
-	// 	printStateVector();
-	// }
-
 	updateStates();
 }
 
