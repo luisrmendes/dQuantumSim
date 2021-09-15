@@ -15,7 +15,7 @@ void QubitLayerMPI::measure()
 	size_t j = 0;
 
 	while(j < this->states.size()) {
-		float result = pow(abs(this->states[i]), 2); // not sure...
+		float result = pow(abs(this->states[j]), 2); // not sure...
 		cout << "|" << bitset<numQubitsMPI>(i / 2) << "> -> " << result << endl;
 
 		i += 2;

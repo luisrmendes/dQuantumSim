@@ -41,7 +41,10 @@ int main(int argc, char* argv[])
 	}
 
 	qL.pauliX(2);
-	qL.measure();	
+
+	qL.measure();
+	// qL.printStateVector();
+
 	// qL.printStateVector();
 
 	// do {
