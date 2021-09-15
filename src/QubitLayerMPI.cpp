@@ -98,6 +98,9 @@ void QubitLayerMPI::measure()
 
 	while(j < this->states.size()) {
 		float result = pow(abs(this->states[j]), 2); // not sure...
+
+		cout << "Node " << this->rank << ": ";
+
 		cout << "|" << bitset<numQubitsMPI>(i / 2) << "> -> " << result << endl;
 
 		i += 2;
