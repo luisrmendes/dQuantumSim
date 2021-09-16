@@ -2,6 +2,14 @@
 
 using namespace std;
 
+bool QubitLayerMPI::checkStateOOB(bitset<numQubitsMPI> state)
+{
+	long unsigned lowerBound = this->rank * (this->states.size() / 2);
+	long unsigned upperBound = (this->rank + 1) * (this->states.size() / 2);
+
+	return state.to_ulong() < lowerBound || state.to_ulong() >= upperBound;
+}
+
 vector<complex<double>>
 QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 {
@@ -231,21 +239,19 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
 			state.flip(targetQubit);
 
-			long unsigned lowerBound = this->rank * (this->states.size() / 2);
-			long unsigned upperBound = (this->rank + 1) * (this->states.size() / 2);
-
 			// if a state is OTB, store tuple (state, intended_value) to a vector
-			if(state.to_ulong() < lowerBound || state.to_ulong() >= upperBound) {
+			if(!checkStateOOB(state)) {
+				int localIndex =
+					state.to_ulong() - (rank * (this->states.size() / 2));
+				this->states[2 * localIndex + 1] = this->states[2 * i];
+
+			} else {
 				cout << "Process " << rank << " says : State |" << state
 					 << "> out of bounds!" << endl;
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
 				statesOOB.push_back(this->states[2 * i]);
-			} else {
-				int localIndex =
-					state.to_ulong() - (rank * (this->states.size() / 2));
-				this->states[2 * localIndex + 1] = this->states[2 * i];
 			}
 		}
 	}
