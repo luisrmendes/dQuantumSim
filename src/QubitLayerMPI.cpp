@@ -23,6 +23,9 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 			int node = getNodeOfState(statesOOB[i].real());
 
+			// cout << "Process " << rank << " sending to node " << node << " state "
+			// 	 << statesOOB[i].real() << endl;
+
 			// Erase the rank that has a intended operation
 			ranks.erase(ranks.begin() + node);
 
@@ -225,7 +228,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i;
+			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
 			state.flip(targetQubit);
 
 			long unsigned lowerBound = this->rank * (this->states.size() / 2);
@@ -240,7 +243,9 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				statesOOB.push_back(state.to_ulong());
 				statesOOB.push_back(this->states[2 * i]);
 			} else {
-				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
+				int localIndex =
+					state.to_ulong() - (rank * (this->states.size() / 2));
+				this->states[2 * localIndex + 1] = this->states[2 * i];
 			}
 		}
 	}
