@@ -43,10 +43,6 @@ int main(int argc, char* argv[])
 
 	qL.pauliX(0);
 	MPI_Barrier(MPI_COMM_WORLD);
-	qL.pauliX(2);
-	qL.pauliX(1);
-	qL.pauliX(1);
-
 	qL.measure();
 
 	MPI_Finalize();

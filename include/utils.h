@@ -12,5 +12,3 @@
  * @returns Size of the layer for each node ordered by node rank
  */
 std::vector<int> calculateLayerAlloc(int qubitCount, int nodeCount);
-
-int getNodeOfState(unsigned long state);
