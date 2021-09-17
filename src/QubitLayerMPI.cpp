@@ -213,6 +213,9 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 
 void QubitLayerMPI::pauliY(int targetQubit)
 {
+	// vector of (stateOTB, value) pairs
+	vector<complex<double>> statesOOB;
+
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
@@ -220,12 +223,37 @@ void QubitLayerMPI::pauliY(int targetQubit)
 			// if |1>, scalar -1i applies to |0>
 			// probabily room for optimization here
 			bitset<numQubitsMPI> flippedState = state.flip(targetQubit);
-			state[targetQubit] == 0 ? this->states[2 * flippedState.to_ulong() + 1] =
-										  this->states[2 * i] * 1i
-									: this->states[2 * flippedState.to_ulong() + 1] =
-										  this->states[2 * i] * -1i;
+
+			if(!checkStateOOB(flippedState)) {
+				state[targetQubit] == 0
+					? this->states[2 * flippedState.to_ulong() + 1] =
+						  this->states[2 * i] * 1i
+					: this->states[2 * flippedState.to_ulong() + 1] =
+						  this->states[2 * i] * -1i;
+
+			} else {
+				cout << "Process " << rank << " says : State |" << state
+					 << "> out of bounds!" << endl;
+
+				// pair (state, intended_value)
+				statesOOB.push_back(flippedState.to_ulong());
+				statesOOB.push_back(this->states[2 * i]);
+			}
 		}
 	}
+
+	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+
+	for(size_t i = 0; i < receivedOps.size(); i += 2) {
+		// calcula o index local do state recebido
+		int localIndex =
+			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+
+		this->states[2 * localIndex + 1].real() == 0
+			? this->states[2 * localIndex + 1] = receivedOps[i + 1] * 1i
+			: this->states[2 * localIndex + 1] = receivedOps[i + 1] * -1i;
+	}
+
 	updateStates();
 }
 

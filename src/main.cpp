@@ -41,13 +41,12 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.pauliX(0);
+	qL.pauliY(2);
+
 	MPI_Barrier(MPI_COMM_WORLD);
-	qL.pauliX(1);
-	MPI_Barrier(MPI_COMM_WORLD);
-	qL.pauliX(2);
-	MPI_Barrier(MPI_COMM_WORLD);
+
 	qL.measure();
+	qL.printStateVector();
 
 	MPI_Finalize();
 
