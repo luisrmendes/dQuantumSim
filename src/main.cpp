@@ -41,12 +41,25 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.pauliY(2);
-
+	qL.pauliY(0);
 	MPI_Barrier(MPI_COMM_WORLD);
 
+	qL.pauliY(1);
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	qL.pauliY(2);
+	
+	qL.pauliY(2);
+	if(rank == 1) {
+		qL.printStateVector();
+	}
+	qL.pauliY(0);
+
+	if(rank == 1) {
+		qL.printStateVector();
+	}
+
 	qL.measure();
-	qL.printStateVector();
 
 	MPI_Finalize();
 
