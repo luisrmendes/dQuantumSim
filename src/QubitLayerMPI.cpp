@@ -224,8 +224,6 @@ void QubitLayerMPI::pauliY(int targetQubit)
 			// probabily room for optimization here
 			state.flip(targetQubit);
 
-			cout << "flipped state: " << state << endl;
-
 			if(!checkStateOOB(state)) {
 				int localIndex =
 					state.to_ulong() - (rank * (this->states.size() / 2));
