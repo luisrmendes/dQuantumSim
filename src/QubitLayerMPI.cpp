@@ -181,7 +181,10 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i;
+			if(rank == 0) {
+				cout << "Rank 0 state: " << state << endl;
+			}
 			if(state.test(targetQubit)) {
 				this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i];
 			} else {
@@ -198,11 +201,19 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			if(!checkStateOOB(state)) {
 				int localIndex =
 					state.to_ulong() - (rank * (this->states.size() / 2));
+				if(rank == 0) {
+					cout << "Rank 0 local index: " << localIndex << endl;
+				}
+				debugLog.append(to_string(localIndex));
+				debugLog.append("\n");
 				this->states[2 * localIndex + 1] +=
 					(1 / sqrt(2)) * this->states[2 * i];
 			} else {
-				cout << "Process " << rank << " says : State |" << state
-					 << "> out of bounds!" << endl;
+				this->debugLog.append("Process ");
+				this->debugLog.append(to_string(rank));
+				this->debugLog.append(" says : State |");
+				this->debugLog.append(state.to_string());
+				this->debugLog.append("> out of bounds!\n");
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
@@ -217,6 +228,10 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		// calcula o index local do state recebido
 		int localIndex =
 			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+
+		if(rank == 0) {
+			cout << "Rank 0 local index: " << localIndex << endl;
+		}
 
 		this->states[2 * localIndex + 1] += (1 / sqrt(2)) * receivedOps[i + 1];
 	}
@@ -259,8 +274,11 @@ void QubitLayerMPI::pauliY(int targetQubit)
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
 			} else {
-				cout << "Process " << rank << " says : State |" << state
-					 << "> out of bounds!" << endl;
+				this->debugLog.append("Process ");
+				this->debugLog.append(to_string(rank));
+				this->debugLog.append(" says : State |");
+				this->debugLog.append(state.to_string());
+				this->debugLog.append("> out of bounds!\n");
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
@@ -301,8 +319,11 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 
 			} else {
-				cout << "Process " << rank << " says : State |" << state
-					 << "> out of bounds!" << endl;
+				this->debugLog.append("Process ");
+				this->debugLog.append(to_string(rank));
+				this->debugLog.append(" says : State |");
+				this->debugLog.append(state.to_string());
+				this->debugLog.append("> out of bounds!\n");
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
@@ -353,4 +374,8 @@ QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
 		this->states.push_back(0);
 		++i;
 	}
+
+	this->debugLog.append("\nProcess ");
+	this->debugLog.append(to_string(rank));
+	this->debugLog.append(" logs --------------- \n");
 }

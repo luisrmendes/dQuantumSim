@@ -8,6 +8,7 @@
 #include <complex>
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 constexpr int numQubitsMPI = 3;
 
@@ -19,6 +20,7 @@ class QubitLayerMPI
 	qubitLayer states;
 	int rank;
 	int size;
+	std::string debugLog;
 
   public:
 	/**
@@ -29,6 +31,7 @@ class QubitLayerMPI
 	QubitLayerMPI(size_t qLayerSize, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
+	std::string getLog() { return this->debugLog; }
 	void updateStates();
 	void printStateVector();
 
@@ -81,6 +84,8 @@ class QubitLayerMPI
 	handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
 
 	bool checkStateOOB(std::bitset<numQubitsMPI> state);
+
+	void appendToLogs(std::string log);
 };
 
 #endif
