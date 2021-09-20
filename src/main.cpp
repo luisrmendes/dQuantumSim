@@ -41,28 +41,25 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	// qL.hadamard(1);
-	// qL.hadamard(0);
-	// qL.hadamard(2);
-	// 	qL.hadamard(3);
+	qL.hadamard(0);
+	qL.hadamard(1);
+	qL.hadamard(2);
+	qL.hadamard(3);
 
-
-	qL.pauliX(0);
+	// qL.pauliX(0);
 	qL.pauliX(1);
 	qL.pauliZ(1);
 
 	qL.measure();
-
-	sleep(0.5);
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	// Print logs orderly
 	for(int i = 0; i < size; i++) {
 		if(rank == i)
 			cout << qL.getLog() << endl;
 		else
-			sleep(0.5);
+			MPI_Barrier(MPI_COMM_WORLD);
 	}
-
 
 	MPI_Finalize();
 

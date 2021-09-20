@@ -167,8 +167,13 @@ void QubitLayerMPI::measure()
 		i += 2;
 		j += 2;
 	}
-
-	cout << resultLog << endl;
+	// Print logs orderly
+	for(int i = 0; i < size; i++) {
+		if(rank == i)
+			cout << resultLog << endl;
+		else
+			MPI_Barrier(MPI_COMM_WORLD);
+	}
 }
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
@@ -290,7 +295,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 			state[targetQubit] != 0
 				? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
 				: this->states[2 * i + 1].real(this->states[2 * i].real());
-				
+
 			if(PAULIZ_DEBUG_LOGS) {
 				debugLog.append(getStateVector());
 			}

@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <vector>
 
-constexpr int numQubitsMPI = 3;
+constexpr int numQubitsMPI = 4;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
