@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <vector>
 
-constexpr int numQubitsMPI = 4;
+constexpr int numQubitsMPI = 3;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
@@ -36,6 +36,7 @@ class QubitLayerMPI
 	std::string getLog() { return this->debugLog; }
 	void updateStates();
 	void printStateVector();
+	std::string getStateVector();
 
 	/**
 	 * Displays qubit values according to processes rank

@@ -41,14 +41,15 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.hadamard(1);
-	qL.hadamard(0);
-	qL.hadamard(2);
-		qL.hadamard(3);
+	// qL.hadamard(1);
+	// qL.hadamard(0);
+	// qL.hadamard(2);
+	// 	qL.hadamard(3);
 
 
-	qL.pauliY(2);
-	// qL.pauliX(2);
+	qL.pauliX(0);
+	qL.pauliX(1);
+	qL.pauliZ(1);
 
 	qL.measure();
 
@@ -61,6 +62,7 @@ int main(int argc, char* argv[])
 		else
 			sleep(0.5);
 	}
+
 
 	MPI_Finalize();
 

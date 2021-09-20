@@ -253,8 +253,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 				this->states[2 * localIndex + 1] +=
 					(1 / sqrt(2)) * this->states[2 * i];
 			} else {
-				if(OPS_DEBUG_LOGS) {
-					debugLog.append("PauliX -> Process ");
+				if(HADAMARD_DEBUG_LOGS) {
+					debugLog.append("Hadamard -> Process ");
 					debugLog.append(to_string(rank));
 					debugLog.append(" says : State |");
 					debugLog.append(state.to_string());
@@ -285,13 +285,21 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i;
+			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+
 			state[targetQubit] != 0
 				? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
 				: this->states[2 * i + 1].real(this->states[2 * i].real());
+				
+			if(PAULIZ_DEBUG_LOGS) {
+				debugLog.append(getStateVector());
+			}
 		}
 	}
 	updateStates();
+	if(PAULIZ_DEBUG_LOGS) {
+		debugLog.append(getStateVector());
+	}
 }
 
 void QubitLayerMPI::pauliY(int targetQubit)
@@ -316,7 +324,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
 			} else {
-				if(OPS_DEBUG_LOGS) {
+				if(PAULIY_DEBUG_LOGS) {
 					debugLog.append("PauliX -> Process ");
 					debugLog.append(to_string(rank));
 					debugLog.append(" says : State |");
@@ -363,7 +371,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 
 			} else {
-				if(OPS_DEBUG_LOGS) {
+				if(PAULIX_DEBUG_LOGS) {
 					debugLog.append("PauliX -> Process ");
 					debugLog.append(to_string(rank));
 					debugLog.append(" says : State |");
@@ -399,10 +407,28 @@ void QubitLayerMPI::updateStates()
 	}
 }
 
+string QubitLayerMPI::getStateVector()
+{
+	string stateVector;
+	for(size_t i = 0; i < this->states.size(); i++) {
+		stateVector.append("(");
+		stateVector.append(to_string(this->states[i].real()));
+		stateVector.append(",");
+		stateVector.append(to_string(this->states[i].imag()));
+		stateVector.append(")");
+
+		if(i % 2 == 1)
+			stateVector.append(" | ");
+	}
+	stateVector.append("\n");
+	return stateVector;
+}
+
 void QubitLayerMPI::printStateVector()
 {
 	for(size_t i = 0; i < this->states.size(); i++) {
 		cout << this->states[i];
+
 		if(i % 2 == 1)
 			cout << " | ";
 	}
