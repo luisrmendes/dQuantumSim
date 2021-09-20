@@ -26,28 +26,48 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	}
 
 	// send messages for all states in the vector
-	if(statesOOB.size() != 0) {
-		for(size_t i = 0; i < statesOOB.size(); i += 2) {
+	int node, nextNode = -1;
+	vector<complex<double>> msgToSend;
 
-			int node = getNodeOfState(statesOOB[i].real());
+	for(size_t i = 0; i < statesOOB.size(); i += 2) {
 
-			// cout << "Process " << rank << " sending to node " << node << " state "
-			// 	 << statesOOB[i].real() << endl;
+		node = getNodeOfState(statesOOB[i].real());
 
-			// Erase the rank that has a intended operation
-			ranks.erase(ranks.begin() + node);
+		msgToSend.push_back(statesOOB[i]);
+		msgToSend.push_back(statesOOB[i + 1]);
 
-			// Convert vector into an array acceptable for MPI
-			complex<double> msg[statesOOB.size()];
-			copy(statesOOB.begin(), statesOOB.end(), msg);
+		// cout << "Node: " << node << endl;
+		// cout << "prevNode: " << prevNode << endl;
 
-			// Send the array to the intended node, MPI_TAG = tamanho da mensagem
-			MPI_Send(msg,
-					 statesOOB.size(),
-					 MPI_DOUBLE_COMPLEX,
-					 node,
-					 statesOOB.size(),
-					 MPI_COMM_WORLD);
+		if(!(i + 2 > statesOOB.size())) {
+			nextNode = getNodeOfState(statesOOB[i + 2].real());
+			if(nextNode == node) {
+				continue;
+			} else {
+				// termina o buffer msgToSend, envia e faz clear
+				cout << "Process " << rank << " sending to node " << node << endl;
+				for(size_t z = 0; z < msgToSend.size(); z++) {
+					cout << msgToSend[z] << " ";
+				}
+				cout << endl;
+
+				// Erase the rank that has a intended operation
+				ranks.erase(ranks.begin() + node);
+
+				// Convert vector into an array acceptable for MPI
+				complex<double> msg[msgToSend.size()];
+				copy(msgToSend.begin(), msgToSend.end(), msg);
+
+				// Send the array to the intended node, MPI_TAG = tamanho da mensagem
+				MPI_Send(msg,
+						 msgToSend.size(),
+						 MPI_DOUBLE_COMPLEX,
+						 node,
+						 msgToSend.size(),
+						 MPI_COMM_WORLD);
+
+				msgToSend.clear();
+			}
 		}
 	}
 
@@ -85,8 +105,9 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
+			cout << "Received Ops: " << endl;
 			for(int i = 0; i < status.MPI_TAG; i++) {
-				// cout << msg[i] << endl;
+				cout << msg[i] << endl;
 				receivedOperations.push_back(msg[i]);
 			}
 		}
