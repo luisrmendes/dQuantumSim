@@ -316,11 +316,13 @@ void QubitLayerMPI::pauliY(int targetQubit)
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
 			} else {
-				this->debugLog.append("Process ");
-				this->debugLog.append(to_string(rank));
-				this->debugLog.append(" says : State |");
-				this->debugLog.append(state.to_string());
-				this->debugLog.append("> out of bounds!\n");
+				if(OPS_DEBUG_LOGS) {
+					debugLog.append("PauliX -> Process ");
+					debugLog.append(to_string(rank));
+					debugLog.append(" says : State |");
+					debugLog.append(state.to_string());
+					debugLog.append("> out of bounds!\n");
+				}
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
