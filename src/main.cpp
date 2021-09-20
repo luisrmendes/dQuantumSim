@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
 	qL.hadamard(0);
 	qL.hadamard(2);
 
-	// qL.pauliY(1);
-	// qL.pauliX(2);
+	qL.pauliY(1);
+	qL.pauliX(2);
 
 	qL.measure();
 
@@ -78,9 +78,16 @@ int main(int argc, char* argv[])
 	states[0] = 1;
 	qL.setStates(states);
 
-	// init
-	qL.hadamard(0);
 	qL.hadamard(1);
+	qL.hadamard(0);
+	qL.hadamard(2);
+
+	qL.pauliY(1);
+	qL.pauliX(2);
+
+	// init
+	// qL.hadamard(0);
+	// qL.hadamard(1);
 	// qL.hadamard(2);
 
 	// // oracle

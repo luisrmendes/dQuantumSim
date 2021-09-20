@@ -4,8 +4,8 @@ using namespace std;
 
 bool QubitLayerMPI::checkStateOOB(bitset<numQubitsMPI> state)
 {
-	long unsigned lowerBound = this->rank * (this->states.size() / 2);
-	long unsigned upperBound = (this->rank + 1) * (this->states.size() / 2);
+	size_t lowerBound = this->rank * (this->states.size() / 2);
+	size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
 
 	return state.to_ulong() < lowerBound || state.to_ulong() >= upperBound;
 }
@@ -26,30 +26,54 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	}
 
 	// send messages for all states in the vector
-	int node, nextNode = -1;
+	int node = -1, nextNode = -1;
 	vector<complex<double>> msgToSend;
 
-	for(size_t i = 0; i < statesOOB.size(); i += 2) {
+	if(HANDLER_STATES_DEBUG) {
+		if(statesOOB.size() != 0) {
+			debugLog.append("Process ");
+			debugLog.append(to_string(rank));
+			debugLog.append(" wants to send ");
+			debugLog.append("this: \n");
+			for(size_t i = 0; i < statesOOB.size(); i += 2) {
+				debugLog.append("\t");
+				debugLog.append(to_string(statesOOB[i].real()));
+				debugLog.append(" ");
+				debugLog.append(to_string(statesOOB[i + 1].real()));
+				debugLog.append("\n");
+			}
+		}
+	}
 
+	for(size_t i = 0; i < statesOOB.size(); i += 2) {
 		node = getNodeOfState(statesOOB[i].real());
 
 		msgToSend.push_back(statesOOB[i]);
 		msgToSend.push_back(statesOOB[i + 1]);
 
-		// cout << "Node: " << node << endl;
-		// cout << "prevNode: " << prevNode << endl;
-
 		if(!(i + 2 > statesOOB.size())) {
 			nextNode = getNodeOfState(statesOOB[i + 2].real());
-			if(nextNode == node) {
-				continue;
-			} else {
+
+			if(nextNode != node || i + 2 == statesOOB.size()) {
+
 				// termina o buffer msgToSend, envia e faz clear
-				cout << "Process " << rank << " sending to node " << node << endl;
-				for(size_t z = 0; z < msgToSend.size(); z++) {
-					cout << msgToSend[z] << " ";
+				if(HANDLER_STATES_DEBUG) {
+					cout << "Process " << rank << " sending to node " << node
+						 << endl;
+					debugLog.append("Process ");
+					debugLog.append(to_string(rank));
+					debugLog.append(" sending to node ");
+					debugLog.append(to_string(node));
+					debugLog.append("\n");
+					for(size_t z = 0; z < msgToSend.size(); z += 2) {
+						debugLog.append("\t");
+						debugLog.append(to_string(msgToSend[z].real()));
+						debugLog.append(" ");
+						debugLog.append(to_string(msgToSend[z + 1].real()));
+						debugLog.append("\n");
+					}
+					debugLog.append("\n");
 				}
-				cout << endl;
 
 				// Erase the rank that has a intended operation
 				ranks.erase(ranks.begin() + node);
@@ -105,9 +129,9 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
-			cout << "Received Ops: " << endl;
+			// cout << "Received Ops: " << endl;
 			for(int i = 0; i < status.MPI_TAG; i++) {
-				cout << msg[i] << endl;
+				// cout << msg[i] << endl;
 				receivedOperations.push_back(msg[i]);
 			}
 		}
@@ -118,9 +142,7 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 int QubitLayerMPI::getNodeOfState(unsigned long state)
 {
-	int node = floor(state / (this->states.size() / 2));
-
-	return node;
+	return floor(state / (this->states.size() / 2));
 }
 
 void QubitLayerMPI::measure()
@@ -131,9 +153,16 @@ void QubitLayerMPI::measure()
 	while(j < this->states.size()) {
 		float result = pow(abs(this->states[j]), 2); // not sure...
 
-		cout << "Node " << this->rank << ": ";
+		debugLog.append("Node ");
+		debugLog.append(to_string(rank));
+		debugLog.append(": |");
+		debugLog.append(bitset<numQubitsMPI>(i / 2).to_string());
+		debugLog.append("> -> ");
+		debugLog.append(to_string(result));
+		debugLog.append("\n");
 
-		cout << "|" << bitset<numQubitsMPI>(i / 2) << "> -> " << result << endl;
+		// cout << "Node " << this->rank << ": ";
+		// cout << "|" << bitset<numQubitsMPI>(i / 2) << "> -> " << result << endl;
 
 		i += 2;
 		j += 2;
@@ -203,9 +232,6 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
-			if(rank == 0) {
-				cout << "Rank 0 state: " << state << endl;
-			}
 			if(state.test(targetQubit)) {
 				this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i];
 			} else {
@@ -222,11 +248,6 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			if(!checkStateOOB(state)) {
 				int localIndex =
 					state.to_ulong() - (rank * (this->states.size() / 2));
-				if(rank == 0) {
-					cout << "Rank 0 local index: " << localIndex << endl;
-				}
-				debugLog.append(to_string(localIndex));
-				debugLog.append("\n");
 				this->states[2 * localIndex + 1] +=
 					(1 / sqrt(2)) * this->states[2 * i];
 			} else {
@@ -249,10 +270,6 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		// calcula o index local do state recebido
 		int localIndex =
 			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
-
-		if(rank == 0) {
-			cout << "Rank 0 local index: " << localIndex << endl;
-		}
 
 		this->states[2 * localIndex + 1] += (1 / sqrt(2)) * receivedOps[i + 1];
 	}
@@ -340,12 +357,13 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 
 			} else {
-				this->debugLog.append("Process ");
-				this->debugLog.append(to_string(rank));
-				this->debugLog.append(" says : State |");
-				this->debugLog.append(state.to_string());
-				this->debugLog.append("> out of bounds!\n");
-
+				if(DEBUG_LOGS) {
+					debugLog.append("PauliX -> Process ");
+					debugLog.append(to_string(rank));
+					debugLog.append(" says : State |");
+					debugLog.append(state.to_string());
+					debugLog.append("> out of bounds!\n");
+				}
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
 				statesOOB.push_back(this->states[2 * i]);
@@ -396,7 +414,7 @@ QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
 		++i;
 	}
 
-	this->debugLog.append("\nProcess ");
+	this->debugLog.append("\n--------------- Process ");
 	this->debugLog.append(to_string(rank));
 	this->debugLog.append(" logs --------------- \n");
 }

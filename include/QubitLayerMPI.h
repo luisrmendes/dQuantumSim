@@ -2,13 +2,14 @@
 #ifndef QUBITLAYERMPI_H
 #define QUBITLAYERMPI_H
 
+#include "macros.h"
 #include "mpi.h"
 #include "utils.h"
 #include <bitset>
 #include <complex>
 #include <iostream>
-#include <vector>
 #include <unistd.h>
+#include <vector>
 
 constexpr int numQubitsMPI = 3;
 
