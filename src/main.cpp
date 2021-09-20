@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	// Print logs orderly
 	for(int i = 0; i < size; i++) {
 		if(rank == i)
-			cout << qL.getLog() << endl;
+			cout << qL.getLog().str() << endl;
 		else{
 			sleep(0.5);
 		}

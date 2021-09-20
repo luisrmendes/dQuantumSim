@@ -5,7 +5,7 @@ using namespace std;
 template <typename... T>
 void QubitLayerMPI::appendDebugLog(const T&... args)
 {
-	(this->debugLog.append(args), ...);
+	((this->debugLog << args), ...);
 }
 
 bool QubitLayerMPI::checkStateOOB(bitset<numQubitsMPI> state)
@@ -35,21 +35,21 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	int node = -1, nextNode = -1;
 	vector<complex<double>> msgToSend;
 
-	if(HANDLER_STATES_DEBUG) {
-		if(statesOOB.size() != 0) {
-			debugLog.append("Process ");
-			debugLog.append(to_string(rank));
-			debugLog.append(" wants to send ");
-			debugLog.append("this: \n");
-			for(size_t i = 0; i < statesOOB.size(); i += 2) {
-				debugLog.append("\t");
-				debugLog.append(to_string(statesOOB[i].real()));
-				debugLog.append(" ");
-				debugLog.append(to_string(statesOOB[i + 1].real()));
-				debugLog.append("\n");
-			}
+#ifdef HANDLER_STATES_DEBUG
+	if(statesOOB.size() != 0) {
+		debugLog.append("Process ");
+		debugLog.append(to_string(rank));
+		debugLog.append(" wants to send ");
+		debugLog.append("this: \n");
+		for(size_t i = 0; i < statesOOB.size(); i += 2) {
+			debugLog.append("\t");
+			debugLog.append(to_string(statesOOB[i].real()));
+			debugLog.append(" ");
+			debugLog.append(to_string(statesOOB[i + 1].real()));
+			debugLog.append("\n");
 		}
 	}
+#endif
 
 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
 		node = getNodeOfState(statesOOB[i].real());
@@ -62,24 +62,23 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 			if(nextNode != node || i + 2 == statesOOB.size()) {
 
-				// termina o buffer msgToSend, envia e faz clear
-				if(HANDLER_STATES_DEBUG) {
-					cout << "Process " << rank << " sending to node " << node
-						 << endl;
-					debugLog.append("Process ");
-					debugLog.append(to_string(rank));
-					debugLog.append(" sending to node ");
-					debugLog.append(to_string(node));
-					debugLog.append("\n");
-					for(size_t z = 0; z < msgToSend.size(); z += 2) {
-						debugLog.append("\t");
-						debugLog.append(to_string(msgToSend[z].real()));
-						debugLog.append(" ");
-						debugLog.append(to_string(msgToSend[z + 1].real()));
-						debugLog.append("\n");
-					}
+// termina o buffer msgToSend, envia e faz clear
+#ifdef HANDLER_STATES_DEBUG
+				cout << "Process " << rank << " sending to node " << node << endl;
+				debugLog.append("Process ");
+				debugLog.append(to_string(rank));
+				debugLog.append(" sending to node ");
+				debugLog.append(to_string(node));
+				debugLog.append("\n");
+				for(size_t z = 0; z < msgToSend.size(); z += 2) {
+					debugLog.append("\t");
+					debugLog.append(to_string(msgToSend[z].real()));
+					debugLog.append(" ");
+					debugLog.append(to_string(msgToSend[z + 1].real()));
 					debugLog.append("\n");
 				}
+				debugLog.append("\n");
+#endif
 
 				// Erase the rank that has a intended operation
 				ranks.erase(ranks.begin() + node);
@@ -387,9 +386,9 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog("PauliX -> Process ",
-							   to_string(rank),
+							   rank,
 							   " says: State |",
-							   state.to_string(),
+							   state,
 							   "> out of bounds!\n");
 #endif
 
@@ -461,7 +460,6 @@ QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
 		++i;
 	}
 
-	this->debugLog.append("\n--------------- Process ");
-	this->debugLog.append(to_string(rank));
-	this->debugLog.append(" logs --------------- \n");
+	appendDebugLog(
+		"\n--------------- Process ", to_string(rank), " logs --------------- \n");
 }

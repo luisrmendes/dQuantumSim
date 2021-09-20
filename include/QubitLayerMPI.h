@@ -10,6 +10,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <sstream>
 
 constexpr int numQubitsMPI = 4;
 
@@ -21,7 +22,7 @@ class QubitLayerMPI
 	qubitLayer states;
 	int rank;
 	int size;
-	std::string debugLog;
+	std::stringstream debugLog;
 	std::string resultLog;
 
   public:
@@ -33,7 +34,7 @@ class QubitLayerMPI
 	QubitLayerMPI(size_t qLayerSize, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
-	std::string getLog() { return this->debugLog; }
+	std::stringstream& getLog() { return this->debugLog; }
 	void updateStates();
 	void printStateVector();
 	std::string getStateVector();
