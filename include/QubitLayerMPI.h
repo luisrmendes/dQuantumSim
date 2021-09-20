@@ -22,6 +22,7 @@ class QubitLayerMPI
 	int rank;
 	int size;
 	std::string debugLog;
+	std::string resultLog;
 
   public:
 	/**
