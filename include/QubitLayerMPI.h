@@ -87,6 +87,9 @@ class QubitLayerMPI
 	handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
 
 	bool checkStateOOB(std::bitset<numQubitsMPI> state);
+
+	template <typename... T>
+	void appendDebugLog(const T&... args);
 };
 
 #endif

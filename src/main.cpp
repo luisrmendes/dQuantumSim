@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	qL.hadamard(3);
 
 	// qL.pauliX(0);
-	qL.pauliX(1);
+	qL.pauliX(2);
 	qL.pauliZ(1);
 
 	qL.measure();
@@ -57,8 +57,9 @@ int main(int argc, char* argv[])
 	for(int i = 0; i < size; i++) {
 		if(rank == i)
 			cout << qL.getLog() << endl;
-		else
-			MPI_Barrier(MPI_COMM_WORLD);
+		else{
+			sleep(0.5);
+		}
 	}
 
 	MPI_Finalize();

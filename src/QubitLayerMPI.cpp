@@ -2,6 +2,12 @@
 
 using namespace std;
 
+template <typename... T>
+void QubitLayerMPI::appendDebugLog(const T&... args)
+{
+	(this->debugLog.append(args), ...);
+}
+
 bool QubitLayerMPI::checkStateOOB(bitset<numQubitsMPI> state)
 {
 	size_t lowerBound = this->rank * (this->states.size() / 2);
@@ -258,13 +264,14 @@ void QubitLayerMPI::hadamard(int targetQubit)
 				this->states[2 * localIndex + 1] +=
 					(1 / sqrt(2)) * this->states[2 * i];
 			} else {
-				if(HADAMARD_DEBUG_LOGS) {
-					debugLog.append("Hadamard -> Process ");
-					debugLog.append(to_string(rank));
-					debugLog.append(" says : State |");
-					debugLog.append(state.to_string());
-					debugLog.append("> out of bounds!\n");
-				}
+
+#ifdef HADAMARD_DEBUG_LOGS
+				debugLog.append("Hadamard -> Process ");
+				debugLog.append(to_string(rank));
+				debugLog.append(" says : State |");
+				debugLog.append(state.to_string());
+				debugLog.append("> out of bounds!\n");
+#endif
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
@@ -296,15 +303,16 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 				? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
 				: this->states[2 * i + 1].real(this->states[2 * i].real());
 
-			if(PAULIZ_DEBUG_LOGS) {
-				debugLog.append(getStateVector());
-			}
+#ifdef PAULIZ_DEBUG_LOGS
+			debugLog.append(getStateVector());
+#endif
 		}
 	}
 	updateStates();
-	if(PAULIZ_DEBUG_LOGS) {
-		debugLog.append(getStateVector());
-	}
+
+#ifdef PAULIZ_DEBUG_LOGS
+	debugLog.append(getStateVector());
+#endif
 }
 
 void QubitLayerMPI::pauliY(int targetQubit)
@@ -329,13 +337,13 @@ void QubitLayerMPI::pauliY(int targetQubit)
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
 			} else {
-				if(PAULIY_DEBUG_LOGS) {
-					debugLog.append("PauliX -> Process ");
-					debugLog.append(to_string(rank));
-					debugLog.append(" says : State |");
-					debugLog.append(state.to_string());
-					debugLog.append("> out of bounds!\n");
-				}
+#ifdef PAULIY_DEBUG_LOGS
+				debugLog.append("PauliY -> Process ");
+				debugLog.append(to_string(rank));
+				debugLog.append(" says : State |");
+				debugLog.append(state.to_string());
+				debugLog.append("> out of bounds!\n");
+#endif
 
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
@@ -376,13 +384,15 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 
 			} else {
-				if(PAULIX_DEBUG_LOGS) {
-					debugLog.append("PauliX -> Process ");
-					debugLog.append(to_string(rank));
-					debugLog.append(" says : State |");
-					debugLog.append(state.to_string());
-					debugLog.append("> out of bounds!\n");
-				}
+
+#ifdef PAULIX_DEBUG_LOGS
+				appendDebugLog("PauliX -> Process ",
+							   to_string(rank),
+							   " says: State |",
+							   state.to_string(),
+							   "> out of bounds!\n");
+#endif
+
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
 				statesOOB.push_back(this->states[2 * i]);
