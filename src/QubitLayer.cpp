@@ -100,9 +100,8 @@ void QubitLayer::pauliZ(int targetQubit)
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubits> state = i;
-			state[targetQubit] != 0
-				? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
-				: this->states[2 * i + 1].real(this->states[2 * i].real());
+			state[targetQubit] == 1 ? this->states[2 * i + 1] = -this->states[2 * i]
+									: this->states[2 * i + 1] = this->states[2 * i];
 		}
 	}
 	updateStates();
