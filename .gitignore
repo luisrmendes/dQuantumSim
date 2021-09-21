@@ -1,5 +1,7 @@
 simulator
 mpi_sim
+logs/
+obj/
 
 # Prerequisites
 *.d

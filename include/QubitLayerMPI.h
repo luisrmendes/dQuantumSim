@@ -7,10 +7,12 @@
 #include "utils.h"
 #include <bitset>
 #include <complex>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <filesystem>
 
 constexpr int numQubitsMPI = 4;
 
@@ -23,7 +25,7 @@ class QubitLayerMPI
 	int rank;
 	int size;
 	std::stringstream debugLog;
-	std::string resultLog;
+	std::stringstream resultLog;
 
   public:
 	/**
@@ -33,7 +35,8 @@ class QubitLayerMPI
 	QubitLayerMPI(size_t qLayerSize, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
-	std::stringstream& getLog() { return this->debugLog; }
+	std::stringstream& getDebugLog() { return this->debugLog; }
+	std::stringstream& getResultLog() { return this->resultLog; }
 	void updateStates();
 	std::string getStateVector();
 
@@ -58,9 +61,24 @@ class QubitLayerMPI
 	void appendDebugLog(const T&... args);
 
 	/**
-	 * Displays qubit values according to processes rank
+	 * Appends info to the result log of each process
+	 * @param args Variable list of arguments to print
+	 */
+	template <typename... T>
+	void appendResultLog(const T&... args);
+
+	/**
+	 * Displays qubit values according to processes rank by outputting the 
+	 * result log of each process.
 	 */
 	void measure();
+
+	/**
+	 * Creates log file and directory, outputs the debug log of each process 
+	 * to a log file in directory "logs" and to stdout if argument is true. 
+	 * @param to_stdout if true, outputs to stdout
+	 */
+	void outputDebugLogs(bool to_stdout);
 
 	/**
 	 * Returns true if state has non-zero real component
