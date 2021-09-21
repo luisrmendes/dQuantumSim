@@ -303,14 +303,14 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 				: this->states[2 * i + 1].real(this->states[2 * i].real());
 
 #ifdef PAULIZ_DEBUG_LOGS
-			debugLog.append(getStateVector());
+			appendDebugLog(getStateVector());
 #endif
 		}
 	}
 	updateStates();
 
 #ifdef PAULIZ_DEBUG_LOGS
-	debugLog.append(getStateVector());
+	appendDebugLog(getStateVector());
 #endif
 }
 
@@ -336,12 +336,13 @@ void QubitLayerMPI::pauliY(int targetQubit)
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
 			} else {
+
 #ifdef PAULIY_DEBUG_LOGS
-				debugLog.append("PauliY -> Process ");
-				debugLog.append(to_string(rank));
-				debugLog.append(" says : State |");
-				debugLog.append(state.to_string());
-				debugLog.append("> out of bounds!\n");
+				appendDebugLog("PauliY -> Process ",
+							   rank,
+							   " says: State |",
+							   state,
+							   "> out of bounds!\n");
 #endif
 
 				// pair (state, intended_value)
@@ -423,19 +424,15 @@ void QubitLayerMPI::updateStates()
 
 string QubitLayerMPI::getStateVector()
 {
-	string stateVector;
+	stringstream stateVector;
 	for(size_t i = 0; i < this->states.size(); i++) {
-		stateVector.append("(");
-		stateVector.append(to_string(this->states[i].real()));
-		stateVector.append(",");
-		stateVector.append(to_string(this->states[i].imag()));
-		stateVector.append(")");
+		stateVector << this->states[i];
 
 		if(i % 2 == 1)
-			stateVector.append(" | ");
+			stateVector << " | ";
 	}
-	stateVector.append("\n");
-	return stateVector;
+	stateVector << "\n";
+	return stateVector.str();
 }
 
 void QubitLayerMPI::printStateVector()

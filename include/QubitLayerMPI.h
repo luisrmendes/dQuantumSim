@@ -10,7 +10,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
-#include <sstream>
+#include <iomanip>
 
 constexpr int numQubitsMPI = 4;
 
