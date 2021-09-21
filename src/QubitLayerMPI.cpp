@@ -183,6 +183,7 @@ void QubitLayerMPI::measure()
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
+	// Executes pauliX if both control qubits are set to |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
@@ -200,6 +201,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 {
+	// Executes pauliX if control qubit is |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;
@@ -217,6 +219,8 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 {
+	// Executes pauliZ if control qubit is |1>
+
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i;

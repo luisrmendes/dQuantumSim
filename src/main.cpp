@@ -41,16 +41,18 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.hadamard(0);
-	qL.hadamard(1);
-	qL.hadamard(2);
-	qL.hadamard(3);
+	// qL.hadamard(0);
+	// qL.hadamard(1);
+	// qL.hadamard(2);
+	// qL.hadamard(3);
 
-	// qL.pauliX(0);
+	qL.pauliX(0);
 	qL.pauliX(2);
 	qL.pauliZ(1);
+	qL.pauliZ(2);
 
 	qL.measure();
+
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	// Print logs orderly

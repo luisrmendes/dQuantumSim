@@ -7,10 +7,10 @@
 #include "utils.h"
 #include <bitset>
 #include <complex>
+#include <iomanip>
 #include <iostream>
 #include <unistd.h>
 #include <vector>
-#include <iomanip>
 
 constexpr int numQubitsMPI = 4;
 
@@ -27,7 +27,6 @@ class QubitLayerMPI
 
   public:
 	/**
-	 * Starts circuit with all qubits |0>, id est |000> == {1,0}
 	 * Initializes state vector with (0,0)
 	 * @param qubitCount Number of qubits 
 	 */
@@ -36,8 +35,27 @@ class QubitLayerMPI
 	void setStates(qubitLayer states) { this->states = states; }
 	std::stringstream& getLog() { return this->debugLog; }
 	void updateStates();
-	void printStateVector();
 	std::string getStateVector();
+
+	void pauliX(int targetQubit);
+	void pauliY(int targetQubit);
+	void pauliZ(int targetQubit);
+	void hadamard(int targetQubit);
+	void controlledZ(int controlQubit, int targetQubit);
+	void controlledX(int controlQubit, int targetQubit);
+	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
+
+	/**
+	 * Prints the state layer vector with the adequate format
+	 */
+	void printStateVector();
+
+	/**
+	 * Appends info to the debug log of each process
+	 * @param args Variable list of arguments to print
+	 */
+	template <typename... T>
+	void appendDebugLog(const T&... args);
 
 	/**
 	 * Displays qubit values according to processes rank
@@ -49,26 +67,6 @@ class QubitLayerMPI
 	 * @param i State vector iterator position
 	 */
 	bool checkZeroState(int i);
-
-	void pauliX(int targetQubit);
-	void pauliY(int targetQubit);
-	void pauliZ(int targetQubit);
-	void hadamard(int targetQubit);
-
-	/**
-	 * Executes pauliZ if control qubit is |1>
-	 */
-	void controlledZ(int controlQubit, int targetQubit);
-
-	/**
-	 * Executes pauliX if control qubit is |1>
-	 */
-	void controlledX(int controlQubit, int targetQubit);
-
-	/**
-	 * Executes pauliX if both control qubits are set to |1>
-	 */
-	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 
 	/**
 	 * Gets the node that posesses the state
@@ -87,10 +85,13 @@ class QubitLayerMPI
 	std::vector<std::complex<double>>
 	handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
 
+	/**
+	 * Checks if state is Out Of Bounds of the state layer
+	 * vector of the process
+	 * @param state bitset of the state to check
+	 * @return true if state is OOB, else false
+	 */
 	bool checkStateOOB(std::bitset<numQubitsMPI> state);
-
-	template <typename... T>
-	void appendDebugLog(const T&... args);
 };
 
 #endif
