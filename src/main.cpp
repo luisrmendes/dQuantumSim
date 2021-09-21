@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
 	qL.pauliX(0);
 	qL.pauliX(2);
-	// qL.pauliY(0);
+	qL.pauliY(0);
 	qL.pauliZ(1);
 	qL.pauliZ(2);
 

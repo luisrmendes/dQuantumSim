@@ -358,9 +358,8 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
 
-			state[targetQubit] != 0
-				? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
-				: this->states[2 * i + 1].real(this->states[2 * i].real());
+			state[targetQubit] == 1 ? this->states[2 * i + 1] = -this->states[2 * i]
+									: this->states[2 * i + 1] = this->states[2 * i];
 
 #ifdef PAULIZ_DEBUG_LOGS
 			appendDebugLog("State vector before update: ", getStateVector());
