@@ -99,16 +99,11 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 #ifdef HANDLER_STATES_DEBUG
 	if(statesOOB.size() != 0) {
-		debugLog.append("Process ");
-		debugLog.append(to_string(rank));
-		debugLog.append(" wants to send ");
-		debugLog.append("this: \n");
+		appendDebugLog("Wants to send this: \n");
+		// cout << "Process " << rank << " wants to send this: " << endl;
 		for(size_t i = 0; i < statesOOB.size(); i += 2) {
-			debugLog.append("\t");
-			debugLog.append(to_string(statesOOB[i].real()));
-			debugLog.append(" ");
-			debugLog.append(to_string(statesOOB[i + 1].real()));
-			debugLog.append("\n");
+			appendDebugLog("\t", statesOOB[i].real(), " ", statesOOB[i + 1], "\n");
+			// cout << "\t" << statesOOB[i].real() << " " << statesOOB[i + 1] << "\n";
 		}
 	}
 #endif
@@ -125,23 +120,6 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 			if(nextNode != node || i + 2 == statesOOB.size()) {
 				// termina o buffer msgToSend, envia e faz clear
 
-#ifdef HANDLER_STATES_DEBUG
-				cout << "Process " << rank << " sending to node " << node << endl;
-				debugLog.append("Process ");
-				debugLog.append(to_string(rank));
-				debugLog.append(" sending to node ");
-				debugLog.append(to_string(node));
-				debugLog.append("\n");
-				for(size_t z = 0; z < msgToSend.size(); z += 2) {
-					debugLog.append("\t");
-					debugLog.append(to_string(msgToSend[z].real()));
-					debugLog.append(" ");
-					debugLog.append(to_string(msgToSend[z + 1].real()));
-					debugLog.append("\n");
-				}
-				debugLog.append("\n");
-#endif
-
 				// Erase the rank that has a intended operation
 				ranks.erase(ranks.begin() + node);
 
@@ -149,6 +127,14 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 				complex<double> msg[msgToSend.size()];
 				copy(msgToSend.begin(), msgToSend.end(), msg);
 
+#ifdef HANDLER_STATES_DEBUG
+				appendDebugLog("Sending to node ", node, "\n");
+				for(size_t z = 0; z < msgToSend.size(); z += 2) {
+					appendDebugLog(
+						"\t", msgToSend[z].real(), " ", msgToSend[z + 1], "\n");
+				}
+				appendDebugLog("\n");
+#endif
 				// Send the array to the intended node, MPI_TAG = tamanho da mensagem
 				MPI_Send(msg,
 						 msgToSend.size(),
@@ -178,7 +164,6 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	vector<complex<double>> receivedOperations;
 
 	MPI_Status status;
-	int MPI_RECV_BUFFER_SIZE = 10;
 	complex<double> msg[MPI_RECV_BUFFER_SIZE];
 	msg[0] = 0;
 	for(int node = 0; node < this->size; node++) {

@@ -46,11 +46,11 @@ int main(int argc, char* argv[])
 	qL.hadamard(2);
 	qL.hadamard(3);
 
-	qL.pauliX(0);
-	qL.pauliX(2);
-	qL.pauliY(0);
-	qL.pauliZ(1);
-	qL.pauliZ(2);
+	// qL.pauliX(0);
+	// qL.pauliX(2);
+	// qL.pauliY(0);
+	// qL.pauliZ(1);
+	// qL.pauliZ(2);
 
 	qL.measure();
 
