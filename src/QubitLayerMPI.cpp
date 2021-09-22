@@ -247,18 +247,49 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 {
 	// Executes pauliX if control qubit is |1>
+
+	// vector of (stateOTB, value) pairs
+	vector<complex<double>> statesOOB;
+
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i;
+			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
 			if(state.test(controlQubit)) {
-				bitset<numQubitsMPI> state = i;
 				state.flip(targetQubit);
-				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
+
+				// if a state is OTB, store tuple (state, intended_value) to a vector
+				if(!checkStateOOB(state)) {
+					int localIndex =
+						state.to_ulong() - (rank * (this->states.size() / 2));
+					this->states[2 * localIndex + 1] = this->states[2 * i];
+				} else {
+
+#ifdef CONTROLLEDX_DEBUG_LOGS
+					appendDebugLog(
+						"ControlledX: State |", state, "> out of bounds!\n");
+#endif
+
+					// pair (state, intended_value)
+					statesOOB.push_back(state.to_ulong());
+					statesOOB.push_back(this->states[2 * i]);
+				}
 			} else {
 				this->states[2 * i + 1].real(this->states[2 * i].real());
 			}
 		}
 	}
+
+	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+
+	for(size_t i = 0; i < receivedOps.size(); i += 2) {
+		// calcula o index local do state recebido
+		int localIndex =
+			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+
+		// operacao especifica ao pauliX
+		this->states[2 * localIndex + 1] = receivedOps[i + 1];
+	}
+
 	updateStates();
 }
 

@@ -1,3 +1,4 @@
+// #define CONTROLLEDX_DEBUG_LOGS
 // #define HADAMARD_DEBUG_LOGS
 // #define PAULIZ_DEBUG_LOGS
 // #define PAULIY_DEBUG_LOGS

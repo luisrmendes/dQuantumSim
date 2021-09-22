@@ -41,16 +41,9 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	qL.hadamard(0);
-	qL.hadamard(1);
-	qL.hadamard(2);
-	qL.hadamard(3);
-
-	// qL.pauliX(0);
-	// qL.pauliX(2);
-	// qL.pauliY(0);
-	// qL.pauliZ(1);
-	// qL.pauliZ(2);
+	qL.pauliX(0);
+	qL.pauliX(2);
+	qL.controlledX(0, 0);
 
 	qL.measure();
 

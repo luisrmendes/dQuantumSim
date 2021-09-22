@@ -39,7 +39,6 @@ void QubitLayer::controlledX(int controlQubit, int targetQubit)
 		if(checkZeroState(i)) {
 			bitset<numQubits> state = i;
 			if(state.test(controlQubit)) {
-				bitset<numQubits> state = i;
 				state.flip(targetQubit);
 				this->states[2 * state.to_ulong() + 1] = this->states[2 * i];
 			} else {
