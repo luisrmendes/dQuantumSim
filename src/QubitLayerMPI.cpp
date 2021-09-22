@@ -352,7 +352,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i;
+			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
 			if(state.test(targetQubit)) {
 				this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i];
 			} else {
