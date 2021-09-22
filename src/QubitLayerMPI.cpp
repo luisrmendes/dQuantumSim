@@ -296,14 +296,13 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 {
 	// Executes pauliZ if control qubit is |1>
-
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i;
+			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
 			if(state.test(controlQubit)) {
-				state[targetQubit] != 0
-					? this->states[2 * i + 1].real(this->states[2 * i].real() * -1)
-					: this->states[2 * i + 1].real(this->states[2 * i].real());
+				state[targetQubit] == 1
+					? this->states[2 * i + 1] = -this->states[2 * i]
+					: this->states[2 * i + 1] = this->states[2 * i];
 			} else {
 				this->states[2 * i + 1].real(this->states[2 * i].real());
 			}
