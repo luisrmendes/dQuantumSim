@@ -9,15 +9,24 @@ using namespace std;
 #ifdef USING_MPI
 #include "QubitLayerMPI.h"
 #include "mpi.h"
+#include "parser.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[])
 {
 	if(argc != 2) {
-		cerr << "Usage: ./simulator <number_of_qubits>" << endl << endl;
+		cerr << "Usage: ./simulator <file_name>" << endl << endl;
 		exit(-1);
 	}
 
+	vector<unsigned int> instructions = sourceParser(argv[1]);
+
+	cout << endl << "instructions vector" << endl;
+	for(size_t i = 0; i < instructions.size(); ++i) {
+		cout << instructions[i] << " ";
+	}
+	cout << endl;
+/*
 	int qubitCount = stoi(argv[1]);
 
 	if(qubitCount != numQubitsMPI)
@@ -41,9 +50,6 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-	// qL.hadamard(1);
-	// qL.hadamard(1);
-
 	// init
 	qL.hadamard(0);
 	qL.hadamard(1);
@@ -58,7 +64,7 @@ int main(int argc, char* argv[])
 
 	// grover diffusion
 	qL.hadamard(0);
-	qL.hadamard(1);
+	qL.hadamard(1);outputDebugLogs
 	qL.hadamard(2);
 	qL.pauliX(0);
 	qL.pauliX(1);
@@ -72,10 +78,12 @@ int main(int argc, char* argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
+#ifdef OUTPUT_LOGS
 	qL.outputDebugLogs(false);
+#endif
 
 	MPI_Finalize();
-
+*/
 	return 0;
 }
 #else
