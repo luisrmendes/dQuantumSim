@@ -40,8 +40,7 @@ int checkValidInstruction(std::string line)
 vector<unsigned int> sourceParser(char* fileName)
 {
 	string line;
-	ifstream myfile;
-	myfile.open(fileName);
+	ifstream myfile(fileName);
 
 	if(!myfile.is_open()) {
 		perror("Error opening file!\n");
@@ -51,12 +50,14 @@ vector<unsigned int> sourceParser(char* fileName)
 	vector<unsigned int> instructions;
 
 	string delim = " ";
-	unsigned int count = 0;
+	size_t end;
+	size_t start = 0U;
+	do {
+		// parse first line (init)
+		getline(myfile, line);
+		end = line.find(delim);
+	} while(end == std::string::npos || (line[0] == '#'));
 
-	// parse first line (init)
-	getline(myfile, line);
-	auto start = 0U;
-	auto end = line.find(delim);
 	if(line.substr(start, end - start) != "init") {
 		cerr << "First line of file must have init <number_of_qubits>" << endl;
 		exit(EXIT_FAILURE);
@@ -68,9 +69,11 @@ vector<unsigned int> sourceParser(char* fileName)
 
 	// parse next lines
 	while(getline(myfile, line)) {
-
 		start = 0U;
 		end = line.find(delim);
+
+		if(end == std::string::npos || (line[0] == '#'))
+			continue;
 
 		int iterations = checkValidInstruction(line.substr(start, end - start));
 
@@ -86,15 +89,8 @@ vector<unsigned int> sourceParser(char* fileName)
 			start = end + delim.length();
 			end = line.find(delim, start);
 			instructions.push_back(stoi(line.substr(start, end - start)));
-		}
-
-		// cout << line.substr(start, end);
-		// cout << endl;
-
-		++count;
+        }
 	}
-
-	myfile.close();
 
 	return instructions;
 }
