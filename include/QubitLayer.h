@@ -1,10 +1,8 @@
-#pragma once
 #ifndef QUBITLAYER_H
 #define QUBITLAYER_H
 
 #include <bitset>
 #include <complex>
-#include <iostream>
 #include <vector>
 
 constexpr int numQubits = 3;

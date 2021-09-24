@@ -1,4 +1,8 @@
 #include "QubitLayerMPI.h"
+#include "mpi.h"
+#include "utils.h"
+#include <filesystem>
+#include <fstream>
 
 using namespace std;
 

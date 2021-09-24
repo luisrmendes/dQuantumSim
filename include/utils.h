@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <vector>
 
 /**
@@ -13,3 +16,5 @@ std::vector<int> calculateLayerAlloc(int qubitCount, int nodeCount);
 void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
 							int rank,
 							int size);
+
+#endif
