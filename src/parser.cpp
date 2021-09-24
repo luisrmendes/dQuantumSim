@@ -89,7 +89,7 @@ vector<unsigned int> sourceParser(char* fileName)
 			start = end + delim.length();
 			end = line.find(delim, start);
 			instructions.push_back(stoi(line.substr(start, end - start)));
-        }
+		}
 	}
 
 	return instructions;

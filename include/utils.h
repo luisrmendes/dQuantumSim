@@ -1,6 +1,3 @@
-#include <bitset>
-#include <cmath>
-#include <iostream>
 #include <vector>
 
 /**
@@ -12,3 +9,7 @@
  * @returns Size of the layer for each node ordered by node rank
  */
 std::vector<int> calculateLayerAlloc(int qubitCount, int nodeCount);
+
+void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
+							int rank,
+							int size);

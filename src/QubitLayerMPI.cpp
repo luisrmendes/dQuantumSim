@@ -246,8 +246,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 				} else {
 
 #ifdef TOFFOLI_DEBUG_LOGS
-					appendDebugLog(
-						"toffoli: State |", state, "> out of bounds!\n");
+					appendDebugLog("toffoli: State |", state, "> out of bounds!\n");
 #endif
 
 					// pair (state, intended_value)
@@ -480,6 +479,10 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 			// if a state is OTB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
+#ifdef PAULIX_DEBUG_LOGS
+				appendDebugLog(
+					"State ", state, " in bounds = ", this->states[2 * i], "\n");
+#endif
 				int localIndex =
 					state.to_ulong() - (rank * (this->states.size() / 2));
 				this->states[2 * localIndex + 1] = this->states[2 * i];
