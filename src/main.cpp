@@ -36,8 +36,10 @@ int main(int argc, char* argv[])
 
 	vector<int> layerAllocs = calculateLayerAlloc(instructions[0], size);
 	QubitLayerMPI qL(layerAllocs[rank], rank, size);
+
 	// Initialze state vector as |0...0>
 	if(rank == 0) {
+		/** TODO: ha maneiras melhores de fazer isto **/
 		qubitLayer states = qL.getStates();
 		states[0] = 1;
 		qL.setStates(states);
