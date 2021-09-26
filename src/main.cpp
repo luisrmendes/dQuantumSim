@@ -11,6 +11,7 @@ using namespace std;
 #include "macros.h"
 #include "mpi.h"
 #include "parser.h"
+#include "utilsMPI.h"
 #include <stdio.h>
 
 int main(int argc, char* argv[])
@@ -84,7 +85,11 @@ int main(int argc, char* argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	qL.measure();
+	vector<double> results = qL.measureQubits();
+
+	gatherResults(rank, size, results);
+
+	// qL.measure();
 
 #ifdef OUTPUT_LOGS
 	qL.outputDebugLogs(false);

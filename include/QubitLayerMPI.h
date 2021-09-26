@@ -100,6 +100,8 @@ class QubitLayerMPI
 	 * @return true if state is OOB, else false
 	 */
 	bool checkStateOOB(std::bitset<numQubitsMPI> state);
+
+	std::vector<double> measureQubits();
 };
 
 #endif

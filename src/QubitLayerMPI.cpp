@@ -6,6 +6,34 @@
 
 using namespace std;
 
+vector<double> QubitLayerMPI::measureQubits()
+{
+	// Sum all qubits states of the qubit layer
+	int i = this->rank * this->states.size();
+	size_t j = 0;
+	vector<double> results;
+
+	// popular o vetor com os indices dos qubits
+	for(unsigned int i = 1; i <= numQubitsMPI; i++) {
+		results.push_back(i);
+		results.push_back(0);
+	}
+
+	while(j < this->states.size()) {
+		double result = pow(abs(this->states[j]), 2); // not sure...
+		bitset<numQubitsMPI> state(i / 2);
+		for(unsigned int k = 0; k < numQubitsMPI; k++) {
+			if(state.test(k))
+				results[(k * 2) + 1] += result;
+		}
+
+		i += 2;
+		j += 2;
+	}
+
+	return results;
+}
+
 template <typename... T>
 void QubitLayerMPI::appendResultLog(const T&... args)
 {
