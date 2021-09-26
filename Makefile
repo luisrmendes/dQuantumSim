@@ -1,5 +1,5 @@
 CXX = mpic++
-CXXFLAGS = -Wall -c -ggdb3
+CXXFLAGS = -Wall -c
 PROJ_NAME = simulator
 
 OBJS_DIR := obj
