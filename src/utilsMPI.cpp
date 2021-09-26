@@ -9,7 +9,6 @@ void gatherResults(int rank, int size, double* finalResults)
 {
 	MPI_Status status;
 	size_t resultsSize = numQubitsMPI * 2;
-	double results[resultsSize];
 
 	if(rank == 0) {
 		double receivedResults[resultsSize];
