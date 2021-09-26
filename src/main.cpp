@@ -93,7 +93,8 @@ int main(int argc, char* argv[])
 	if(rank == 0) {
 		cout << "Results: " << endl;
 		for(size_t i = 0; i < numQubitsMPI * 2; i += 2) {
-			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] << endl;
+			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100 <<
+				"% chance of being ON\n";
 		}
 		cout << endl;
 	}
