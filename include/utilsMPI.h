@@ -3,9 +3,6 @@
 
 #include <vector>
 
-void gatherResults(int rank,
-				   int size,
-				   std::vector<double> resultsVec,
-				   double* finalResults);
+void gatherResults(int rank, int size, double* finalResults);
 
 #endif

@@ -101,7 +101,7 @@ class QubitLayerMPI
 	 */
 	bool checkStateOOB(std::bitset<numQubitsMPI> state);
 
-	std::vector<double> measureQubits();
+	void measureQubits(double* result);
 };
 
 #endif

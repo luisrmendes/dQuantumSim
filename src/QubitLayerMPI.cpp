@@ -6,19 +6,19 @@
 
 using namespace std;
 
-vector<double> QubitLayerMPI::measureQubits()
+void QubitLayerMPI::measureQubits(double* resultArr)
 {
 	/** TODO: why vectors ffs dude **/
 
 	// Sum all qubits states of the qubit layer
 	int i = this->rank * this->states.size();
 	size_t j = 0;
-	vector<double> results;
+	size_t resultsSize = numQubitsMPI * 2;
 
 	// popular o vetor com os indices dos qubits
-	for(unsigned int i = 1; i <= numQubitsMPI; i++) {
-		results.push_back(i);
-		results.push_back(0);
+	for(unsigned int i = 0; i < resultsSize; i += 2) {
+		resultArr[i] = (i / 2) + 1;
+		resultArr[i + 1] = 0;
 	}
 
 	while(j < this->states.size()) {
@@ -26,14 +26,12 @@ vector<double> QubitLayerMPI::measureQubits()
 		bitset<numQubitsMPI> state(i / 2);
 		for(unsigned int k = 0; k < numQubitsMPI; k++) {
 			if(state.test(k))
-				results[(k * 2) + 1] += result;
+				resultArr[(k * 2) + 1] += result;
 		}
 
 		i += 2;
 		j += 2;
 	}
-
-	return results;
 }
 
 template <typename... T>

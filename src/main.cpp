@@ -85,15 +85,15 @@ int main(int argc, char* argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	vector<double> results = qL.measureQubits();
-	double finalResult[numQubitsMPI * 2];
-	gatherResults(rank, size, results, finalResult);
+	double results[numQubitsMPI * 2];
+	qL.measureQubits(results);
+	gatherResults(rank, size, results);
 
 	// print results
 	if(rank == 0) {
 		cout << "Results: " << endl;
 		for(size_t i = 0; i < numQubitsMPI * 2; i += 2) {
-			cout << "Qubit " << (i / 2) + 1 << " -> " << finalResult[i + 1] << endl;
+			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] << endl;
 		}
 		cout << endl;
 	}
