@@ -17,6 +17,4 @@ void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
 							int rank,
 							int size);
 
-void gatherResults(int rank, int size, std::vector<double> results);
-
 #endif

@@ -8,6 +8,8 @@ using namespace std;
 
 vector<double> QubitLayerMPI::measureQubits()
 {
+	/** TODO: why vectors ffs dude **/
+
 	// Sum all qubits states of the qubit layer
 	int i = this->rank * this->states.size();
 	size_t j = 0;
