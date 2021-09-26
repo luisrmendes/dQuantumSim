@@ -103,6 +103,7 @@ int main(int argc, char* argv[])
 
 #ifdef OUTPUT_LOGS
 	qL.outputDebugLogs(false);
+	
 #endif
 
 	MPI_Finalize();
