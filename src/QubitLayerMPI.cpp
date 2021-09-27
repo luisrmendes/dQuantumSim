@@ -1,8 +1,8 @@
 #include "QubitLayerMPI.h"
+#include "debug.h"
+#include "macros.h"
 #include "mpi.h"
 #include "utils.h"
-#include <filesystem>
-#include <fstream>
 
 using namespace std;
 
@@ -29,74 +29,6 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 
 		i += 2;
 		j += 2;
-	}
-}
-
-template <typename... T>
-void QubitLayerMPI::appendResultLog(const T&... args)
-{
-	((this->resultLog << args), ...);
-}
-
-template <typename... T>
-void QubitLayerMPI::appendDebugLog(const T&... args)
-{
-	((this->debugLog << args), ...);
-}
-
-void QubitLayerMPI::outputDebugLogs(bool to_stdout)
-{
-	// remove all previous logs
-	if(rank == 1) {
-		filesystem::remove_all("logs");
-		filesystem::create_directory("logs");
-	}
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	// create global log file
-	string globalLogFileName = "logs/globalLog.txt";
-	fstream globalLogFile;
-
-	// create log file with name according to rank
-	string nodeFileName = "logs/log";
-	nodeFileName.append(to_string(rank));
-	nodeFileName.append(".txt");
-	fstream nodeLogFile;
-
-	// Write to each log file
-	nodeLogFile.open(nodeFileName, ios::app);
-
-	if(!nodeLogFile) {
-		cout << "file does not exist" << endl;
-	} else {
-		// Print logs orderly
-		for(int i = 0; i < size; i++) {
-			if(rank == i)
-				nodeLogFile << this->debugLog.str() << "\n";
-			else
-				MPI_Barrier(MPI_COMM_WORLD);
-		}
-		nodeLogFile.close();
-	}
-
-	// Write to global log file
-	globalLogFile.open(globalLogFileName, ios::app);
-
-	if(!globalLogFile) {
-		cout << "file does not exist" << endl;
-	} else {
-		globalLogFile << this->debugLog.str() << "\n";
-		globalLogFile.close();
-	}
-
-	if(to_stdout) {
-		// Print logs orderly
-		for(int i = 0; i < size; i++) {
-			if(rank == i)
-				cout << this->debugLog.str() << endl;
-			else
-				MPI_Barrier(MPI_COMM_WORLD);
-		}
 	}
 }
 
@@ -246,14 +178,6 @@ void QubitLayerMPI::measure()
 		i += 2;
 		j += 2;
 	}
-
-	// Print logs orderly
-	for(int i = 0; i < size; i++) {
-		if(rank == i)
-			cout << resultLog.str() << endl;
-		else
-			MPI_Barrier(MPI_COMM_WORLD);
-	}
 }
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
@@ -389,6 +313,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			}
 		}
 	}
+
+	
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {

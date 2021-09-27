@@ -1,5 +1,7 @@
 #include "utilsMPI.h"
 #include "constants.h"
+#include "debug.h"
+#include "macros.h"
 #include "mpi.h"
 #include <iostream>
 
@@ -41,13 +43,26 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 			ranks.push_back(i);
 		}
 
+#ifdef INSTRUCTIONS_HANDLER_LOGS
+		appendDebugLog("Instructions to send: \n");
+		for(size_t i = 0; i < instructions.size(); i++) {
+			appendDebugLog(instructions[i], " ");
+		}
+		appendDebugLog("\n\n");
+#endif
+		cout << "Instructions to send: " << endl;
+		for(size_t i = 0; i < instructions.size(); i++) {
+			cout << instructions[i] << " ";
+		}
+		cout << endl;
+
 		// converter o vetor para array
 		unsigned int instructions_arr[(instructions.size())];
 		copy(instructions.begin(), instructions.end(), instructions_arr);
 
 		/** TODO: MPI_Broadcast? **/
 		// le, parse e envia as instucoes
-		for(int i = 0; i < size; i++) {
+		for(int i = 1; i < size; i++) {
 			MPI_Send(instructions_arr,
 					 instructions.size(),
 					 MPI_INT,
@@ -70,6 +85,18 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		for(int i = 0; i < status.MPI_TAG; i++) {
 			instructions.push_back(instructions_arr[i]);
 		}
+#ifdef INSTRUCTIONS_HANDLER_LOGS
+		appendDebugLog("Instructions received: \n");
+		for(size_t i = 0; i < instructions.size(); i++) {
+			appendDebugLog(instructions[i], " ");
+		}
+		appendDebugLog("\n\n");
+#endif
+		cout << "Instructions received: " << endl;
+		for(size_t i = 0; i < instructions.size(); i++) {
+			cout << instructions[i] << " ";
+		}
+		cout << endl;
 		return;
 	}
 }

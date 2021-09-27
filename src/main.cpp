@@ -8,6 +8,7 @@ using namespace std;
 
 #ifdef USING_MPI
 #include "QubitLayerMPI.h"
+#include "debug.h"
 #include "macros.h"
 #include "mpi.h"
 #include "parser.h"
@@ -93,17 +94,16 @@ int main(int argc, char* argv[])
 	if(rank == 0) {
 		cout << "\nResults: \n";
 		for(size_t i = 0; i < numQubitsMPI * 2; i += 2) {
-			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100 <<
-				"% chance of being ON\n";
+			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100
+				 << "% chance of being ON\n";
 		}
 		cout << "\n";
 	}
 
-	// qL.measure();
+	qL.measure();
 
 #ifdef OUTPUT_LOGS
-	qL.outputDebugLogs(false);
-	
+	outputDebugLogs(rank, size, false);
 #endif
 
 	MPI_Finalize();

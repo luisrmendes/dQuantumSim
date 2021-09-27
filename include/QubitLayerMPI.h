@@ -14,9 +14,7 @@ class QubitLayerMPI
 	qubitLayer states;
 	int rank;
 	int size;
-	std::stringstream debugLog;
-	std::stringstream resultLog;
-
+	
   public:
 	/**
 	 * Initializes state vector with (0,0)
@@ -25,8 +23,6 @@ class QubitLayerMPI
 	QubitLayerMPI(size_t qLayerSize, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
-	std::stringstream& getDebugLog() { return this->debugLog; }
-	std::stringstream& getResultLog() { return this->resultLog; }
 	void updateStates();
 	std::string getStateVector();
 
@@ -44,31 +40,10 @@ class QubitLayerMPI
 	void printStateVector();
 
 	/**
-	 * Appends info to the debug log of each process
-	 * @param args Variable list of arguments to print
-	 */
-	template <typename... T>
-	void appendDebugLog(const T&... args);
-
-	/**
-	 * Appends info to the result log of each process
-	 * @param args Variable list of arguments to print
-	 */
-	template <typename... T>
-	void appendResultLog(const T&... args);
-
-	/**
 	 * Displays qubit values according to processes rank by outputting the 
 	 * result log of each process.
 	 */
 	void measure();
-
-	/**
-	 * Creates log file and directory, outputs the debug log of each process 
-	 * to a log file in directory "logs" and to stdout if argument is true. 
-	 * @param to_stdout if true, outputs to stdout
-	 */
-	void outputDebugLogs(bool to_stdout);
 
 	/**
 	 * Returns true if state has non-zero real component
