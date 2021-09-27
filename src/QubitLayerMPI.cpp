@@ -314,8 +314,6 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		}
 	}
 
-	
-
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
@@ -329,7 +327,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			} else {
 
 #ifdef HADAMARD_DEBUG_LOGS
-				appendDebugLog("Hadamard: State |", state, "> out of bounds!\n");
+				appendDebugLog(
+					rank, size, "Hadamard: State |", state, "> out of bounds!\n");
 #endif
 
 				// pair (state, intended_value)
@@ -513,6 +512,9 @@ QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
 		++i;
 	}
 
-	appendDebugLog(
-		"\n--------------- Process ", to_string(rank), " logs --------------- \n");
+	appendDebugLog(rank,
+				   size,
+				   "\n--------------- Process ",
+				   to_string(rank),
+				   " logs --------------- \n");
 }
