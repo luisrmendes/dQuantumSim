@@ -50,11 +50,6 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		}
 		appendDebugLog(rank, size, "\n\n");
 #endif
-		cout << "Instructions to send: " << endl;
-		for(size_t i = 0; i < instructions.size(); i++) {
-			cout << instructions[i] << " ";
-		}
-		cout << endl;
 
 		// converter o vetor para array
 		unsigned int instructions_arr[(instructions.size())];
@@ -85,6 +80,7 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		for(int i = 0; i < status.MPI_TAG; i++) {
 			instructions.push_back(instructions_arr[i]);
 		}
+
 #ifdef INSTRUCTIONS_HANDLER_LOGS
 		appendDebugLog(rank, size, "Instructions received: \n");
 		for(size_t i = 0; i < instructions.size(); i++) {
@@ -92,7 +88,7 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		}
 		appendDebugLog(rank, size, "\n\n");
 #endif
-	
+
 		return;
 	}
 }

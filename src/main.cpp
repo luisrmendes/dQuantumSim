@@ -34,11 +34,8 @@ int main(int argc, char* argv[])
 		filesystem::create_directory("logs");
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
-	appendDebugLog(rank,
-				   size,
-				   "\n--------------- Node ",
-				   rank,
-				   " logs --------------- \n\n");
+	appendDebugLog(
+		rank, size, "\n--------------- Node ", rank, " logs --------------- \n\n");
 #endif
 
 	// Handle instructions
@@ -62,6 +59,9 @@ int main(int argc, char* argv[])
 	}
 
 	for(size_t i = 1; i < instructions.size(); i++) {
+#ifdef MEASURE_DEBUG_LOGS
+		qL.measure();
+#endif
 		switch(instructions[i]) {
 		case 1:
 			qL.pauliX(instructions[i + 1]);
