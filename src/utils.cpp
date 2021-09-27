@@ -3,10 +3,25 @@
 #include "mpi.h"
 #include <bitset>
 #include <cmath>
+#include <complex>
 #include <iostream>
 #include <vector>
 
 using namespace std;
+
+stringstream getFormattedQubitLayer(vector<complex<double>> states)
+{
+	stringstream result;
+	for(size_t i = 0; i < states.size(); i++) {
+		result << states[i];
+
+		if(i % 2 == 1)
+			result << " | ";
+	}
+	result << "\n\n";
+
+	return result;
+}
 
 vector<int> calculateLayerAlloc(int qubitCount, int nodeCount)
 {
