@@ -3,6 +3,6 @@
 while true
 do
 	clear
-	cat ../logs/globalLog.txt
+	cat ../logs/$1.txt
 	sleep 0.5 
 done	

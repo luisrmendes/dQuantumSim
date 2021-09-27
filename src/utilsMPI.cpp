@@ -44,11 +44,11 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		}
 
 #ifdef INSTRUCTIONS_HANDLER_LOGS
-		appendDebugLog("Instructions to send: \n");
+		appendDebugLog(rank, size, "Instructions to send: \n");
 		for(size_t i = 0; i < instructions.size(); i++) {
-			appendDebugLog(instructions[i], " ");
+			appendDebugLog(rank, size, instructions[i], " ");
 		}
-		appendDebugLog("\n\n");
+		appendDebugLog(rank, size, "\n\n");
 #endif
 		cout << "Instructions to send: " << endl;
 		for(size_t i = 0; i < instructions.size(); i++) {
@@ -86,11 +86,11 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 			instructions.push_back(instructions_arr[i]);
 		}
 #ifdef INSTRUCTIONS_HANDLER_LOGS
-		appendDebugLog("Instructions received: \n");
+		appendDebugLog(rank, size, "Instructions received: \n");
 		for(size_t i = 0; i < instructions.size(); i++) {
-			appendDebugLog(instructions[i], " ");
+			appendDebugLog(rank, size, instructions[i], " ");
 		}
-		appendDebugLog("\n\n");
+		appendDebugLog(rank, size, "\n\n");
 #endif
 		cout << "Instructions received: " << endl;
 		for(size_t i = 0; i < instructions.size(); i++) {

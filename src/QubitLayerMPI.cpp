@@ -512,9 +512,4 @@ QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
 		++i;
 	}
 
-	appendDebugLog(rank,
-				   size,
-				   "\n--------------- Process ",
-				   to_string(rank),
-				   " logs --------------- \n");
 }

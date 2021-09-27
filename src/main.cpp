@@ -13,6 +13,7 @@ using namespace std;
 #include "mpi.h"
 #include "parser.h"
 #include "utilsMPI.h"
+#include <filesystem>
 #include <stdio.h>
 
 int main(int argc, char* argv[])
@@ -28,7 +29,16 @@ int main(int argc, char* argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 #ifdef OUTPUT_LOGS
-	openAndCleanDebugFiles(rank, size);
+	if(rank == 0) {
+		filesystem::remove_all("logs");
+		filesystem::create_directory("logs");
+	}
+	MPI_Barrier(MPI_COMM_WORLD);
+	appendDebugLog(rank,
+				   size,
+				   "\n--------------- Process ",
+				   rank,
+				   " logs --------------- \n\n");
 #endif
 
 	// Handle instructions

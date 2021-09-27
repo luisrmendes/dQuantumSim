@@ -5,13 +5,6 @@
 #include <iostream>
 #include <sstream>
 
-extern std::string globalLogFileName;
-extern std::string nodeFileName;
-extern std::fstream globalLogFile;
-extern std::fstream nodeLogFile;
-extern std::stringstream debugLog;
-extern std::stringstream resultLog;
-
 /**
  * Creates log file and directory, outputs the debug log of each process 
  * to a log file in directory "logs" and to stdout if argument is true. 
@@ -26,6 +19,8 @@ void openAndCleanDebugFiles(int rank, int size);
 template <typename... T>
 void appendDebugLog(int rank, int size, const T&... args)
 {
+	std::fstream nodeLogFile;
+	// std::fstream globalLogFile;
 	std::string nodeFileName = "logs/log";
 	nodeFileName.append(std::to_string(rank));
 	nodeFileName.append(".txt");
@@ -55,6 +50,7 @@ void appendDebugLog(int rank, int size, const T&... args)
 template <typename... T>
 void appendResultLog(const T&... args)
 {
+	std::fstream resultLog;
 	((resultLog << args), ...);
 }
 
