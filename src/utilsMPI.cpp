@@ -92,11 +92,7 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		}
 		appendDebugLog(rank, size, "\n\n");
 #endif
-		cout << "Instructions received: " << endl;
-		for(size_t i = 0; i < instructions.size(); i++) {
-			cout << instructions[i] << " ";
-		}
-		cout << endl;
+	
 		return;
 	}
 }

@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 	appendDebugLog(rank,
 				   size,
-				   "\n--------------- Process ",
+				   "\n--------------- Node ",
 				   rank,
 				   " logs --------------- \n\n");
 #endif

@@ -20,7 +20,6 @@ template <typename... T>
 void appendDebugLog(int rank, int size, const T&... args)
 {
 	std::fstream nodeLogFile;
-	// std::fstream globalLogFile;
 	std::string nodeFileName = "logs/log";
 	nodeFileName.append(std::to_string(rank));
 	nodeFileName.append(".txt");
@@ -31,6 +30,7 @@ void appendDebugLog(int rank, int size, const T&... args)
 	((nodeLogFile << args), ...);
 	nodeLogFile.close();
 
+	// std::fstream globalLogFile;
 	// for(int i = 0; i < size; i++) {
 	// 	if(rank == i) {
 	// 		globalLogFile.open(globalLogFileName, std::ios::app);
