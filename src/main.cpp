@@ -47,8 +47,8 @@ int main(int argc, char* argv[])
 	instructionsHandlerMPI(instructions, rank, size);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	vector<int> layerAllocs = calculateLayerAlloc(instructions[0], size);
-	QubitLayerMPI qL(layerAllocs[rank], rank, size);
+	vector<unsigned int> layerAllocs = calculateLayerAlloc(instructions[0], size);
+	QubitLayerMPI qL(layerAllocs, rank, size);
 
 	// Initialze state vector as |0...0>
 	if(rank == 0) {
@@ -59,13 +59,14 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef GET_STATES_DEBUG_LOGS
-	int i = rank * qL.getStates().size();
+	int localStartIndex = qL.getLocalStartIndex();
 	size_t j = 0;
 
 	while(j < qL.getStates().size()) {
-		appendDebugLog(rank, size, "|", bitset<numQubitsMPI>(i / 2), "> ");
+		appendDebugLog(
+			rank, size, "|", bitset<numQubitsMPI>(localStartIndex / 2), "> ");
 
-		i += 2;
+		localStartIndex += 2;
 		j += 2;
 	}
 	appendDebugLog(rank, size, "\n\n");

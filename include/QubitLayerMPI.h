@@ -14,13 +14,14 @@ class QubitLayerMPI
 	qubitLayer states;
 	int rank;
 	int size;
-	
+	std::vector<unsigned int> layerAllocs;
+
   public:
 	/**
 	 * Initializes state vector with (0,0)
 	 * @param qubitCount Number of qubits 
 	 */
-	QubitLayerMPI(size_t qLayerSize, int rank, int size);
+	QubitLayerMPI(std::vector<unsigned int> layerAllocs, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
 	void updateStates();
@@ -77,6 +78,8 @@ class QubitLayerMPI
 	bool checkStateOOB(std::bitset<numQubitsMPI> state);
 
 	void measureQubits(double* result);
+
+	unsigned int getLocalStartIndex();
 };
 
 #endif

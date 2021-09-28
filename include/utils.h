@@ -15,6 +15,6 @@ std::stringstream getFormattedQubitLayer(std::vector<std::complex<double>> state
  * @param nodeCount Number of nodes running in the mpi environment
  * @returns Size of the layer for each node ordered by node rank
  */
-std::vector<int> calculateLayerAlloc(int qubitCount, int nodeCount);
+std::vector<unsigned int> calculateLayerAlloc(int qubitCount, int nodeCount);
 
 #endif

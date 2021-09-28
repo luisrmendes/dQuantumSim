@@ -6,10 +6,21 @@
 
 using namespace std;
 
+unsigned int QubitLayerMPI::getLocalStartIndex()
+{
+	unsigned int result = 0;
+
+	for(int i = 0; i < rank; i++) {
+		result += layerAllocs[i];
+	}
+
+	return result;
+}
+
 void QubitLayerMPI::measureQubits(double* resultArr)
 {
 	// Sum all qubits states of the qubit layer
-	int i = this->rank * this->states.size();
+	int localStartIndex = getLocalStartIndex();
 	size_t j = 0;
 	size_t resultsSize = numQubitsMPI * 2;
 
@@ -21,13 +32,13 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 
 	while(j < this->states.size()) {
 		double result = pow(abs(this->states[j]), 2); // not sure...
-		bitset<numQubitsMPI> state(i / 2);
+		bitset<numQubitsMPI> state(localStartIndex / 2);
 		for(unsigned int k = 0; k < numQubitsMPI; k++) {
 			if(state.test(k))
 				resultArr[(k * 2) + 1] += result;
 		}
 
-		i += 2;
+		localStartIndex += 2;
 		j += 2;
 	}
 }
@@ -162,7 +173,7 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	if(receivedOperations.size() != 0) {
 		appendDebugLog(rank, size, "Received Operations: \n");
 		for(size_t i = 0; i < receivedOperations.size(); i++) {
-			appendDebugLog(rank, size, "\t|", msg[i], "\n");
+			appendDebugLog(rank, size, "\t|", receivedOperations[i], "\n");
 		}
 		appendDebugLog(rank, size, "\n");
 	}
@@ -178,7 +189,9 @@ int QubitLayerMPI::getNodeOfState(unsigned long state)
 
 void QubitLayerMPI::measure()
 {
-	int i = this->rank * this->states.size();
+	int localStartIndex = getLocalStartIndex();
+	appendDebugLog(rank, size, "Size of layer: ", this->states.size(), "\n");
+	appendDebugLog(rank, size, "Local start Index: ", localStartIndex / 2, "\n");
 	size_t j = 0;
 
 	while(j < this->states.size()) {
@@ -189,12 +202,12 @@ void QubitLayerMPI::measure()
 					   "Node ",
 					   rank,
 					   ": |",
-					   bitset<numQubitsMPI>(i / 2).to_string(),
+					   bitset<numQubitsMPI>(localStartIndex / 2),
 					   "> -> ",
 					   result,
 					   "\n");
 
-		i += 2;
+		localStartIndex += 2;
 		j += 2;
 	}
 	appendDebugLog(rank, size, "\n");
@@ -321,6 +334,10 @@ bool QubitLayerMPI::checkZeroState(int i)
 
 void QubitLayerMPI::hadamard(int targetQubit)
 {
+#ifdef HADAMARD_DEBUG_LOGS
+	appendDebugLog(rank, size, "HADAMARD\n\n");
+#endif
+
 	vector<complex<double>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -373,6 +390,10 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #endif
 
 	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+
+	for(size_t i = 0; i < receivedOps.size(); i++) {
+		appendDebugLog(rank, size, receivedOps[i], "\n");
+	}
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
@@ -535,13 +556,14 @@ void QubitLayerMPI::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayerMPI::QubitLayerMPI(size_t qLayerSize, int rank, int size)
+QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs, int rank, int size)
 {
 	this->rank = rank;
 	this->size = size;
+	this->layerAllocs = layerAllocs;
 	// populate vector with all (0,0)
-	size_t i = 0;
-	while(i < qLayerSize) {
+	unsigned int i = 0;
+	while(i < layerAllocs[rank]) {
 		this->states.push_back(0);
 		++i;
 	}
