@@ -58,7 +58,10 @@ int main(int argc, char* argv[])
 		qL.setStates(states);
 	}
 
-#ifdef GET_STATES_DEBUG_LOGS
+#ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
+	appendDebugLog(
+		rank, size, "Size of States: ", qL.getLayerAllocs()[rank] / 2, "\n");
+
 	int localStartIndex = qL.getLocalStartIndex();
 	size_t j = 0;
 
@@ -69,7 +72,7 @@ int main(int argc, char* argv[])
 		localStartIndex += 2;
 		j += 2;
 	}
-	appendDebugLog(rank, size, "\n\n");
+	appendDebugLog(rank, size, "\n");
 #endif
 
 	for(size_t i = 1; i < instructions.size(); i++) {
@@ -134,8 +137,9 @@ int main(int argc, char* argv[])
 		}
 		cout << "\n";
 	}
-
+#ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
 	qL.measure();
+#endif
 
 	MPI_Finalize();
 

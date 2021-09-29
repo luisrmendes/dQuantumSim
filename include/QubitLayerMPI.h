@@ -24,6 +24,7 @@ class QubitLayerMPI
 	QubitLayerMPI(std::vector<unsigned int> layerAllocs, int rank, int size);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
+	std::vector<unsigned int> getLayerAllocs() { return this->layerAllocs; }
 	void updateStates();
 	std::string getStateVector();
 
@@ -80,6 +81,8 @@ class QubitLayerMPI
 	void measureQubits(double* result);
 
 	unsigned int getLocalStartIndex();
+
+	unsigned int getLocalIndexFromReceivedOp(unsigned int receivedIndex);
 };
 
 #endif
