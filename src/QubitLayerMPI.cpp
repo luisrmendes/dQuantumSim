@@ -61,10 +61,28 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 
 bool QubitLayerMPI::checkStateOOB(bitset<numQubitsMPI> state)
 {
-	size_t lowerBound = this->rank * (this->states.size() / 2);
-	size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
+	// true if OOB
+	// size_t lowerBound = this->rank * (this->states.size() / 2);
+	// size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
+	return state.to_ulong() < this->globalStartIndex ||
+		   state.to_ulong() > this->globalEndIndex;
+}
 
-	return state.to_ulong() < lowerBound || state.to_ulong() >= upperBound;
+int QubitLayerMPI::getNodeOfState(unsigned long state)
+{
+	/** TODO: melhor maneira de fazer isto **/
+	unsigned int lowerBound = 0;
+	unsigned int upperBound = layerAllocs[0] / 2;
+
+	int i = 0;
+	for(; i <= this->size; ++i) {
+		if(state < upperBound && state >= lowerBound)
+			break;
+		lowerBound = upperBound;
+		upperBound += layerAllocs[i + 1] / 2;
+	}
+
+	return i;
 }
 
 vector<complex<double>>
@@ -129,7 +147,7 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 
 #ifdef HANDLER_STATES_DEBUG
 	if(statesOOB.size() != 0) {
-		appendDebugLog(rank, size, "mapMsgToSend:\n");
+		appendDebugLog(rank, size, "MAP msgToSend:\n");
 		for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 			appendDebugLog(rank, size, "Node ", it->first, "\n");
 			for(size_t i = 0; i < it->second.size(); ++i) {
@@ -237,11 +255,6 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	return receivedOperations;
 }
 
-int QubitLayerMPI::getNodeOfState(unsigned long state)
-{
-	return floor(state / (this->states.size() / 2));
-}
-
 void QubitLayerMPI::measure()
 {
 	int localStartIndex = getLocalStartIndex();
@@ -303,8 +316,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex =
-			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
 
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
@@ -352,8 +364,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex =
-			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
 
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
@@ -522,8 +533,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex =
-			receivedOps[i].real() - (this->rank * (this->states.size() / 2));
+		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
 
 		this->states[2 * localIndex + 1].real() == 0
 			? this->states[2 * localIndex + 1] = receivedOps[i + 1] * 1i
@@ -625,10 +635,20 @@ QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs, int rank, int siz
 	this->rank = rank;
 	this->size = size;
 	this->layerAllocs = layerAllocs;
+
 	// populate vector with all (0,0)
 	unsigned int i = 0;
 	while(i < layerAllocs[rank]) {
 		this->states.push_back(0);
 		++i;
 	}
+
+	// calculate global indexes
+	unsigned int sum = 0;
+	for(size_t i = 0; i < rank; i++) {
+		sum += layerAllocs[i] / 2;
+	}
+
+	this->globalStartIndex = sum;
+	this->globalEndIndex = sum + (layerAllocs[rank] / 2) - 1;
 }

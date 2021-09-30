@@ -15,6 +15,8 @@ class QubitLayerMPI
 	int rank;
 	int size;
 	std::vector<unsigned int> layerAllocs;
+	unsigned int globalStartIndex;
+	unsigned int globalEndIndex;
 
   public:
 	/**
