@@ -1,7 +1,6 @@
 #include "utils.h"
 #include "constants.h"
 #include "mpi.h"
-#include <bitset>
 #include <cmath>
 #include <complex>
 #include <iostream>

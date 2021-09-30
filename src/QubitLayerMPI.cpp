@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <map>
 
+#define MASK(N) (0x1 << N)
+
 using namespace std;
 
 unsigned int QubitLayerMPI::getLocalIndexFromGlobalState(unsigned int receivedIndex)
@@ -36,7 +38,7 @@ unsigned int QubitLayerMPI::getLocalStartIndex()
 void QubitLayerMPI::measureQubits(double* resultArr)
 {
 	// Sum all qubits states of the qubit layer
-	int localStartIndex = getLocalStartIndex();
+	long localStartIndex = getLocalStartIndex();
 	size_t j = 0;
 	size_t resultsSize = numQubitsMPI * 2;
 
@@ -48,9 +50,10 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 
 	while(j < this->states.size()) {
 		double result = pow(abs(this->states[j]), 2); // not sure...
-		bitset<numQubitsMPI> state(localStartIndex / 2);
+		decltype(localStartIndex) state = (localStartIndex / 2);
+		
 		for(unsigned int k = 0; k < numQubitsMPI; k++) {
-			if(state.test(k))
+			if(state & MASK(k))
 				resultArr[(k * 2) + 1] += result;
 		}
 
