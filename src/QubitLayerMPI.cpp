@@ -564,13 +564,10 @@ void QubitLayerMPI::pauliX(int targetQubit)
 #endif
 				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 				this->states[2 * localIndex + 1] = this->states[2 * i];
-
 			} else {
-
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog(rank, size, "State |", state, "> out of bounds!\n");
 #endif
-
 				// pair (state, intended_value)
 				statesOOB.push_back(state.to_ulong());
 				statesOOB.push_back(this->states[2 * i]);
