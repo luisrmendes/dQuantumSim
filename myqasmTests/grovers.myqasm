@@ -1,3 +1,8 @@
+# Results: 
+#   Qubit 1 -> 50%
+#   Qubit 2 -> 50%
+#   Qubit 3 -> 0%
+
 # ---------- Grover's Algorithm in 3 qubits ----------
 
 # Initialize 3 qubit circuit

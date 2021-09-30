@@ -1,0 +1,10 @@
+# Results: 
+#   Qubit 1 -> 100%
+#   Qubit 2 -> 50%
+#   Qubit 3 -> 100%
+
+init 3
+
+pauliX 0
+hadamard 1
+pauliY 2

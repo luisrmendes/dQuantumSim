@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
 		}
 		cout << "\n";
 	}
+	
 #ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
 	qL.measure();
 #endif

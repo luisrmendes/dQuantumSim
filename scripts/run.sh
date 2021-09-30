@@ -1,0 +1,1 @@
+mpirun --mca opal_warn_on_missing_libcuda 0 -np $1 ./simulator $2
