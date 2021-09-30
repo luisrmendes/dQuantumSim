@@ -3,4 +3,4 @@ init 3
 hadamard 0
 hadamard 1
 hadamard 2
-
+pauliX 0

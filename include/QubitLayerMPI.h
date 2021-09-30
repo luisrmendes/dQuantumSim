@@ -84,7 +84,7 @@ class QubitLayerMPI
 
 	unsigned int getLocalStartIndex();
 
-	unsigned int getLocalIndexFromReceivedOp(unsigned int receivedIndex);
+	unsigned int getLocalIndexFromGlobalState(unsigned int receivedIndex);
 };
 
 #endif

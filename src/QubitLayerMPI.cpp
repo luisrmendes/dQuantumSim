@@ -8,7 +8,7 @@
 
 using namespace std;
 
-unsigned int QubitLayerMPI::getLocalIndexFromReceivedOp(unsigned int receivedIndex)
+unsigned int QubitLayerMPI::getLocalIndexFromGlobalState(unsigned int receivedIndex)
 {
 	unsigned int result = 0;
 
@@ -105,20 +105,19 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	vector<complex<double>> msgToSend;
 
 #ifdef HANDLER_STATES_DEBUG
-	if(statesOOB.size() != 0) {
-		appendDebugLog(rank, size, "Wants to send this: \n");
-		for(size_t i = 0; i < statesOOB.size(); i += 2) {
-			appendDebugLog(rank,
-						   size,
-						   "\t|",
-						   bitset<numQubitsMPI>(statesOOB[i].real()),
-						   "> value: ",
-						   statesOOB[i + 1],
-						   "\n");
-		}
-		appendDebugLog(rank, size, "\n");
-	}
-
+	// if(statesOOB.size() != 0) {
+	// 	appendDebugLog(rank, size, "Wants to send this: \n");
+	// 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
+	// 		appendDebugLog(rank,
+	// 					   size,
+	// 					   "\t|",
+	// 					   bitset<numQubitsMPI>(statesOOB[i].real()),
+	// 					   "> value: ",
+	// 					   statesOOB[i + 1],
+	// 					   "\n");
+	// 	}
+	// 	appendDebugLog(rank, size, "\n");
+	// }
 #endif
 
 	// map<node, (states, intended_values)>
@@ -316,7 +315,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
+		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
@@ -364,7 +363,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
+		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
@@ -462,7 +461,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
+		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 #ifdef HADAMARD_DEBUG_LOGS
 		appendDebugLog(rank, size, "Local index: ", localIndex, "\n");
 #endif
@@ -533,7 +532,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
+		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 
 		this->states[2 * localIndex + 1].real() == 0
 			? this->states[2 * localIndex + 1] = receivedOps[i + 1] * 1i
@@ -545,12 +544,15 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 void QubitLayerMPI::pauliX(int targetQubit)
 {
+#ifdef PAULIX_DEBUG_LOGS
+	appendDebugLog(rank, size, "--- PAULI X ---\n");
+#endif
 	// vector of (stateOTB, value) pairs
 	vector<complex<double>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			state.flip(targetQubit);
 
 			// if a state is OTB, store tuple (state, intended_value) to a vector
@@ -558,21 +560,19 @@ void QubitLayerMPI::pauliX(int targetQubit)
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog(rank,
 							   size,
-							   "State ",
+							   "State |",
 							   state,
-							   " in bounds = ",
+							   "> in bounds = ",
 							   this->states[2 * i],
 							   "\n");
 #endif
-				int localIndex =
-					state.to_ulong() - (rank * (this->states.size() / 2));
+				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 
 			} else {
 
 #ifdef PAULIX_DEBUG_LOGS
-				appendDebugLog(
-					rank, size, "PauliX: State |", state, "> out of bounds!\n");
+				appendDebugLog(rank, size, "State |", state, "> out of bounds!\n");
 #endif
 
 				// pair (state, intended_value)
@@ -586,7 +586,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		int localIndex = getLocalIndexFromReceivedOp(receivedOps[i].real());
+		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 
 #ifdef PAULIX_DEBUG_LOGS
 		appendDebugLog(rank, size, "Local Index = ", localIndex, "\n");
@@ -596,6 +596,9 @@ void QubitLayerMPI::pauliX(int targetQubit)
 	}
 
 	updateStates();
+#ifdef PAULIX_DEBUG_LOGS
+	appendDebugLog(rank, size, "--- END PAULI X ---\n\n");
+#endif
 }
 
 void QubitLayerMPI::updateStates()
@@ -645,7 +648,7 @@ QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs, int rank, int siz
 
 	// calculate global indexes
 	unsigned int sum = 0;
-	for(size_t i = 0; i < rank; i++) {
+	for(int i = 0; i < rank; i++) {
 		sum += layerAllocs[i] / 2;
 	}
 
