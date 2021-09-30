@@ -286,14 +286,13 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			if(state.test(controlQubit1) && state.test(controlQubit2)) {
 				state.flip(targetQubit);
 
 				// if a state is OTB, store tuple (state, intended_value) to a vector
 				if(!checkStateOOB(state)) {
-					int localIndex =
-						state.to_ulong() - (rank * (this->states.size() / 2));
+					int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
 
@@ -333,14 +332,13 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			if(state.test(controlQubit)) {
 				state.flip(targetQubit);
 
 				// if a state is OTB, store tuple (state, intended_value) to a vector
 				if(!checkStateOOB(state)) {
-					int localIndex =
-						state.to_ulong() - (rank * (this->states.size() / 2));
+					int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
 
@@ -377,7 +375,7 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 	// Executes pauliZ if control qubit is |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			if(state.test(controlQubit)) {
 				state[targetQubit] == 1
 					? this->states[2 * i + 1] = -this->states[2 * i]
@@ -405,7 +403,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			state.test(targetQubit)
 				? this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i]
 				: this->states[2 * i + 1] += (1 / sqrt(2)) * this->states[2 * i];
@@ -414,12 +412,11 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			state.flip(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				int localIndex =
-					state.to_ulong() - (rank * (this->states.size() / 2));
+				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 #ifdef HADAMARD_DEBUG_LOGS
 				appendDebugLog(rank,
 							   size,
@@ -476,7 +473,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 
 			state[targetQubit] == 1 ? this->states[2 * i + 1] = -this->states[2 * i]
 									: this->states[2 * i + 1] = this->states[2 * i];
@@ -500,15 +497,14 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + (rank * this->states.size() / 2);
+			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			// if |0>, scalar 1i applies to |1>
 			// if |1>, scalar -1i applies to |0>
 			// probabily room for optimization here
 			state.flip(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				int localIndex =
-					state.to_ulong() - (rank * (this->states.size() / 2));
+				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 
 				state[targetQubit] == 0
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
