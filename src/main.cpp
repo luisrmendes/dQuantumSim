@@ -83,38 +83,38 @@ int main(int argc, char* argv[])
 		case 1:
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 2:
 			qL.pauliY(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 3:
 			qL.pauliZ(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 4:
 			qL.hadamard(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 5:
 			qL.controlledX(instructions[i + 1], instructions[i + 2]);
 			i += 2;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 6:
 			qL.controlledZ(instructions[i + 1], instructions[i + 2]);
 			i += 2;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 7:
 			qL.toffoli(
 				instructions[i + 1], instructions[i + 2], instructions[i + 3]);
 			i += 3;
-			MPI_Barrier(MPI_COMM_WORLD);
+			// MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		default:
 			cerr << "Unrecognized operation " << instructions[i] << endl;
@@ -130,12 +130,11 @@ int main(int argc, char* argv[])
 
 	// print results
 	if(rank == 0) {
-		cout << "\nResults: \n";
+		cout << "Results: \n";
 		for(size_t i = 0; i < numQubitsMPI * 2; i += 2) {
 			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100
 				 << "% chance of being ON\n";
 		}
-		cout << "\n";
 	}
 	
 #ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
