@@ -51,7 +51,7 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	while(j < this->states.size()) {
 		double result = pow(abs(this->states[j]), 2); // not sure...
 		decltype(localStartIndex) state = (localStartIndex / 2);
-		
+
 		for(unsigned int k = 0; k < numQubitsMPI; k++) {
 			if(state & MASK(k))
 				resultArr[(k * 2) + 1] += result;
@@ -107,21 +107,21 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	int node = -1;
 	vector<complex<double>> msgToSend;
 
-#ifdef HANDLER_STATES_DEBUG
-	// if(statesOOB.size() != 0) {
-	// 	appendDebugLog(rank, size, "Wants to send this: \n");
-	// 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
-	// 		appendDebugLog(rank,
-	// 					   size,
-	// 					   "\t|",
-	// 					   bitset<numQubitsMPI>(statesOOB[i].real()),
-	// 					   "> value: ",
-	// 					   statesOOB[i + 1],
-	// 					   "\n");
-	// 	}
-	// 	appendDebugLog(rank, size, "\n");
-	// }
-#endif
+	// #ifdef HANDLER_STATES_DEBUG
+	// 	// if(statesOOB.size() != 0) {
+	// 	// 	appendDebugLog(rank, size, "Wants to send this: \n");
+	// 	// 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
+	// 	// 		appendDebugLog(rank,
+	// 	// 					   size,
+	// 	// 					   "\t|",
+	// 	// 					   bitset<numQubitsMPI>(statesOOB[i].real()),
+	// 	// 					   "> value: ",
+	// 	// 					   statesOOB[i + 1],
+	// 	// 					   "\n");
+	// 	// 	}
+	// 	// 	appendDebugLog(rank, size, "\n");
+	// 	// }
+	// #endif
 
 	// map<node, (states, intended_values)>
 	map<unsigned int, vector<complex<double>>> mapMsgToSend;
@@ -148,31 +148,36 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	}
 
 #ifdef HANDLER_STATES_DEBUG
-	if(statesOOB.size() != 0) {
-		appendDebugLog(rank, size, "MAP msgToSend:\n");
-		for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
-			appendDebugLog(rank, size, "Node ", it->first, "\n");
-			for(size_t i = 0; i < it->second.size(); ++i) {
-				if(i % 2 == 0)
-					appendDebugLog(rank,
-								   size,
-								   "\t ",
-								   it->second[i],
-								   " => |",
-								   bitset<numQubitsMPI>(it->second[i].real()),
-								   ">\n");
-				else
-					appendDebugLog(rank, size, "\t ", it->second[i], "\n");
-			}
-		}
-	}
-	appendDebugLog(rank, size, "\n");
+	// appendDebugLog(rank, size, mapMsgToSend.size(), " ");
+	// if(statesOOB.size() != 0) {
+	// 	appendDebugLog(rank, size, "MAP msgToSend:\n");
+	// 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
+	// 		appendDebugLog(rank, size, "Node ", it->first, "\n");
+	// 		for(size_t i = 0; i < it->second.size(); ++i) {
+	// 			if(i % 2 == 0)
+	// 				appendDebugLog(rank,
+	// 							   size,
+	// 							   "\t ",
+	// 							   it->second[i],
+	// 							   " => |",
+	// 							   bitset<numQubitsMPI>(it->second[i].real()),
+	// 							   ">\n");
+	// 			else
+	// 				appendDebugLog(rank, size, "\t ", it->second[i], "\n");
+	// 		}
+	// 	}
+	// }
+	// appendDebugLog(rank, size, "\n");
 #endif
 
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 		// Erase the rank that has a intended operation
 		// probabily a better way to do this
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
+
+#ifdef HANDLER_STATES_DEBUG
+		appendDebugLog(rank, size, it->second.size(), " ");
+#endif
 
 		complex<double> msg[it->second.size()];
 		copy(it->second.begin(), it->second.end(), msg);
@@ -186,19 +191,19 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 				 MPI_COMM_WORLD);
 	}
 
-#ifdef HANDLER_STATES_DEBUG
-	// appendDebugLog(rank, size, "Sending to node ", node, "\n");
-	// for(size_t z = 0; z < msgToSend.size(); z += 2) {
-	// 	appendDebugLog(rank,
-	// 				   size,
-	// 				   "\t|",
-	// 				   bitset<numQubitsMPI>(msgToSend[z].real()),
-	// 				   "> value: ",
-	// 				   msgToSend[z + 1],
-	// 				   "\n");
-	// }
-	// appendDebugLog(rank, size, "\n");
-#endif
+	// #ifdef HANDLER_STATES_DEBUG
+	// 	// appendDebugLog(rank, size, "Sending to node ", node, "\n");
+	// 	// for(size_t z = 0; z < msgToSend.size(); z += 2) {
+	// 	// 	appendDebugLog(rank,
+	// 	// 				   size,
+	// 	// 				   "\t|",
+	// 	// 				   bitset<numQubitsMPI>(msgToSend[z].real()),
+	// 	// 				   "> value: ",
+	// 	// 				   msgToSend[z + 1],
+	// 	// 				   "\n");
+	// 	// }
+	// 	// appendDebugLog(rank, size, "\n");
+	// #endif
 
 	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
 	complex<double> end = -1;
@@ -238,21 +243,21 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 			}
 		}
 	}
-#ifdef HANDLER_STATES_DEBUG
-	if(receivedOperations.size() != 0) {
-		appendDebugLog(rank, size, "Has received this: \n");
-		for(size_t i = 0; i < receivedOperations.size(); i += 2) {
-			appendDebugLog(rank,
-						   size,
-						   "\t|",
-						   bitset<numQubitsMPI>(receivedOperations[i].real()),
-						   "> value: ",
-						   receivedOperations[i + 1],
-						   "\n");
-		}
-		appendDebugLog(rank, size, "\n");
-	}
-#endif
+	// #ifdef HANDLER_STATES_DEBUG
+	// 	if(receivedOperations.size() != 0) {
+	// 		appendDebugLog(rank, size, "Has received this: \n");
+	// 		for(size_t i = 0; i < receivedOperations.size(); i += 2) {
+	// 			appendDebugLog(rank,
+	// 						   size,
+	// 						   "\t|",
+	// 						   bitset<numQubitsMPI>(receivedOperations[i].real()),
+	// 						   "> value: ",
+	// 						   receivedOperations[i + 1],
+	// 						   "\n");
+	// 		}
+	// 		appendDebugLog(rank, size, "\n");
+	// 	}
+	// #endif
 
 	return receivedOperations;
 }
