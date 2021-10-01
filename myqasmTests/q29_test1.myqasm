@@ -1,7 +1,7 @@
 # Results: 
 #   All 100%
 
-init 30
+init 29
 
 pauliX 0
 pauliX 1
@@ -32,5 +32,4 @@ pauliX 25
 pauliX 26
 pauliX 27
 pauliX 28
-pauliX 29
 
