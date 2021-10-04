@@ -175,8 +175,11 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 		// probabily a better way to do this
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
-#ifdef HANDLER_STATES_DEBUG
-		appendDebugLog(rank, size, it->second.size(), " ");
+#ifdef RECV_BUFFER_OVERFLOW_WARNING
+		if(it->second.size() >= MPI_RECV_BUFFER_SIZE) {
+			cerr << "RECV Buffer overload, segfaulting!\nmsgToSend size = "
+				 << it->second.size() << endl;
+		}
 #endif
 
 		complex<double> msg[it->second.size()];
