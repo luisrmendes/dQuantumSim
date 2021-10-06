@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 {
 	if(argc != 2) {
 		cerr << "Usage: ./simulator <file_name>" << endl << endl;
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
 	int rank, size;
@@ -49,14 +49,6 @@ int main(int argc, char* argv[])
 
 	vector<unsigned int> layerAllocs = calculateLayerAlloc(instructions[0], size);
 	QubitLayerMPI qL(layerAllocs, rank, size, instructions[0]);
-
-	// Initialze state vector as |0...0>
-	if(rank == 0) {
-		/** TODO: ha maneiras melhores de fazer isto **/
-		qubitLayer states = qL.getStates();
-		states[0] = 1;
-		qL.setStates(states);
-	}
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
 	appendDebugLog(

@@ -656,6 +656,10 @@ QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs,
 		++i;
 	}
 
+	// Initialze state vector as |0...0>
+	if(rank == 0)
+		this->states[0] = 1;
+
 	// calculate global indexes
 	unsigned int sum = 0;
 	for(int i = 0; i < rank; i++) {
