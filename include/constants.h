@@ -1,3 +1,3 @@
-constexpr int numQubitsMPI = 4;
+constexpr int numQubitsMPI = 26;
 
 #define MPI_RECV_BUFFER_SIZE 262145

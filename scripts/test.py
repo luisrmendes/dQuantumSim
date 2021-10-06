@@ -13,7 +13,6 @@ O = '\033[33m'  # orange
 B = '\033[34m'  # blue
 P = '\033[35m'  # purple
 
-
 def main():
     myqasmFile = sys.argv[1]
     numQubits = int(sys.argv[2])
