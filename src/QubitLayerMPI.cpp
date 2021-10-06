@@ -62,13 +62,12 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	}
 }
 
-bool QubitLayerMPI::checkStateOOB(bitset<numQubitsMPI> state)
+bool QubitLayerMPI::checkStateOOB(unsigned long state)
 {
 	// true if OOB
 	// size_t lowerBound = this->rank * (this->states.size() / 2);
 	// size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
-	return state.to_ulong() < this->globalStartIndex ||
-		   state.to_ulong() > this->globalEndIndex;
+	return state < this->globalStartIndex || state > this->globalEndIndex;
 }
 
 int QubitLayerMPI::getNodeOfState(unsigned long state)
@@ -302,7 +301,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 				state.flip(targetQubit);
 
 				// if a state is OTB, store tuple (state, intended_value) to a vector
-				if(!checkStateOOB(state)) {
+				if(!checkStateOOB(state.to_ulong())) {
 					int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
@@ -348,7 +347,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 				state.flip(targetQubit);
 
 				// if a state is OTB, store tuple (state, intended_value) to a vector
-				if(!checkStateOOB(state)) {
+				if(!checkStateOOB(state.to_ulong())) {
 					int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
@@ -428,7 +427,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			state.flip(targetQubit);
 
-			if(!checkStateOOB(state)) {
+			if(!checkStateOOB(state.to_ulong())) {
 				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 #ifdef HADAMARD_DEBUG_LOGS
 				appendDebugLog(rank,
@@ -516,7 +515,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 			// probabily room for optimization here
 			state.flip(targetQubit);
 
-			if(!checkStateOOB(state)) {
+			if(!checkStateOOB(state.to_ulong())) {
 				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
 
 				state[targetQubit] == 0
@@ -565,7 +564,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			state.flip(targetQubit);
 
 			// if a state is OTB, store tuple (state, intended_value) to a vector
-			if(!checkStateOOB(state)) {
+			if(!checkStateOOB(state.to_ulong())) {
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog(rank,
 							   size,

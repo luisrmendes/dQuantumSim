@@ -78,7 +78,7 @@ class QubitLayerMPI
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	 */
-	bool checkStateOOB(std::bitset<numQubitsMPI> state);
+	bool checkStateOOB(unsigned long state);
 
 	void measureQubits(double* result);
 
