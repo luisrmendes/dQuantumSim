@@ -415,8 +415,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
-			state.test(targetQubit)
+			unsigned long state = i + this->globalStartIndex;
+			(state & MASK(targetQubit))
 				? this->states[2 * i + 1] -= hadamard_const * this->states[2 * i]
 				: this->states[2 * i + 1] += hadamard_const * this->states[2 * i];
 		}
@@ -424,11 +424,11 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
-			state.flip(targetQubit);
+			unsigned long state = i + this->globalStartIndex;
+			state = state ^ MASK(targetQubit);
 
-			if(!checkStateOOB(state.to_ulong())) {
-				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
+			if(!checkStateOOB(state)) {
+				int localIndex = getLocalIndexFromGlobalState(state);
 #ifdef HADAMARD_DEBUG_LOGS
 				appendDebugLog(rank,
 							   size,
@@ -450,7 +450,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 					rank, size, "Hadamard: State |", state, "> out of bounds!\n");
 #endif
 				// pair (state, intended_value)
-				statesOOB.push_back(state.to_ulong());
+				statesOOB.push_back(state);
 				statesOOB.push_back(this->states[2 * i]);
 			}
 		}
