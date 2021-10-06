@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	vector<unsigned int> layerAllocs = calculateLayerAlloc(instructions[0], size);
-	QubitLayerMPI qL(layerAllocs, rank, size);
+	QubitLayerMPI qL(layerAllocs, rank, size, instructions[0]);
 
 	// Initialze state vector as |0...0>
 	if(rank == 0) {
@@ -124,19 +124,19 @@ int main(int argc, char* argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	double results[numQubitsMPI * 2];
+	double results[instructions[0] * 2];
 	qL.measureQubits(results);
-	gatherResults(rank, size, results);
+	gatherResults(rank, size, instructions[0], results);
 
 	// print results
 	if(rank == 0) {
 		cout << "Results: \n";
-		for(size_t i = 0; i < numQubitsMPI * 2; i += 2) {
+		for(size_t i = 0; i < instructions[0] * 2; i += 2) {
 			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100
 				 << "% chance of being ON\n";
 		}
 	}
-	
+
 #ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
 	qL.measure();
 #endif

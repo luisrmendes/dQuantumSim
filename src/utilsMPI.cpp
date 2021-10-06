@@ -7,10 +7,10 @@
 
 using namespace std;
 
-void gatherResults(int rank, int size, double* finalResults)
+void gatherResults(int rank, int size, unsigned int numQubits, double* finalResults)
 {
 	MPI_Status status;
-	size_t resultsSize = numQubitsMPI * 2;
+	size_t resultsSize = numQubits * 2;
 
 	if(rank == 0) {
 		double receivedResults[resultsSize];

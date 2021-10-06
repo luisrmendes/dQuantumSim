@@ -40,7 +40,7 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	// Sum all qubits states of the qubit layer
 	long localStartIndex = getLocalStartIndex();
 	size_t j = 0;
-	size_t resultsSize = numQubitsMPI * 2;
+	size_t resultsSize = this->numQubits * 2;
 
 	// popular o vetor com os indices dos qubits
 	for(unsigned int i = 0; i < resultsSize; i += 2) {
@@ -52,7 +52,7 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 		double result = pow(abs(this->states[j]), 2); // not sure...
 		decltype(localStartIndex) state = (localStartIndex / 2);
 
-		for(unsigned int k = 0; k < numQubitsMPI; k++) {
+		for(unsigned int k = 0; k < this->numQubits; k++) {
 			if(state & MASK(k))
 				resultArr[(k * 2) + 1] += result;
 		}
@@ -296,13 +296,13 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
-			if(state.test(controlQubit1) && state.test(controlQubit2)) {
-				state.flip(targetQubit);
+			unsigned long state = i + this->globalStartIndex;
+			if((state & MASK(controlQubit1)) && (state & MASK(controlQubit2))) {
+				state = state ^ MASK(targetQubit);
 
 				// if a state is OTB, store tuple (state, intended_value) to a vector
-				if(!checkStateOOB(state.to_ulong())) {
-					int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
+				if(!checkStateOOB(state)) {
+					int localIndex = getLocalIndexFromGlobalState(state);
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
 
@@ -311,7 +311,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 #endif
 
 					// pair (state, intended_value)
-					statesOOB.push_back(state.to_ulong());
+					statesOOB.push_back(state);
 					statesOOB.push_back(this->states[2 * i]);
 				}
 			} else {
@@ -342,13 +342,13 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
-			if(state.test(controlQubit)) {
-				state.flip(targetQubit);
+			unsigned long state = i + this->globalStartIndex;
+			if(state & MASK(controlQubit)) {
+				state = state ^ MASK(targetQubit);
 
 				// if a state is OTB, store tuple (state, intended_value) to a vector
-				if(!checkStateOOB(state.to_ulong())) {
-					int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
+				if(!checkStateOOB(state)) {
+					int localIndex = getLocalIndexFromGlobalState(state);
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
 
@@ -358,7 +358,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 #endif
 
 					// pair (state, intended_value)
-					statesOOB.push_back(state.to_ulong());
+					statesOOB.push_back(state);
 					statesOOB.push_back(this->states[2 * i]);
 				}
 			} else {
@@ -385,9 +385,9 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 	// Executes pauliZ if control qubit is |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
-			if(state.test(controlQubit)) {
-				state[targetQubit] == 1
+			unsigned long state = i + this->globalStartIndex;
+			if(state & MASK(controlQubit)) {
+				(state & MASK(targetQubit)) == 1
 					? this->states[2 * i + 1] = -this->states[2 * i]
 					: this->states[2 * i + 1] = this->states[2 * i];
 			} else {
@@ -639,11 +639,15 @@ void QubitLayerMPI::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs, int rank, int size)
+QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs,
+							 int rank,
+							 int size,
+							 unsigned int numQubits)
 {
 	this->rank = rank;
 	this->size = size;
 	this->layerAllocs = layerAllocs;
+	this->numQubits = numQubits;
 
 	// populate vector with all (0,0)
 	unsigned int i = 0;

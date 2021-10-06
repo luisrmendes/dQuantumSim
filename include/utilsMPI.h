@@ -7,6 +7,6 @@ void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
 							int rank,
 							int size);
 
-void gatherResults(int rank, int size, double* finalResults);
+void gatherResults(int rank, int size, unsigned int numQubits, double* finalResults);
 
 #endif
