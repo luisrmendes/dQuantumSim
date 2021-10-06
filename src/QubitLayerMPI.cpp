@@ -264,29 +264,29 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	return receivedOperations;
 }
 
-void QubitLayerMPI::measure()
-{
-	int localStartIndex = getLocalStartIndex();
-	size_t j = 0;
+// void QubitLayerMPI::measure()
+// {
+// 	int localStartIndex = getLocalStartIndex();
+// 	size_t j = 0;
 
-	while(j < this->states.size()) {
-		float result = pow(abs(this->states[j]), 2); // not sure...
+// 	while(j < this->states.size()) {
+// 		float result = pow(abs(this->states[j]), 2); // not sure...
 
-		appendDebugLog(rank,
-					   size,
-					   "Node ",
-					   rank,
-					   ": |",
-					   bitset<numQubitsMPI>(localStartIndex / 2),
-					   "> -> ",
-					   result,
-					   "\n");
+// 		appendDebugLog(rank,
+// 					   size,
+// 					   "Node ",
+// 					   rank,
+// 					   ": |",
+// 					   bitset<numQubitsMPI>(localStartIndex / 2),
+// 					   "> -> ",
+// 					   result,
+// 					   "\n");
 
-		localStartIndex += 2;
-		j += 2;
-	}
-	appendDebugLog(rank, size, "\n");
-}
+// 		localStartIndex += 2;
+// 		j += 2;
+// 	}
+// 	appendDebugLog(rank, size, "\n");
+// }
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
@@ -560,11 +560,11 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
-			state.flip(targetQubit);
+			unsigned long state = i + this->globalStartIndex;
+			state = state ^ MASK(targetQubit);
 
-			// if a state is OTB, store tuple (state, intended_value) to a vector
-			if(!checkStateOOB(state.to_ulong())) {
+			// if a state is OOB, store tuple (state, intended_value) to a vector
+			if(!checkStateOOB(state)) {
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog(rank,
 							   size,
@@ -574,14 +574,14 @@ void QubitLayerMPI::pauliX(int targetQubit)
 							   this->states[2 * i],
 							   "\n");
 #endif
-				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
+				int localIndex = getLocalIndexFromGlobalState(state);
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 			} else {
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog(rank, size, "State |", state, "> out of bounds!\n");
 #endif
 				// pair (state, intended_value)
-				statesOOB.push_back(state.to_ulong());
+				statesOOB.push_back(state);
 				statesOOB.push_back(this->states[2 * i]);
 			}
 		}
