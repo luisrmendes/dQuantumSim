@@ -24,7 +24,18 @@ def main():
     # # recompile
     # os.system("cd .. && make clean && make")
 
-    np = 6
+    if numQubits == 1:
+        np = 1
+    elif numQubits == 2:
+        np = 2
+    elif numQubits == 3:
+        np = 4
+    elif numQubits > 3:
+        np = 6
+    else:
+        print("Invalid numQubits!")
+        exit(1)
+
 
     for i in range(np):
         # Send command
