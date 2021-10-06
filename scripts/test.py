@@ -54,7 +54,7 @@ def main():
                 errors.append(j)
 
         for j in range(len(errors)):
-            print(R + "Error in qubit " + str(errors[j]) + W)
+            print(R + "Error in qubit " + str(errors[j]) + " np = " + str(i+1) + W)
 
         if len(errors) == 0:
             print(G + "No errors np = " + str(i+1) + W)
