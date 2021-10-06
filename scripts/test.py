@@ -2,9 +2,6 @@
 
 import sys
 import subprocess
-import os
-import colorama
-from colorama import Fore
 
 W = '\033[0m'  # white (normal)
 R = '\033[31m'  # red
