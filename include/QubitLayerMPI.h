@@ -2,7 +2,6 @@
 #define QUBITLAYERMPI_H
 
 #include "constants.h"
-#include <bitset>
 #include <complex>
 #include <vector>
 
