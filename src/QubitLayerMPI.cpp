@@ -485,10 +485,11 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
+			unsigned long state = i + this->globalStartIndex;
 
-			state[targetQubit] == 1 ? this->states[2 * i + 1] = -this->states[2 * i]
-									: this->states[2 * i + 1] = this->states[2 * i];
+			(state & MASK(targetQubit)) == 1
+				? this->states[2 * i + 1] = -this->states[2 * i]
+				: this->states[2 * i + 1] = this->states[2 * i];
 
 #ifdef PAULIZ_DEBUG_LOGS
 			appendDebugLog("State vector before update: ", getStateVector());
@@ -509,16 +510,16 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			bitset<numQubitsMPI> state = i + this->globalStartIndex;
+			unsigned long state = i + this->globalStartIndex;
 			// if |0>, scalar 1i applies to |1>
 			// if |1>, scalar -1i applies to |0>
 			// probabily room for optimization here
-			state.flip(targetQubit);
+			state = state ^ MASK(targetQubit);
 
-			if(!checkStateOOB(state.to_ulong())) {
-				int localIndex = getLocalIndexFromGlobalState(state.to_ulong());
+			if(!checkStateOOB(state)) {
+				int localIndex = getLocalIndexFromGlobalState(state);
 
-				state[targetQubit] == 0
+				(state & MASK(targetQubit)) == 0
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
@@ -530,7 +531,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 #endif
 
 				// pair (state, intended_value)
-				statesOOB.push_back(state.to_ulong());
+				statesOOB.push_back(state);
 				statesOOB.push_back(this->states[2 * i]);
 			}
 		}
