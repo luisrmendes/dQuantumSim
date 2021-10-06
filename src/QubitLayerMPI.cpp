@@ -410,14 +410,16 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	appendDebugLog(rank, size, "CALLING HADAMARD\n\n");
 #endif
 
+	constexpr double hadamard_const = 0.7071067811865475;
+
 	vector<complex<double>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			bitset<numQubitsMPI> state = i + this->globalStartIndex;
 			state.test(targetQubit)
-				? this->states[2 * i + 1] -= (1 / sqrt(2)) * this->states[2 * i]
-				: this->states[2 * i + 1] += (1 / sqrt(2)) * this->states[2 * i];
+				? this->states[2 * i + 1] -= hadamard_const * this->states[2 * i]
+				: this->states[2 * i + 1] += hadamard_const * this->states[2 * i];
 		}
 	}
 
@@ -441,7 +443,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 				}
 #endif
 				this->states[2 * localIndex + 1] +=
-					(1 / sqrt(2)) * this->states[2 * i];
+					hadamard_const * this->states[2 * i];
 			} else {
 
 #ifdef HADAMARD_DEBUG_LOGS
@@ -474,7 +476,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		appendDebugLog(rank, size, "Local index: ", localIndex, "\n");
 #endif
 
-		this->states[2 * localIndex + 1] += (1 / sqrt(2)) * receivedOps[i + 1];
+		this->states[2 * localIndex + 1] += hadamard_const * receivedOps[i + 1];
 	}
 
 	updateStates();
