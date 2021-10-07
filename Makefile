@@ -1,4 +1,4 @@
-CXX = mpic++
+CXX = mpicxx
 CXXFLAGS = -Wall -c -std=c++17
 PROJ_NAME = simulator
 
