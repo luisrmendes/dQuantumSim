@@ -10,7 +10,8 @@
 
 using namespace std;
 
-unsigned long long QubitLayerMPI::getLocalIndexFromGlobalState(unsigned long long receivedIndex)
+unsigned long long
+QubitLayerMPI::getLocalIndexFromGlobalState(unsigned long long receivedIndex)
 {
 	unsigned long long result = 0;
 
@@ -264,29 +265,33 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	return receivedOperations;
 }
 
-// void QubitLayerMPI::measure()
-// {
-// 	int localStartIndex = getLocalStartIndex();
-// 	size_t j = 0;
+#ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
+#include <bitset>
+constexpr int numQubitsMPI = 32;
+void QubitLayerMPI::measure()
+{
+	int localStartIndex = getLocalStartIndex();
+	size_t j = 0;
 
-// 	while(j < this->states.size()) {
-// 		float result = pow(abs(this->states[j]), 2); // not sure...
+	while(j < this->states.size()) {
+		float result = pow(abs(this->states[j]), 2); // not sure...
 
-// 		appendDebugLog(rank,
-// 					   size,
-// 					   "Node ",
-// 					   rank,
-// 					   ": |",
-// 					   bitset<numQubitsMPI>(localStartIndex / 2),
-// 					   "> -> ",
-// 					   result,
-// 					   "\n");
+		appendDebugLog(rank,
+					   size,
+					   "Node ",
+					   rank,
+					   ": |",
+					   bitset<numQubitsMPI>(localStartIndex / 2),
+					   "> -> ",
+					   result,
+					   "\n");
 
-// 		localStartIndex += 2;
-// 		j += 2;
-// 	}
-// 	appendDebugLog(rank, size, "\n");
-// }
+		localStartIndex += 2;
+		j += 2;
+	}
+	appendDebugLog(rank, size, "\n");
+}
+#endif
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
