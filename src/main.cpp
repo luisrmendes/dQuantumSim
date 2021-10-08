@@ -69,38 +69,38 @@ int main(int argc, char* argv[])
 		case 1:
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 2:
 			qL.pauliY(instructions[i + 1]);
 			i += 1;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 3:
 			qL.pauliZ(instructions[i + 1]);
 			i += 1;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 4:
 			qL.hadamard(instructions[i + 1]);
 			i += 1;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 5:
 			qL.controlledX(instructions[i + 1], instructions[i + 2]);
 			i += 2;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 6:
 			qL.controlledZ(instructions[i + 1], instructions[i + 2]);
 			i += 2;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 7:
 			qL.toffoli(
 				instructions[i + 1], instructions[i + 2], instructions[i + 3]);
 			i += 3;
-			// MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		default:
 			cerr << "Unrecognized operation " << instructions[i] << endl;
