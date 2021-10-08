@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	instructionsHandlerMPI(instructions, rank, size);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	vector<unsigned int> layerAllocs = calculateLayerAlloc(instructions[0], size);
+	vector<unsigned long long> layerAllocs = calculateLayerAlloc(instructions[0], size);
 	QubitLayerMPI qL(layerAllocs, rank, size, instructions[0]);
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS

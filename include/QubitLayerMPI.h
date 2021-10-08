@@ -14,7 +14,7 @@ class QubitLayerMPI
 	int rank;
 	int size;
 	unsigned int numQubits;
-	std::vector<unsigned int> layerAllocs;
+	std::vector<unsigned long long> layerAllocs;
 	unsigned int globalStartIndex;
 	unsigned int globalEndIndex;
 
@@ -23,13 +23,13 @@ class QubitLayerMPI
 	 * Initializes state vector with (0,0)
 	 * @param qubitCount Number of qubits 
 	 */
-	QubitLayerMPI(std::vector<unsigned int> layerAllocs,
+	QubitLayerMPI(std::vector<unsigned long long> layerAllocs,
 				  int rank,
 				  int size,
 				  unsigned int numQubits);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
-	std::vector<unsigned int> getLayerAllocs() { return this->layerAllocs; }
+	std::vector<unsigned long long> getLayerAllocs() { return this->layerAllocs; }
 	void updateStates();
 	std::string getStateVector();
 

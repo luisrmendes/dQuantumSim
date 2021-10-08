@@ -639,7 +639,7 @@ void QubitLayerMPI::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayerMPI::QubitLayerMPI(vector<unsigned int> layerAllocs,
+QubitLayerMPI::QubitLayerMPI(vector<unsigned long long> layerAllocs,
 							 int rank,
 							 int size,
 							 unsigned int numQubits)
