@@ -62,7 +62,7 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	}
 }
 
-bool QubitLayerMPI::checkStateOOB(unsigned long state)
+bool QubitLayerMPI::checkStateOOB(unsigned long long state)
 {
 	// true if OOB
 	// size_t lowerBound = this->rank * (this->states.size() / 2);
@@ -70,7 +70,7 @@ bool QubitLayerMPI::checkStateOOB(unsigned long state)
 	return state < this->globalStartIndex || state > this->globalEndIndex;
 }
 
-int QubitLayerMPI::getNodeOfState(unsigned long state)
+int QubitLayerMPI::getNodeOfState(unsigned long long state)
 {
 	/** TODO: melhor maneira de fazer isto **/
 	unsigned int lowerBound = 0;
@@ -296,7 +296,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			if((state & MASK(controlQubit1)) && (state & MASK(controlQubit2))) {
 				state = state ^ MASK(targetQubit);
 
@@ -342,7 +342,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			if(state & MASK(controlQubit)) {
 				state = state ^ MASK(targetQubit);
 
@@ -385,7 +385,7 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 	// Executes pauliZ if control qubit is |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			if(state & MASK(controlQubit)) {
 				(state & MASK(targetQubit)) == 1
 					? this->states[2 * i + 1] = -this->states[2 * i]
@@ -415,7 +415,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			(state & MASK(targetQubit))
 				? this->states[2 * i + 1] -= hadamard_const * this->states[2 * i]
 				: this->states[2 * i + 1] += hadamard_const * this->states[2 * i];
@@ -424,7 +424,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
@@ -485,7 +485,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 
 			(state & MASK(targetQubit)) == 1
 				? this->states[2 * i + 1] = -this->states[2 * i]
@@ -510,7 +510,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			// if |0>, scalar 1i applies to |1>
 			// if |1>, scalar -1i applies to |0>
 			// probabily room for optimization here
@@ -561,7 +561,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			unsigned long state = i + this->globalStartIndex;
+			unsigned long long state = i + this->globalStartIndex;
 			state = state ^ MASK(targetQubit);
 
 			// if a state is OOB, store tuple (state, intended_value) to a vector

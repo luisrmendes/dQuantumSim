@@ -63,7 +63,7 @@ class QubitLayerMPI
 	 * @param state 
 	 * @returns The node that contains the state
 	 */
-	int getNodeOfState(unsigned long state);
+	int getNodeOfState(unsigned long long state);
 
 	/**
 	 * Handles states Out Of Bounds for each process.
@@ -81,7 +81,7 @@ class QubitLayerMPI
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	 */
-	bool checkStateOOB(unsigned long state);
+	bool checkStateOOB(unsigned long long state);
 
 	void measureQubits(double* result);
 
