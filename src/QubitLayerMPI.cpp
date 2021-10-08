@@ -10,12 +10,12 @@
 
 using namespace std;
 
-unsigned int QubitLayerMPI::getLocalIndexFromGlobalState(unsigned int receivedIndex)
+unsigned long long QubitLayerMPI::getLocalIndexFromGlobalState(unsigned long long receivedIndex)
 {
-	unsigned int result = 0;
+	unsigned long long result = 0;
 
-	for(unsigned int i = 0; i < this->layerAllocs.size(); ++i) {
-		if(i == (unsigned int)this->rank)
+	for(unsigned long long i = 0; i < this->layerAllocs.size(); ++i) {
+		if(i == (unsigned long long)this->rank)
 			break;
 
 		result += (layerAllocs[i] / 2);
@@ -24,7 +24,7 @@ unsigned int QubitLayerMPI::getLocalIndexFromGlobalState(unsigned int receivedIn
 	return receivedIndex - result;
 }
 
-unsigned int QubitLayerMPI::getLocalStartIndex()
+unsigned long long QubitLayerMPI::getLocalStartIndex()
 {
 	unsigned int result = 0;
 
