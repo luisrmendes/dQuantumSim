@@ -15,8 +15,8 @@ class QubitLayerMPI
 	int size;
 	unsigned int numQubits;
 	std::vector<unsigned long long> layerAllocs;
-	unsigned int globalStartIndex;
-	unsigned int globalEndIndex;
+	unsigned long long globalStartIndex;
+	unsigned long long globalEndIndex;
 
   public:
 	/**
@@ -85,9 +85,9 @@ class QubitLayerMPI
 
 	void measureQubits(double* result);
 
-	unsigned int getLocalStartIndex();
+	unsigned long long getLocalStartIndex();
 
-	unsigned int getLocalIndexFromGlobalState(unsigned int receivedIndex);
+	unsigned long long getLocalIndexFromGlobalState(unsigned long long receivedIndex);
 };
 
 #endif

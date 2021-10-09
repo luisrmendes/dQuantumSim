@@ -10,12 +10,13 @@
 
 using namespace std;
 
-unsigned int QubitLayerMPI::getLocalIndexFromGlobalState(unsigned int receivedIndex)
+unsigned long long
+QubitLayerMPI::getLocalIndexFromGlobalState(unsigned long long receivedIndex)
 {
-	unsigned int result = 0;
+	unsigned long long result = 0;
 
-	for(unsigned int i = 0; i < this->layerAllocs.size(); ++i) {
-		if(i == (unsigned int)this->rank)
+	for(unsigned long long i = 0; i < this->layerAllocs.size(); ++i) {
+		if(i == (unsigned long long)this->rank)
 			break;
 
 		result += (layerAllocs[i] / 2);
@@ -24,7 +25,7 @@ unsigned int QubitLayerMPI::getLocalIndexFromGlobalState(unsigned int receivedIn
 	return receivedIndex - result;
 }
 
-unsigned int QubitLayerMPI::getLocalStartIndex()
+unsigned long long QubitLayerMPI::getLocalStartIndex()
 {
 	unsigned int result = 0;
 
@@ -264,29 +265,33 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 	return receivedOperations;
 }
 
-// void QubitLayerMPI::measure()
-// {
-// 	int localStartIndex = getLocalStartIndex();
-// 	size_t j = 0;
+#ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
+#include <bitset>
+constexpr int numQubitsMPI = 32;
+void QubitLayerMPI::measure()
+{
+	int localStartIndex = getLocalStartIndex();
+	size_t j = 0;
 
-// 	while(j < this->states.size()) {
-// 		float result = pow(abs(this->states[j]), 2); // not sure...
+	while(j < this->states.size()) {
+		float result = pow(abs(this->states[j]), 2); // not sure...
 
-// 		appendDebugLog(rank,
-// 					   size,
-// 					   "Node ",
-// 					   rank,
-// 					   ": |",
-// 					   bitset<numQubitsMPI>(localStartIndex / 2),
-// 					   "> -> ",
-// 					   result,
-// 					   "\n");
+		appendDebugLog(rank,
+					   size,
+					   "Node ",
+					   rank,
+					   ": |",
+					   bitset<numQubitsMPI>(localStartIndex / 2),
+					   "> -> ",
+					   result,
+					   "\n");
 
-// 		localStartIndex += 2;
-// 		j += 2;
-// 	}
-// 	appendDebugLog(rank, size, "\n");
-// }
+		localStartIndex += 2;
+		j += 2;
+	}
+	appendDebugLog(rank, size, "\n");
+}
+#endif
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
