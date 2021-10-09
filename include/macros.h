@@ -2,7 +2,7 @@
  * Macros de ficheiros log
  */
 
-#define MEASURE_STATE_VALUES_DEBUG_LOGS
+// #define MEASURE_STATE_VALUES_DEBUG_LOGS
 // #define GET_STATE_LAYER_INFO_DEBUG_LOGS
 // #define MEASURE_DEBUG_LOGS
 // #define INSTRUCTIONS_HANDLER_LOGS
