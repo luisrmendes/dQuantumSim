@@ -2,6 +2,7 @@ simulator
 mpi_sim
 logs/
 obj/
+quantum.targz
 
 # Prerequisites
 *.d
