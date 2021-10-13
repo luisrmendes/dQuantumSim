@@ -12,6 +12,6 @@ ssh mendes1@juwels-cluster.fz-juelich.de 'module load Intel/2020.2.254-GCC-9.3.0
     && cd quantum-simulator-sandbox \
     && make clean \
     && make \
-    && mpirun -np 50 ./simulator myqasmTests/q31_test1.myqasm'
+    && mpirun -np 50 ./simulator myqasmTests/q32_test1.myqasm'
 
 exit 0

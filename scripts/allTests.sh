@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Receber 
-
 cd ~/work/bolsa-prace/quantum-simulator-sandbox
 make clean && make
 
