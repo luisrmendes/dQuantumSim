@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void gatherResults(int rank, int size, unsigned int numQubits, double* finalResults)
+void gatherResultsMPI(int rank, int size, unsigned int numQubits, double* finalResults)
 {
 	MPI_Status status;
 	size_t resultsSize = numQubits * 2;
@@ -15,6 +15,7 @@ void gatherResults(int rank, int size, unsigned int numQubits, double* finalResu
 	if(rank == 0) {
 		double receivedResults[resultsSize];
 
+		/** TODO: MPI_Gather? **/
 		for(int node = 1; node < size; node++) {
 			MPI_Recv(&receivedResults,
 					 resultsSize,

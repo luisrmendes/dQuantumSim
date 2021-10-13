@@ -8,6 +8,10 @@
 #include <filesystem>
 #include <iostream>
 #include <stdio.h>
+#ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
+#include <bitset>
+constexpr int numQubitsMPI = 10;
+#endif
 
 using namespace std;
 
@@ -39,9 +43,11 @@ int main(int argc, char* argv[])
 		instructions = sourceParser(argv[1]);
 
 	instructionsHandlerMPI(instructions, rank, size);
+	
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	vector<unsigned long long> layerAllocs = calculateLayerAlloc(instructions[0], size);
+	vector<unsigned long long> layerAllocs =
+		calculateLayerAlloc(instructions[0], size);
 	QubitLayerMPI qL(layerAllocs, rank, size, instructions[0]);
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
@@ -53,7 +59,7 @@ int main(int argc, char* argv[])
 
 	while(j < qL.getStates().size()) {
 		appendDebugLog(
-			rank, size, "|", bitset<numQubitsMPI>(localStartIndex / 2), "> ");
+			rank, size, "|", std::bitset<numQubitsMPI>(localStartIndex / 2), "> ");
 
 		localStartIndex += 2;
 		j += 2;
@@ -112,7 +118,7 @@ int main(int argc, char* argv[])
 
 	double results[instructions[0] * 2];
 	qL.measureQubits(results);
-	gatherResults(rank, size, instructions[0], results);
+	gatherResultsMPI(rank, size, instructions[0], results);
 
 	// print results
 	if(rank == 0) {

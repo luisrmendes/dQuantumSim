@@ -27,7 +27,7 @@ QubitLayerMPI::getLocalIndexFromGlobalState(unsigned long long receivedIndex)
 
 unsigned long long QubitLayerMPI::getLocalStartIndex()
 {
-	unsigned int result = 0;
+	unsigned long long result = 0;
 
 	for(int i = 0; i < rank; i++) {
 		result += layerAllocs[i];
