@@ -72,8 +72,9 @@ class QubitLayerMPI
 	 * @param statesOOB Vector of (state, intended_value) operations to send
 	 * @returns Vector with (state, intended_value) received operations
 	 */
-	std::vector<std::complex<double>>
-	handlerStatesOOB(std::vector<std::complex<double>> statesOOB);
+	void sendStatesOOB(std::vector<std::complex<double>> statesOOB);
+
+	std::vector<std::complex<double>> receiveStatesOOB();
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
@@ -87,7 +88,8 @@ class QubitLayerMPI
 
 	unsigned long long getLocalStartIndex();
 
-	unsigned long long getLocalIndexFromGlobalState(unsigned long long receivedIndex);
+	unsigned long long
+	getLocalIndexFromGlobalState(unsigned long long receivedIndex);
 };
 
 #endif

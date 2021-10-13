@@ -88,8 +88,7 @@ int QubitLayerMPI::getNodeOfState(unsigned long long state)
 	return i;
 }
 
-vector<complex<double>>
-QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
+void QubitLayerMPI::sendStatesOOB(vector<complex<double>> statesOOB)
 {
 	// Receives the vector statesOOB that contains (state, intended_value) pairs,
 	// Searches for each state the node that owns the state,
@@ -218,6 +217,11 @@ QubitLayerMPI::handlerStatesOOB(vector<complex<double>> statesOOB)
 		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
 	}
 
+	return;
+}
+
+vector<complex<double>> QubitLayerMPI::receiveStatesOOB()
+{
 	// Receber todas as mensagens
 
 	// Constroi um vetor com as operacoes recebidas
@@ -325,7 +329,8 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 		}
 	}
 
-	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+	sendStatesOOB(statesOOB);
+	vector<complex<double>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
@@ -372,7 +377,8 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 		}
 	}
 
-	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+	sendStatesOOB(statesOOB);
+	vector<complex<double>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
@@ -465,7 +471,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	appendDebugLog(rank, size, "\n");
 #endif
 
-	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+	sendStatesOOB(statesOOB);
+	vector<complex<double>> receivedOps = receiveStatesOOB();
 
 #ifdef HADAMARD_DEBUG_LOGS
 	for(size_t i = 0; i < receivedOps.size(); ++i) {
@@ -542,7 +549,8 @@ void QubitLayerMPI::pauliY(int targetQubit)
 		}
 	}
 
-	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+	sendStatesOOB(statesOOB);
+	vector<complex<double>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
@@ -593,7 +601,8 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		}
 	}
 
-	vector<complex<double>> receivedOps = handlerStatesOOB(statesOOB);
+	sendStatesOOB(statesOOB);
+	vector<complex<double>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
