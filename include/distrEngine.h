@@ -17,6 +17,8 @@ extern std::vector<unsigned long long> layerAllocs;
  */
 void sendStatesOOB(std::vector<std::complex<double>> statesOOB);
 
+std::vector<std::complex<double>> receiveStatesOOB();
+
 /**
  * Gets the node that posesses the state
  * @param state 

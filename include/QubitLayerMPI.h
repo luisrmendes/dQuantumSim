@@ -61,8 +61,6 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(int i);
 
-	std::vector<std::complex<double>> receiveStatesOOB();
-
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
 	 * vector of the process

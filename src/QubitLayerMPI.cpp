@@ -72,55 +72,6 @@ bool QubitLayerMPI::checkStateOOB(unsigned long long state)
 	return state < this->globalStartIndex || state > this->globalEndIndex;
 }
 
-vector<complex<double>> QubitLayerMPI::receiveStatesOOB()
-{
-	// Receber todas as mensagens
-
-	// Constroi um vetor com as operacoes recebidas
-	vector<complex<double>> receivedOperations;
-
-	MPI_Status status;
-	complex<double> msg[MPI_RECV_BUFFER_SIZE];
-	msg[0] = 0;
-	for(int node = 0; node < this->size; node++) {
-		// exceto a dele proprio
-		if(node == this->rank)
-			continue;
-
-		MPI_Recv(&msg,
-				 MPI_RECV_BUFFER_SIZE,
-				 MPI_DOUBLE_COMPLEX,
-				 node,
-				 MPI_ANY_TAG,
-				 MPI_COMM_WORLD,
-				 &status);
-
-		// Se mensagem for de uma operacao
-		if(status.MPI_TAG != 0) {
-			for(int i = 0; i < status.MPI_TAG; i++) {
-				receivedOperations.push_back(msg[i]);
-			}
-		}
-	}
-	// #ifdef HANDLER_STATES_DEBUG
-	// 	if(receivedOperations.size() != 0) {
-	// 		appendDebugLog(rank, size, "Has received this: \n");
-	// 		for(size_t i = 0; i < receivedOperations.size(); i += 2) {
-	// 			appendDebugLog(rank,
-	// 						   size,
-	// 						   "\t|",
-	// 						   bitset<numQubitsMPI>(receivedOperations[i].real()),
-	// 						   "> value: ",
-	// 						   receivedOperations[i + 1],
-	// 						   "\n");
-	// 		}
-	// 		appendDebugLog(rank, size, "\n");
-	// 	}
-	// #endif
-
-	return receivedOperations;
-}
-
 #ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
 #include <bitset>
 constexpr int numQubitsMPI = 32;
