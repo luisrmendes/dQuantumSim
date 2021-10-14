@@ -35,11 +35,7 @@ int main(int argc, char* argv[])
 		filesystem::create_directory("logs");
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
-	appendDebugLog(::rank,
-				   ::size,
-				   "\n--------------- Node ",
-				   ::rank,
-				   " logs --------------- \n\n");
+	appendDebugLog("\n--------------- Node ", ::rank, " logs --------------- \n\n");
 #endif
 
 	vector<unsigned int> instructions;
@@ -52,24 +48,22 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
-	
+
 	QubitLayerMPI qL(instructions[0]);
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
-	appendDebugLog(
-		rank, size, "Size of States: ", qL.getLayerAllocs()[rank] / 2, "\n");
+	appendDebugLog("Size of States: ", layerAllocs[::rank] / 2, "\n");
 
 	int localStartIndex = qL.getLocalStartIndex();
 	size_t j = 0;
 
 	while(j < qL.getStates().size()) {
-		appendDebugLog(
-			rank, size, "|", std::bitset<numQubitsMPI>(localStartIndex / 2), "> ");
+		appendDebugLog("|", std::bitset<numQubitsMPI>(localStartIndex / 2), "> ");
 
 		localStartIndex += 2;
 		j += 2;
 	}
-	appendDebugLog(rank, size, "\n");
+	appendDebugLog("\n");
 #endif
 
 	for(size_t i = 1; i < instructions.size(); i++) {

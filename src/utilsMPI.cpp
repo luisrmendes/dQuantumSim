@@ -7,7 +7,10 @@
 
 using namespace std;
 
-void gatherResultsMPI(int rank, int size, unsigned int numQubits, double* finalResults)
+void gatherResultsMPI(int rank,
+					  int size,
+					  unsigned int numQubits,
+					  double* finalResults)
 {
 	MPI_Status status;
 	size_t resultsSize = numQubits * 2;
@@ -45,11 +48,11 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		}
 
 #ifdef INSTRUCTIONS_HANDLER_LOGS
-		appendDebugLog(rank, size, "Instructions to send: \n");
+		appendDebugLog("Instructions to send: \n");
 		for(size_t i = 0; i < instructions.size(); i++) {
-			appendDebugLog(rank, size, instructions[i], " ");
+			appendDebugLog(instructions[i], " ");
 		}
-		appendDebugLog(rank, size, "\n\n");
+		appendDebugLog("\n\n");
 #endif
 
 		// converter o vetor para array
@@ -83,11 +86,11 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 		}
 
 #ifdef INSTRUCTIONS_HANDLER_LOGS
-		appendDebugLog(rank, size, "Instructions received: \n");
+		appendDebugLog("Instructions received: \n");
 		for(size_t i = 0; i < instructions.size(); i++) {
-			appendDebugLog(rank, size, instructions[i], " ");
+			appendDebugLog(instructions[i], " ");
 		}
-		appendDebugLog(rank, size, "\n\n");
+		appendDebugLog("\n\n");
 #endif
 
 		return;

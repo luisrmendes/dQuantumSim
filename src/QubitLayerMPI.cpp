@@ -83,9 +83,7 @@ void QubitLayerMPI::measure()
 	while(j < this->states.size()) {
 		float result = pow(abs(this->states[j]), 2); // not sure...
 
-		appendDebugLog(::rank,
-					   ::size,
-					   "Node ",
+		appendDebugLog("Node ",
 					   ::rank,
 					   ": |",
 					   bitset<numQubitsMPI>(localStartIndex / 2),
@@ -96,7 +94,7 @@ void QubitLayerMPI::measure()
 		localStartIndex += 2;
 		j += 2;
 	}
-	appendDebugLog(::rank, ::size, "\n");
+	appendDebugLog("\n");
 }
 #endif
 
@@ -220,7 +218,7 @@ bool QubitLayerMPI::checkZeroState(int i)
 void QubitLayerMPI::hadamard(int targetQubit)
 {
 #ifdef HADAMARD_DEBUG_LOGS
-	appendDebugLog(::rank, ::size, "CALLING HADAMARD\n\n");
+	appendDebugLog("CALLING HADAMARD\n\n");
 #endif
 
 	constexpr double hadamard_const = 0.7071067811865475;
@@ -244,15 +242,13 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			if(!checkStateOOB(state)) {
 				int localIndex = getLocalIndexFromGlobalState(state);
 #ifdef HADAMARD_DEBUG_LOGS
-				appendDebugLog(::rank,
-							   ::size,
-							   "Hadamard: Operation on state |",
+				appendDebugLog("Hadamard: Operation on state |",
 							   state,
 							   ">, local index ",
 							   localIndex,
 							   "\n");
 				for(size_t i = 0; i < this->states.size(); i++) {
-					appendDebugLog(::rank, ::size, this->states[i], "\n");
+					appendDebugLog(this->states[i], "\n");
 				}
 #endif
 				this->states[2 * localIndex + 1] +=
@@ -260,8 +256,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			} else {
 
 #ifdef HADAMARD_DEBUG_LOGS
-				appendDebugLog(
-					::rank, ::size, "Hadamard: State |", state, "> out of bounds!\n");
+				appendDebugLog("Hadamard: State |", state, "> out of bounds!\n");
 #endif
 				// pair (state, intended_value)
 				statesOOB.push_back(state);
@@ -271,7 +266,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	}
 
 #ifdef HADAMARD_DEBUG_LOGS
-	appendDebugLog(::rank, ::size, "\n");
+	appendDebugLog("\n");
 #endif
 
 	sendStatesOOB(statesOOB);
@@ -279,7 +274,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 #ifdef HADAMARD_DEBUG_LOGS
 	for(size_t i = 0; i < receivedOps.size(); ++i) {
-		appendDebugLog(::rank, ::size, receivedOps[i], "\n");
+		appendDebugLog(receivedOps[i], "\n");
 	}
 #endif
 
@@ -287,7 +282,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		// calcula o index local do state recebido
 		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 #ifdef HADAMARD_DEBUG_LOGS
-		appendDebugLog(::rank, ::size, "Local index: ", localIndex, "\n");
+		appendDebugLog("Local index: ", localIndex, "\n");
 #endif
 
 		this->states[2 * localIndex + 1] += hadamard_const * receivedOps[i + 1];
@@ -370,7 +365,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 void QubitLayerMPI::pauliX(int targetQubit)
 {
 #ifdef PAULIX_DEBUG_LOGS
-	appendDebugLog(::rank, ::size, "--- PAULI X ---\n");
+	appendDebugLog("--- PAULI X ---\n");
 #endif
 	// vector of (stateOTB, value) pairs
 	vector<complex<double>> statesOOB;
@@ -383,19 +378,14 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
 #ifdef PAULIX_DEBUG_LOGS
-				appendDebugLog(::rank,
-							   ::size,
-							   "State |",
-							   state,
-							   "> in bounds = ",
-							   this->states[2 * i],
-							   "\n");
+				appendDebugLog(
+					"State |", state, "> in bounds = ", this->states[2 * i], "\n");
 #endif
 				int localIndex = getLocalIndexFromGlobalState(state);
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 			} else {
 #ifdef PAULIX_DEBUG_LOGS
-				appendDebugLog(::rank, size, "State |", state, "> out of bounds!\n");
+				appendDebugLog("State |", state, "> out of bounds!\n");
 #endif
 				// pair (state, intended_value)
 				statesOOB.push_back(state);
@@ -412,7 +402,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 
 #ifdef PAULIX_DEBUG_LOGS
-		appendDebugLog(::rank, ::size, "Local Index = ", localIndex, "\n");
+		appendDebugLog("Local Index = ", localIndex, "\n");
 #endif
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
@@ -420,7 +410,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	updateStates();
 #ifdef PAULIX_DEBUG_LOGS
-	appendDebugLog(::rank, ::size, "--- END PAULI X ---\n\n");
+	appendDebugLog("--- END PAULI X ---\n\n");
 #endif
 }
 

@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "mpi.h"
 #include <algorithm>
+#include <map>
 
 using namespace std;
 

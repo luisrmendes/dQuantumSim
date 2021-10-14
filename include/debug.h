@@ -5,23 +5,26 @@
 #include <iostream>
 #include <sstream>
 
+extern int rank;
+extern int size;
+
 /**
  * Creates log file and directory, outputs the debug log of each process 
  * to a log file in directory "logs" and to stdout if argument is true. 
  * @param to_stdout if true, outputs to stdout
  */
-void openAndCleanDebugFiles(int rank, int size);
+void openAndCleanDebugFiles();
 
 /**
  * Appends info to the debug log of each process
  * @param args Variable list of arguments to print
  */
 template <typename... T>
-void appendDebugLog(int rank, int size, const T&... args)
+void appendDebugLog(const T&... args)
 {
 	std::fstream nodeLogFile;
 	std::string nodeFileName = "logs/log";
-	nodeFileName.append(std::to_string(rank));
+	nodeFileName.append(std::to_string(::rank));
 	nodeFileName.append(".txt");
 
 	nodeLogFile.open(nodeFileName, std::ios::app);
