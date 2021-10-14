@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 
 	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
 	
-	QubitLayerMPI qL(layerAllocs, ::rank, ::size, instructions[0]);
+	QubitLayerMPI qL(instructions[0]);
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
 	appendDebugLog(

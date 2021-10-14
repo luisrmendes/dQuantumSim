@@ -7,6 +7,7 @@
 
 extern int rank;
 extern int size;
+extern std::vector<unsigned long long> layerAllocs;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
@@ -14,25 +15,18 @@ class QubitLayerMPI
 {
   private:
 	qubitLayer states;
-	int rank;
-	int size;
 	unsigned int numQubits;
-	std::vector<unsigned long long> layerAllocs;
 	unsigned long long globalStartIndex;
 	unsigned long long globalEndIndex;
 
   public:
 	/**
 	 * Initializes state vector with (0,0)
-	 * @param qubitCount Number of qubits 
+	 * @param numQubits Number of qubits 
 	 */
-	QubitLayerMPI(std::vector<unsigned long long> layerAllocs,
-				  int rank,
-				  int size,
-				  unsigned int numQubits);
+	QubitLayerMPI(unsigned int numQubits);
 	qubitLayer getStates() { return this->states; }
 	void setStates(qubitLayer states) { this->states = states; }
-	std::vector<unsigned long long> getLayerAllocs() { return this->layerAllocs; }
 	void updateStates();
 	std::string getStateVector();
 

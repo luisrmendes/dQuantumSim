@@ -16,11 +16,11 @@ QubitLayerMPI::getLocalIndexFromGlobalState(unsigned long long receivedIndex)
 {
 	unsigned long long result = 0;
 
-	for(unsigned long long i = 0; i < this->layerAllocs.size(); ++i) {
-		if(i == (unsigned long long)this->rank)
+	for(unsigned long long i = 0; i < ::layerAllocs.size(); ++i) {
+		if(i == (unsigned long long)::rank)
 			break;
 
-		result += (layerAllocs[i] / 2);
+		result += (::layerAllocs[i] / 2);
 	}
 
 	return receivedIndex - result;
@@ -30,8 +30,8 @@ unsigned long long QubitLayerMPI::getLocalStartIndex()
 {
 	unsigned long long result = 0;
 
-	for(int i = 0; i < rank; i++) {
-		result += layerAllocs[i];
+	for(int i = 0; i < ::rank; i++) {
+		result += ::layerAllocs[i];
 	}
 
 	return result;
@@ -67,8 +67,8 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 bool QubitLayerMPI::checkStateOOB(unsigned long long state)
 {
 	// true if OOB
-	// size_t lowerBound = this->rank * (this->states.size() / 2);
-	// size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
+	// size_t lowerBound = ::rank * (this->states.size() / 2);
+	// size_t upperBound = (::rank + 1) * (this->states.size() / 2);
 	return state < this->globalStartIndex || state > this->globalEndIndex;
 }
 
@@ -83,10 +83,10 @@ void QubitLayerMPI::measure()
 	while(j < this->states.size()) {
 		float result = pow(abs(this->states[j]), 2); // not sure...
 
-		appendDebugLog(rank,
-					   size,
+		appendDebugLog(::rank,
+					   ::size,
 					   "Node ",
-					   rank,
+					   ::rank,
 					   ": |",
 					   bitset<numQubitsMPI>(localStartIndex / 2),
 					   "> -> ",
@@ -96,7 +96,7 @@ void QubitLayerMPI::measure()
 		localStartIndex += 2;
 		j += 2;
 	}
-	appendDebugLog(rank, size, "\n");
+	appendDebugLog(::rank, ::size, "\n");
 }
 #endif
 
@@ -220,7 +220,7 @@ bool QubitLayerMPI::checkZeroState(int i)
 void QubitLayerMPI::hadamard(int targetQubit)
 {
 #ifdef HADAMARD_DEBUG_LOGS
-	appendDebugLog(rank, size, "CALLING HADAMARD\n\n");
+	appendDebugLog(::rank, ::size, "CALLING HADAMARD\n\n");
 #endif
 
 	constexpr double hadamard_const = 0.7071067811865475;
@@ -244,15 +244,15 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			if(!checkStateOOB(state)) {
 				int localIndex = getLocalIndexFromGlobalState(state);
 #ifdef HADAMARD_DEBUG_LOGS
-				appendDebugLog(rank,
-							   size,
+				appendDebugLog(::rank,
+							   ::size,
 							   "Hadamard: Operation on state |",
 							   state,
 							   ">, local index ",
 							   localIndex,
 							   "\n");
 				for(size_t i = 0; i < this->states.size(); i++) {
-					appendDebugLog(rank, size, this->states[i], "\n");
+					appendDebugLog(::rank, ::size, this->states[i], "\n");
 				}
 #endif
 				this->states[2 * localIndex + 1] +=
@@ -261,7 +261,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 #ifdef HADAMARD_DEBUG_LOGS
 				appendDebugLog(
-					rank, size, "Hadamard: State |", state, "> out of bounds!\n");
+					::rank, ::size, "Hadamard: State |", state, "> out of bounds!\n");
 #endif
 				// pair (state, intended_value)
 				statesOOB.push_back(state);
@@ -271,7 +271,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	}
 
 #ifdef HADAMARD_DEBUG_LOGS
-	appendDebugLog(rank, size, "\n");
+	appendDebugLog(::rank, ::size, "\n");
 #endif
 
 	sendStatesOOB(statesOOB);
@@ -279,7 +279,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 #ifdef HADAMARD_DEBUG_LOGS
 	for(size_t i = 0; i < receivedOps.size(); ++i) {
-		appendDebugLog(rank, size, receivedOps[i], "\n");
+		appendDebugLog(::rank, ::size, receivedOps[i], "\n");
 	}
 #endif
 
@@ -287,7 +287,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		// calcula o index local do state recebido
 		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 #ifdef HADAMARD_DEBUG_LOGS
-		appendDebugLog(rank, size, "Local index: ", localIndex, "\n");
+		appendDebugLog(::rank, ::size, "Local index: ", localIndex, "\n");
 #endif
 
 		this->states[2 * localIndex + 1] += hadamard_const * receivedOps[i + 1];
@@ -370,7 +370,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 void QubitLayerMPI::pauliX(int targetQubit)
 {
 #ifdef PAULIX_DEBUG_LOGS
-	appendDebugLog(rank, size, "--- PAULI X ---\n");
+	appendDebugLog(::rank, ::size, "--- PAULI X ---\n");
 #endif
 	// vector of (stateOTB, value) pairs
 	vector<complex<double>> statesOOB;
@@ -383,8 +383,8 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
 #ifdef PAULIX_DEBUG_LOGS
-				appendDebugLog(rank,
-							   size,
+				appendDebugLog(::rank,
+							   ::size,
 							   "State |",
 							   state,
 							   "> in bounds = ",
@@ -395,7 +395,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 			} else {
 #ifdef PAULIX_DEBUG_LOGS
-				appendDebugLog(rank, size, "State |", state, "> out of bounds!\n");
+				appendDebugLog(::rank, size, "State |", state, "> out of bounds!\n");
 #endif
 				// pair (state, intended_value)
 				statesOOB.push_back(state);
@@ -412,7 +412,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		int localIndex = getLocalIndexFromGlobalState(receivedOps[i].real());
 
 #ifdef PAULIX_DEBUG_LOGS
-		appendDebugLog(rank, size, "Local Index = ", localIndex, "\n");
+		appendDebugLog(::rank, ::size, "Local Index = ", localIndex, "\n");
 #endif
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
@@ -420,7 +420,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	updateStates();
 #ifdef PAULIX_DEBUG_LOGS
-	appendDebugLog(rank, size, "--- END PAULI X ---\n\n");
+	appendDebugLog(::rank, ::size, "--- END PAULI X ---\n\n");
 #endif
 }
 
@@ -456,33 +456,27 @@ void QubitLayerMPI::printStateVector()
 	cout << endl << endl;
 }
 
-QubitLayerMPI::QubitLayerMPI(vector<unsigned long long> layerAllocs,
-							 int rank,
-							 int size,
-							 unsigned int numQubits)
+QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
 {
-	this->rank = rank;
-	this->size = size;
-	this->layerAllocs = layerAllocs;
 	this->numQubits = numQubits;
 
 	// populate vector with all (0,0)
 	unsigned int i = 0;
-	while(i < layerAllocs[rank]) {
+	while(i < ::layerAllocs[::rank]) {
 		this->states.push_back(0);
 		++i;
 	}
 
 	// Initialze state vector as |0...0>
-	if(rank == 0)
+	if(::rank == 0)
 		this->states[0] = 1;
 
 	// calculate global indexes
 	unsigned int sum = 0;
-	for(int i = 0; i < rank; i++) {
-		sum += layerAllocs[i] / 2;
+	for(int i = 0; i < ::rank; i++) {
+		sum += ::layerAllocs[i] / 2;
 	}
 
 	this->globalStartIndex = sum;
-	this->globalEndIndex = sum + (layerAllocs[rank] / 2) - 1;
+	this->globalEndIndex = sum + (::layerAllocs[::rank] / 2) - 1;
 }
