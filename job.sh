@@ -1,5 +1,5 @@
 #!/bin/bash -x
-#SBATCH --account=<prpb97>
+#SBATCH --account=prpb97
 #SBATCH --nodes=2
 #SBATCH --ntasks=2
 #SBATCH --output=mpi-out.%j
