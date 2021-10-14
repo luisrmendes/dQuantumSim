@@ -5,6 +5,9 @@
 #include <complex>
 #include <vector>
 
+extern int rank;
+extern int size;
+
 typedef std::vector<std::complex<double>> qubitLayer;
 
 class QubitLayerMPI
@@ -57,22 +60,6 @@ class QubitLayerMPI
 	 * @param i State vector iterator position
 	 */
 	bool checkZeroState(int i);
-
-	/**
-	 * Gets the node that posesses the state
-	 * @param state 
-	 * @returns The node that contains the state
-	 */
-	int getNodeOfState(unsigned long long state);
-
-	/**
-	 * Handles states Out Of Bounds for each process.
-	 * Sends operation and exit messages,
-	 * Receives and returns operations messages.
-	 * @param statesOOB Vector of (state, intended_value) operations to send
-	 * @returns Vector with (state, intended_value) received operations
-	 */
-	void sendStatesOOB(std::vector<std::complex<double>> statesOOB);
 
 	std::vector<std::complex<double>> receiveStatesOOB();
 

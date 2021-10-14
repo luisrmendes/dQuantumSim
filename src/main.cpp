@@ -13,6 +13,9 @@
 constexpr int numQubitsMPI = 10;
 #endif
 
+int rank, size;
+std::vector<unsigned long long> layerAllocs;
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -22,33 +25,35 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	int rank, size;
 	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &::size);
 
 #ifdef OUTPUT_LOGS
-	if(rank == 0) {
+	if(::rank == 0) {
 		filesystem::remove_all("logs");
 		filesystem::create_directory("logs");
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
-	appendDebugLog(
-		rank, size, "\n--------------- Node ", rank, " logs --------------- \n\n");
+	appendDebugLog(::rank,
+				   ::size,
+				   "\n--------------- Node ",
+				   ::rank,
+				   " logs --------------- \n\n");
 #endif
 
 	vector<unsigned int> instructions;
 
-	if(rank == 0)
+	if(::rank == 0)
 		instructions = sourceParser(argv[1]);
 
-	instructionsHandlerMPI(instructions, rank, size);
-	
+	instructionsHandlerMPI(instructions, ::rank, ::size);
+
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	vector<unsigned long long> layerAllocs =
-		calculateLayerAlloc(instructions[0], size);
-	QubitLayerMPI qL(layerAllocs, rank, size, instructions[0]);
+	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
+	
+	QubitLayerMPI qL(layerAllocs, ::rank, ::size, instructions[0]);
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
 	appendDebugLog(
@@ -118,10 +123,10 @@ int main(int argc, char* argv[])
 
 	double results[instructions[0] * 2];
 	qL.measureQubits(results);
-	gatherResultsMPI(rank, size, instructions[0], results);
+	gatherResultsMPI(::rank, ::size, instructions[0], results);
 
 	// print results
-	if(rank == 0) {
+	if(::rank == 0) {
 		cout << "Results: \n";
 		for(size_t i = 0; i < instructions[0] * 2; i += 2) {
 			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100
