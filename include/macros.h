@@ -27,3 +27,4 @@
  * Outras macros
  */
 #define RECV_BUFFER_OVERFLOW_WARNING
+#define DISPLAY_MEM_INFO

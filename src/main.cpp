@@ -12,6 +12,9 @@
 #include <bitset>
 constexpr int numQubitsMPI = 10;
 #endif
+#ifdef DISPLAY_MEM_INFO
+#include <unistd.h>
+#endif
 
 int rank, size;
 std::vector<unsigned long long> layerAllocs;
@@ -44,6 +47,17 @@ int main(int argc, char* argv[])
 		instructions = sourceParser(argv[1]);
 
 	instructionsHandlerMPI(instructions, ::rank, ::size);
+
+#ifdef DISPLAY_MEM_INFO
+	if(::rank == 0) {
+		long pages = sysconf(_SC_PHYS_PAGES);
+		long page_size = sysconf(_SC_PAGE_SIZE);
+		cout << "Avaliable System Memory: \n\t~"
+			 << ((pages * page_size) * pow(10, -9)) / 1.073741824 << " GB \n\n";
+		cout << "Expected Total Memory Usage: \n\t~"
+			 << 2 * 2 * 8 * pow(2, instructions[0]) * pow(10, -9) << " GB \n\n";
+	}
+#endif
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
