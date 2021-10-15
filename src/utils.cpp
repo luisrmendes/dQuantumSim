@@ -29,10 +29,10 @@ vector<unsigned long long> calculateLayerAlloc(int qubitCount, int nodeCount)
 
 	if(layerSize / 2 < (size_t)nodeCount) {
 		cerr << "Known allocation bug, too many processes for few qubits" << endl;
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
-	int quocient = layerSize / nodeCount;
+	unsigned long long quocient = layerSize / nodeCount;
 	int remainder = layerSize % nodeCount;
 
 	for(int i = 0; i < nodeCount; ++i) {

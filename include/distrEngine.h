@@ -24,6 +24,6 @@ std::vector<std::complex<double>> receiveStatesOOB();
  * @param state 
  * @returns The node that contains the state
  */
-int getNodeOfState(unsigned long long state);
+long long getNodeOfState(unsigned long long state);
 
 #endif

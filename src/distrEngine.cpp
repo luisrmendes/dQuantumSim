@@ -21,7 +21,7 @@ void sendStatesOOB(vector<complex<double>> statesOOB)
 	}
 
 	// send messages for all states in the vector
-	int node = -1;
+	long long node = -1;
 	vector<complex<double>> msgToSend;
 
 	// #ifdef HANDLER_STATES_DEBUG
@@ -187,7 +187,7 @@ vector<complex<double>> receiveStatesOOB()
 	return receivedOperations;
 }
 
-int getNodeOfState(unsigned long long state)
+long long getNodeOfState(unsigned long long state)
 {
 	/** TODO: melhor maneira de fazer isto **/
 	unsigned int lowerBound = 0;

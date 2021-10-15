@@ -42,17 +42,15 @@ int main(int argc, char* argv[])
 #endif
 
 	vector<unsigned int> instructions;
-
 	if(::rank == 0)
 		instructions = sourceParser(argv[1]);
-
 	instructionsHandlerMPI(instructions, ::rank, ::size);
 
 #ifdef DISPLAY_MEM_INFO
 	if(::rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
 		long page_size = sysconf(_SC_PAGE_SIZE);
-		cout << "Avaliable System Memory: \n\t~"
+		cout << "\nAvaliable System Memory: \n\t~"
 			 << ((pages * page_size) * pow(10, -9)) / 1.073741824 << " GB \n\n";
 		cout << "Expected Total Memory Usage: \n\t~"
 			 << 2 * 2 * 8 * pow(2, instructions[0]) * pow(10, -9) << " GB \n\n";
@@ -60,6 +58,9 @@ int main(int argc, char* argv[])
 #endif
 
 	MPI_Barrier(MPI_COMM_WORLD);
+
+	if(::rank == 0)
+		cout << "Allocating vector...\n\n";
 
 	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
 
@@ -80,12 +81,17 @@ int main(int argc, char* argv[])
 	appendDebugLog("\n");
 #endif
 
+	if(::rank == 0)
+		cout << "Executing operations...\n\n";
+
 	for(size_t i = 1; i < instructions.size(); i++) {
 #ifdef MEASURE_DEBUG_LOGS
 		qL.measure();
 #endif
+
 		switch(instructions[i]) {
 		case 1:
+			// cout << "pauliX" << endl;
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
 			MPI_Barrier(MPI_COMM_WORLD);
@@ -128,6 +134,9 @@ int main(int argc, char* argv[])
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
+
+	if(::rank == 0)
+		cout << "Gathering results...\n\n";
 
 	double results[instructions[0] * 2];
 	qL.measureQubits(results);
