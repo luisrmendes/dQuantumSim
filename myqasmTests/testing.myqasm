@@ -1,6 +1,8 @@
-init 4
+init 6
 
-pauliX 0
-pauliX 1
-pauliX 2
-pauliX 3
+hadamard 0
+hadamard 1
+hadamard 2
+hadamard 3
+hadamard 4
+hadamard 5

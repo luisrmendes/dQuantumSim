@@ -412,10 +412,6 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	updateStates();
 
-	if(::rank == 0) {
-		cout << "|0...0> -> " << this->states[0] << endl;
-		cout << "|0...1> -> " << this->states[2] << endl;
-	}
 #ifdef PAULIX_DEBUG_LOGS
 	appendDebugLog("--- END PAULI X ---\n\n");
 #endif
