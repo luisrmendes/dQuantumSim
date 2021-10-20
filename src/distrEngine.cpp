@@ -8,46 +8,36 @@ using namespace std;
 
 void sendStatesOOB(vector<complex<double>> statesOOB)
 {
-	// Receives the vector statesOOB that contains (state, intended_value) pairs,
-	// Searches for each state the node that owns the state,
-	// Sends a message for the respective node, the state and value for the operation,
-	// Sends -1 for every node that had no intended message
-	// Receives every message, applies the operation of a received message if its not -1
-
-	// Create vector with all ranks to keep track ranks that have no intended operations
 	vector<int> ranks;
 	for(int i = 0; i < ::size; i++) {
 		ranks.push_back(i);
 	}
 
-	// send messages for all states in the vector
 	long long node = -1;
 	vector<complex<double>> msgToSend;
 
-	// #ifdef HANDLER_STATES_DEBUG
-	// 	// if(statesOOB.size() != 0) {
-	// 	// 	appendDebugLog(rank, size, "Wants to send this: \n");
-	// 	// 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
-	// 	// 		appendDebugLog(rank,
-	// 	// 					   size,
-	// 	// 					   "\t|",
-	// 	// 					   bitset<numQubitsMPI>(statesOOB[i].real()),
-	// 	// 					   "> value: ",
-	// 	// 					   statesOOB[i + 1],
-	// 	// 					   "\n");
-	// 	// 	}
-	// 	// 	appendDebugLog(rank, size, "\n");
-	// 	// }
-	// #endif
+#ifdef HANDLER_STATES_DEBUG
+	// if(statesOOB.size() != 0) {
+	// 	appendDebugLog(rank, size, "Wants to send this: \n");
+	// 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
+	// 		appendDebugLog(rank,
+	// 					   size,
+	// 					   "\t|",
+	// 					   bitset<numQubitsMPI>(statesOOB[i].real()),
+	// 					   "> value: ",
+	// 					   statesOOB[i + 1],
+	// 					   "\n");
+	// 	}
+	// 	appendDebugLog(rank, size, "\n");
+	// }
+#endif
 
-	// map<node, (states, intended_values)>
 	map<unsigned int, vector<complex<double>>> mapMsgToSend;
 	map<unsigned int, vector<complex<double>>>::iterator it;
 
 	for(size_t i = 0; i < statesOOB.size(); i += 2) {
 		node = getNodeOfState(statesOOB[i].real());
 
-		// check if map already has node
 		it = mapMsgToSend.find(node);
 
 		// if hasn't found node
@@ -88,7 +78,6 @@ void sendStatesOOB(vector<complex<double>> statesOOB)
 #endif
 
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
-		// Erase the rank that has a intended operation
 		// probabily a better way to do this
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
@@ -111,19 +100,19 @@ void sendStatesOOB(vector<complex<double>> statesOOB)
 				 MPI_COMM_WORLD);
 	}
 
-	// #ifdef HANDLER_STATES_DEBUG
-	// 	// appendDebugLog(rank, size, "Sending to node ", node, "\n");
-	// 	// for(size_t z = 0; z < msgToSend.size(); z += 2) {
-	// 	// 	appendDebugLog(rank,
-	// 	// 				   size,
-	// 	// 				   "\t|",
-	// 	// 				   bitset<numQubitsMPI>(msgToSend[z].real()),
-	// 	// 				   "> value: ",
-	// 	// 				   msgToSend[z + 1],
-	// 	// 				   "\n");
-	// 	// }
-	// 	// appendDebugLog(rank, size, "\n");
-	// #endif
+#ifdef HANDLER_STATES_DEBUG
+	// appendDebugLog(rank, size, "Sending to node ", node, "\n");
+	// for(size_t z = 0; z < msgToSend.size(); z += 2) {
+	// 	appendDebugLog(rank,
+	// 				   size,
+	// 				   "\t|",
+	// 				   bitset<numQubitsMPI>(msgToSend[z].real()),
+	// 				   "> value: ",
+	// 				   msgToSend[z + 1],
+	// 				   "\n");
+	// }
+	// appendDebugLog(rank, size, "\n");
+#endif
 
 	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
 	complex<double> end = -1;
