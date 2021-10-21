@@ -1,7 +1,20 @@
 #include "QuantumGlobalState.h"
 #include <vector>
 
-QuantumGlobalState::QuantumGlobalState(unsigned int length)
+using namespace std;
+
+void QuantumGlobalState::printState() const
 {
-	this->quantumGlobalState.reserve(length);
+	std::cout << '|';
+	for(size_t i = this->qGS.size(); i > 0; i--) {
+		std::cout << this->qGS[i - 1];
+	}
+	std::cout << ">\n";
+}
+
+QuantumGlobalState::QuantumGlobalState(size_t length)
+{
+	for(std::size_t i = 0; i < length; ++i) {
+		qGS.push_back(0);
+	}
 }
