@@ -72,7 +72,7 @@ class QuantumState
 		bool carry = false;
 		// bitset to store the sum of the two bitsets
 		for(int i = 0; i < 33; i++) {
-			// lambdas please
+			// insert lambda please
 			result.qState.push_back(fullAdder(this->qState[i], b[i], carry));
 		}
 
