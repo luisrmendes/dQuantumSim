@@ -1,10 +1,17 @@
 #ifndef QUANTUMSTATE_H
 #define QUANTUMSTATE_H
-#include <cmath>
+
 #include <iostream>
 #include <vector>
 
 #define MASK(N) (0x1ull << N)
+
+bool fullAdder(bool b1, bool b2, bool& carry)
+{
+	bool sum = (b1 ^ b2) ^ carry;
+	carry = (b1 && b2) || (b1 && carry) || (b2 && carry);
+	return sum;
+}
 
 class QuantumState
 {
@@ -12,7 +19,7 @@ class QuantumState
 	std::vector<bool> qState;
 
   public:
-	QuantumState();
+	QuantumState() {}
 	QuantumState(size_t number)
 	{
 		if(number == 0)
@@ -58,15 +65,21 @@ class QuantumState
 	// overload + operator (size_t + QuantumGlobalState)
 	QuantumState operator+(size_t n)
 	{
-		QuantumState newQGS;
+		QuantumState result;
 
-		while(n > 0) {
-			newQGS.qState.push_back(n % 2);
-			n = n / 2;
+		QuantumState b(n);
+
+		bool carry = false;
+		// bitset to store the sum of the two bitsets
+		for(int i = 0; i < 33; i++) {
+			// lambdas please
+			result.qState.push_back(fullAdder(this->qState[i], b[i], carry));
 		}
 
-		return newQGS;
+		return result;
 	}
+
+	std::vector<bool>::reference operator[](size_t n) { return this->qState[n]; }
 };
 
 void QuantumState::printState() const
@@ -80,14 +93,15 @@ void QuantumState::printState() const
 
 // int main()
 // {
-// 	uint64_t number = ~0;
+// 	uint64_t number = 2;
 // 	std::cout << "Number: " << number << std::endl;
 
-// 	QuantumState qState(number);
-// 	qState.printState();
-// 	qState.flip(63);
-// 	qState.printState();
-// 	std::cout << "Converted number: " << qState.to_uint64() << std::endl;
+// 	QuantumState state1(number);
+// 	state1.printState();
+// 	QuantumState state2;
+// 	state2 = state1 + 10;
+// 	std::cout << "Converted state1: " << state1.to_uint64() << std::endl;
+// 	std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
 
 // 	return 0;
 // }
