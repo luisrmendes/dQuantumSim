@@ -1,3 +1,5 @@
+#ifndef QUANTUMSTATE_H
+#define QUANTUMSTATE_H
 
 #include <iostream>
 #include <vector>
@@ -82,13 +84,99 @@ class QuantumState
 
 	bool operator>(size_t n)
 	{
-		// convert size_t to quantumstate or otherwise?
-		return true;
+		// convert size_t to quantumState
+		QuantumState second(n);
+
+		if(this->qState.size() != second.qState.size())
+			return (this->qState.size() > second.qState.size());
+
+		bool first_is_greater = false;
+		for(size_t i = 0; i < this->qState.size(); ++i) {
+			if((this->qState[i] ^ second[i]) == 0x0)
+				continue;
+			if(this->qState[i] == 1 && second[i] == 0) {
+				first_is_greater = true;
+				continue;
+			}
+			if(this->qState[i] == 0 && second[i] == 1)
+				first_is_greater = false;
+		}
+
+		return first_is_greater;
+	}
+
+	bool operator>(QuantumState second)
+	{
+		if(this->qState.size() != second.qState.size())
+			return (this->qState.size() > second.qState.size());
+
+		bool first_is_greater = false;
+		for(size_t i = 0; i < this->qState.size(); ++i) {
+			if((this->qState[i] ^ second[i]) == 0x0)
+				continue;
+			if(this->qState[i] == 1 && second[i] == 0) {
+				first_is_greater = true;
+				continue;
+			}
+			if(this->qState[i] == 0 && second[i] == 1)
+				first_is_greater = false;
+		}
+
+		return first_is_greater;
+	}
+
+	bool operator<(QuantumState second)
+	{
+		if(this->qState.size() != second.qState.size())
+			return (this->qState.size() < second.qState.size());
+
+		bool first_is_smaller = false;
+		for(size_t i = 0; i < this->qState.size(); ++i) {
+			if((this->qState[i] ^ second[i]) == 0x0)
+				continue;
+			if(this->qState[i] == 0 && second[i] == 1) {
+				first_is_smaller = true;
+				continue;
+			}
+			if(this->qState[i] == 1 && second[i] == 0)
+				first_is_smaller = false;
+		}
+
+		return first_is_smaller;
 	}
 
 	bool operator<(size_t n)
 	{
-		// convert size_t to quantumstate or otherwise?
+		// convert size_t to quantumState
+		QuantumState second(n);
+		if(this->qState.size() != second.qState.size())
+			return (this->qState.size() < second.qState.size());
+
+		bool first_is_smaller = false;
+		for(size_t i = 0; i < this->qState.size(); ++i) {
+			if((this->qState[i] ^ second[i]) == 0x0)
+				continue;
+			if(this->qState[i] == 0 && second[i] == 1) {
+				first_is_smaller = true;
+				continue;
+			}
+			if(this->qState[i] == 1 && second[i] == 0)
+				first_is_smaller = false;
+		}
+
+		return first_is_smaller;
+	}
+
+	bool operator==(QuantumState second)
+	{
+		if(this->qState.size() != second.qState.size())
+			return false;
+
+		for(size_t i = 0; i < this->qState.size(); ++i) {
+			if((this->qState[i] ^ second[i]) == 0x1)
+				return false;
+		}
+
 		return true;
 	}
 };
@@ -104,15 +192,35 @@ void QuantumState::printState() const
 
 // int main() {
 //     uint64_t number = 2;
-//     std::cout << "Number: " << number << std::endl;
+//     // std::cout << "Number: " << number << std::endl;
 
-//     QuantumState state1(~0);
+//     QuantumState state1(0);
 //     state1.printState();
-//     QuantumState state2;
-//     state2 = state1 + 1;
+//     QuantumState state2(1);
+//     state2 = state2 + 2;
 //     state2.printState();
 //     std::cout << "Converted state1: " << state1.to_uint64() << std::endl;
 //     std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
 
+//     std::cout << "Greater than:" << std::endl;
+//     if (state1 > state2)
+//         std::cout << "\ttrue" << std::endl;
+//     else
+//         std::cout << "\tfalse" << std::endl;
+
+//     std::cout << "Smaller than:" << std::endl;
+//     if (state1 < state2)
+//         std::cout << "\ttrue" << std::endl;
+//     else
+//         std::cout << "\tfalse" << std::endl;
+
+//     std::cout << "Equals:" << std::endl;
+//     if (state1 == state2)
+//         std::cout << "\ttrue" << std::endl;
+//     else
+//         std::cout << "\tfalse" << std::endl;
+
 //     return 0;
 // }
+
+#endif
