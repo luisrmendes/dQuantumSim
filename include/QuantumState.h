@@ -79,6 +79,18 @@ class QuantumState
 	}
 
 	std::vector<bool>::reference operator[](size_t n) { return this->qState[n]; }
+
+	bool operator>(size_t n)
+	{
+		// convert size_t to quantumstate or otherwise?
+		return true;
+	}
+
+	bool operator<(size_t n)
+	{
+		// convert size_t to quantumstate or otherwise?
+		return true;
+	}
 };
 
 void QuantumState::printState() const
