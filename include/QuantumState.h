@@ -179,6 +179,19 @@ class QuantumState
 
 		return true;
 	}
+
+	bool operator!=(QuantumState second)
+	{
+		if(this->qState.size() != second.qState.size())
+			return true;
+
+		for(size_t i = 0; i < this->qState.size(); ++i) {
+			if((this->qState[i] ^ second[i]) == 0x0)
+				return false;
+		}
+
+		return true;
+	}
 };
 
 void QuantumState::printState() const
