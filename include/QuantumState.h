@@ -1,17 +1,8 @@
-#ifndef QUANTUMSTATE_H
-#define QUANTUMSTATE_H
 
 #include <iostream>
 #include <vector>
 
 #define MASK(N) (0x1ull << N)
-
-bool fullAdder(bool b1, bool b2, bool& carry)
-{
-	bool sum = (b1 ^ b2) ^ carry;
-	carry = (b1 && b2) || (b1 && carry) || (b2 && carry);
-	return sum;
-}
 
 class QuantumState
 {
@@ -49,9 +40,9 @@ class QuantumState
 	uint64_t to_uint64()
 	{
 		if(this->qState.size() > 64) {
+			std::cerr << "Size of qState: " << this->qState.size() << std::endl;
 			throw std::overflow_error(
 				"Can't convert to uint64 number larger that uint64_t limit!");
-			std::cerr << "\tSize of qState: " << this->qState.size() << std::endl;
 		}
 
 		uint64_t result = 0;
@@ -66,14 +57,22 @@ class QuantumState
 	QuantumState operator+(size_t n)
 	{
 		QuantumState result;
-
 		QuantumState b(n);
 
+		int i = 0;
 		bool carry = false;
-		// bitset to store the sum of the two bitsets
-		for(int i = 0; i < 33; i++) {
-			// insert lambda please
-			result.qState.push_back(fullAdder(this->qState[i], b[i], carry));
+		for(; i < b.qState.size() || i < this->qState.size(); ++i) {
+			bool sum = (this->qState[i] ^ b[i]) ^ carry;
+			carry = (this->qState[i] && b[i]) || (this->qState[i] && carry) ||
+					(b[i] && carry);
+			result.qState.push_back(sum);
+		}
+		// last carry
+		if(carry) {
+			bool sum = (this->qState[i] ^ b[i]) ^ carry;
+			carry = (this->qState[i] && b[i]) || (this->qState[i] && carry) ||
+					(b[i] && carry);
+			result.qState.push_back(sum);
 		}
 
 		return result;
@@ -91,19 +90,17 @@ void QuantumState::printState() const
 	std::cout << ">\n";
 }
 
-// int main()
-// {
-// 	uint64_t number = 2;
-// 	std::cout << "Number: " << number << std::endl;
+// int main() {
+//     uint64_t number = 2;
+//     std::cout << "Number: " << number << std::endl;
 
-// 	QuantumState state1(number);
-// 	state1.printState();
-// 	QuantumState state2;
-// 	state2 = state1 + 10;
-// 	std::cout << "Converted state1: " << state1.to_uint64() << std::endl;
-// 	std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
+//     QuantumState state1(~0);
+//     state1.printState();
+//     QuantumState state2;
+//     state2 = state1 + 1;
+//     state2.printState();
+//     std::cout << "Converted state1: " << state1.to_uint64() << std::endl;
+//     std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
 
-// 	return 0;
+//     return 0;
 // }
-
-#endif
