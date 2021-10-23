@@ -59,7 +59,7 @@ class QuantumState
 		QuantumState result;
 		QuantumState b(n);
 
-		int i = 0;
+		size_t i = 0;
 		bool carry = false;
 		for(; i < b.qState.size() || i < this->qState.size(); ++i) {
 			bool sum = (this->qState[i] ^ b[i]) ^ carry;
