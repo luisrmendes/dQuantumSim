@@ -192,6 +192,30 @@ class QuantumState
 
 		return true;
 	}
+
+	void operator+=(size_t n)
+	{
+		QuantumState result;
+		QuantumState b(n);
+
+		size_t i = 0;
+		bool carry = false;
+		for(; i < b.qState.size() || i < this->qState.size(); ++i) {
+			bool sum = (this->qState[i] ^ b[i]) ^ carry;
+			carry = (this->qState[i] && b[i]) || (this->qState[i] && carry) ||
+					(b[i] && carry);
+			result.qState.push_back(sum);
+		}
+		// last carry
+		if(carry) {
+			bool sum = (this->qState[i] ^ b[i]) ^ carry;
+			carry = (this->qState[i] && b[i]) || (this->qState[i] && carry) ||
+					(b[i] && carry);
+			result.qState.push_back(sum);
+		}
+
+		this->qState = result.qState;
+	}
 };
 
 void QuantumState::printState() const
@@ -210,10 +234,12 @@ void QuantumState::printState() const
 //     QuantumState state1(0);
 //     state1.printState();
 //     QuantumState state2(1);
-//     state2 = state2 + 2;
+//     state2 += 2;
 //     state2.printState();
 //     std::cout << "Converted state1: " << state1.to_uint64() << std::endl;
 //     std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
+
+//     std::cout << "\n";
 
 //     std::cout << "Greater than:" << std::endl;
 //     if (state1 > state2)
@@ -229,6 +255,12 @@ void QuantumState::printState() const
 
 //     std::cout << "Equals:" << std::endl;
 //     if (state1 == state2)
+//         std::cout << "\ttrue" << std::endl;
+//     else
+//         std::cout << "\tfalse" << std::endl;
+
+//     std::cout << "Not Equals:" << std::endl;
+//     if (state1 != state2)
 //         std::cout << "\ttrue" << std::endl;
 //     else
 //         std::cout << "\tfalse" << std::endl;
