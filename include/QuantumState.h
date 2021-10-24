@@ -80,6 +80,30 @@ class QuantumState
 		return result;
 	}
 
+	QuantumState operator-(size_t n)
+	{
+		QuantumState result;
+		QuantumState b(n);
+
+		size_t i = 0;
+		bool borrow = false;
+		for(; i < b.qState.size() || i < this->qState.size(); ++i) {
+			bool sub = (this->qState[i] ^ b[i]) ^ borrow;
+			borrow = (!this->qState[i] && b[i]) || (!this->qState[i] && borrow) ||
+					 (b[i] && borrow);
+			result.qState.push_back(sub);
+		}
+		// last borrow
+		if(borrow) {
+			bool sub = (this->qState[i] ^ b[i]) ^ borrow;
+			borrow = (!this->qState[i] && b[i]) || (!this->qState[i] && borrow) ||
+					 (b[i] && borrow);
+			result.qState.push_back(sub);
+		}
+
+		return result;
+	}
+
 	std::vector<bool>::reference operator[](size_t n) { return this->qState[n]; }
 
 	bool operator>(size_t n)
