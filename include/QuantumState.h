@@ -13,7 +13,7 @@ class QuantumState
 
   public:
 	QuantumState() {}
-	QuantumState(size_t number)
+	QuantumState(uint64_t number)
 	{
 		if(number == 0)
 			this->qState.push_back(0);
@@ -23,23 +23,24 @@ class QuantumState
 		}
 	}
 	void setQGS(std::vector<bool> qState) { this->qState = qState; }
-	std::vector<bool> getQGS() { return this->qState; }
+	std::vector<bool> getQState() { return this->qState; }
 	void printState() const;
-	void flip(unsigned int index)
+
+	void flip(size_t index)
 	{
 		if(index >= this->qState.size())
 			throw std::invalid_argument("qState.flip() argument out of bounds!");
 		qState[index] = !qState[index];
 	}
-	bool test(unsigned int index)
+
+	bool test(size_t index)
 	{
 		if(index >= this->qState.size())
 			throw std::invalid_argument("qState.test() argument out of bounds!");
 		return this->qState[index] == 1;
 	}
 
-	// convert to a unsigned long long
-	uint64_t to_uint64()
+	uint64_t to_ullong()
 	{
 		if(this->qState.size() > 64) {
 			std::cerr << "Size of qState: " << this->qState.size() << std::endl;
@@ -56,10 +57,9 @@ class QuantumState
 	}
 
 	// overload + operator (size_t + QuantumGlobalState)
-	QuantumState operator+(size_t n)
+	QuantumState operator+(QuantumState b)
 	{
 		QuantumState result;
-		QuantumState b(n);
 
 		size_t i = 0;
 		bool carry = false;
@@ -80,7 +80,45 @@ class QuantumState
 		return result;
 	}
 
-	QuantumState operator-(size_t n)
+	QuantumState operator+(uint64_t n)
+	{
+		QuantumState result;
+		QuantumState b(n);
+		return *this + b;
+	}
+
+	QuantumState operator-(QuantumState b)
+	{
+		QuantumState result;
+
+		size_t i = 0;
+		bool borrow = false;
+		for(; i < b.qState.size() || i < this->qState.size(); ++i) {
+			bool sub = (this->qState[i] ^ b[i]) ^ borrow;
+			borrow = (!this->qState[i] && b[i]) || (!this->qState[i] && borrow) ||
+					 (b[i] && borrow);
+			result.qState.push_back(sub);
+		}
+		// last borrow
+		if(borrow) {
+			bool sub = (this->qState[i] ^ b[i]) ^ borrow;
+			borrow = (!this->qState[i] && b[i]) || (!this->qState[i] && borrow) ||
+					 (b[i] && borrow);
+			result.qState.push_back(sub);
+		}
+
+		return result;
+	}
+
+	QuantumState operator-(uint64_t n)
+	{
+		QuantumState result;
+		QuantumState b(n);
+
+		return *this - b;
+	}
+
+	QuantumState operator/(uint64_t n)
 	{
 		QuantumState result;
 		QuantumState b(n);
@@ -104,30 +142,7 @@ class QuantumState
 		return result;
 	}
 
-	std::vector<bool>::reference operator[](size_t n) { return this->qState[n]; }
-
-	bool operator>(size_t n)
-	{
-		// convert size_t to quantumState
-		QuantumState second(n);
-
-		if(this->qState.size() != second.qState.size())
-			return (this->qState.size() > second.qState.size());
-
-		bool first_is_greater = false;
-		for(size_t i = 0; i < this->qState.size(); ++i) {
-			if((this->qState[i] ^ second[i]) == 0x0)
-				continue;
-			if(this->qState[i] == 1 && second[i] == 0) {
-				first_is_greater = true;
-				continue;
-			}
-			if(this->qState[i] == 0 && second[i] == 1)
-				first_is_greater = false;
-		}
-
-		return first_is_greater;
-	}
+	std::vector<bool>::reference operator[](uint64_t n) { return this->qState[n]; }
 
 	bool operator>(QuantumState second)
 	{
@@ -147,6 +162,12 @@ class QuantumState
 		}
 
 		return first_is_greater;
+	}
+
+	bool operator>(uint64_t n)
+	{
+		QuantumState second(n);
+		return *this > second;
 	}
 
 	bool operator<(QuantumState second)
@@ -169,26 +190,11 @@ class QuantumState
 		return first_is_smaller;
 	}
 
-	bool operator<(size_t n)
+	bool operator<(uint64_t n)
 	{
 		// convert size_t to quantumState
 		QuantumState second(n);
-		if(this->qState.size() != second.qState.size())
-			return (this->qState.size() < second.qState.size());
-
-		bool first_is_smaller = false;
-		for(size_t i = 0; i < this->qState.size(); ++i) {
-			if((this->qState[i] ^ second[i]) == 0x0)
-				continue;
-			if(this->qState[i] == 0 && second[i] == 1) {
-				first_is_smaller = true;
-				continue;
-			}
-			if(this->qState[i] == 1 && second[i] == 0)
-				first_is_smaller = false;
-		}
-
-		return first_is_smaller;
+		return *this < second;
 	}
 
 	bool operator==(QuantumState second)
@@ -204,6 +210,12 @@ class QuantumState
 		return true;
 	}
 
+	bool operator==(uint64_t n)
+	{
+		QuantumState second(n);
+		return *this == second;
+	}
+
 	bool operator!=(QuantumState second)
 	{
 		if(this->qState.size() != second.qState.size())
@@ -217,28 +229,26 @@ class QuantumState
 		return true;
 	}
 
-	void operator+=(size_t n)
+	bool operator!=(uint64_t n)
 	{
-		QuantumState result;
+		QuantumState second(n);
+		return *this != second;
+	}
+
+	void operator+=(QuantumState b) { *this = *this + b; }
+
+	void operator+=(uint64_t n)
+	{
 		QuantumState b(n);
+		*this = *this + b;
+	}
 
-		size_t i = 0;
-		bool carry = false;
-		for(; i < b.qState.size() || i < this->qState.size(); ++i) {
-			bool sum = (this->qState[i] ^ b[i]) ^ carry;
-			carry = (this->qState[i] && b[i]) || (this->qState[i] && carry) ||
-					(b[i] && carry);
-			result.qState.push_back(sum);
-		}
-		// last carry
-		if(carry) {
-			bool sum = (this->qState[i] ^ b[i]) ^ carry;
-			carry = (this->qState[i] && b[i]) || (this->qState[i] && carry) ||
-					(b[i] && carry);
-			result.qState.push_back(sum);
-		}
+	void operator-=(QuantumState b) { *this = *this - b; }
 
-		this->qState = result.qState;
+	void operator-=(uint64_t n)
+	{
+		QuantumState b(n);
+		*this = *this - b;
 	}
 };
 
@@ -251,45 +261,49 @@ void QuantumState::printState() const
 	std::cout << ">\n";
 }
 
-// int main() {
-//     uint64_t number = 2;
-//     // std::cout << "Number: " << number << std::endl;
+// int main()
+// {
+// 	// uint64_t number = 2;
+// 	// std::cout << "Number: " << number << std::endl;
 
-//     QuantumState state1(0);
-//     state1.printState();
-//     QuantumState state2(1);
-//     state2 += 2;
-//     state2.printState();
-//     std::cout << "Converted state1: " << state1.to_uint64() << std::endl;
-//     std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
+// 	QuantumState state1(10);
+// 	state1.printState();
+// 	QuantumState state2(1);
+// 	std::cout << "Subtraction:\n";
+// 	state1 = state1 - 5;
+// 	std::cout << "Converted state1: " << state1.to_ullong() << std::endl;
 
-//     std::cout << "\n";
+// 	// state2 += 2;
+// 	// state2.printState();
+// 	// std::cout << "Converted state2: " << state2.to_uint64() << std::endl;
 
-//     std::cout << "Greater than:" << std::endl;
-//     if (state1 > state2)
-//         std::cout << "\ttrue" << std::endl;
-//     else
-//         std::cout << "\tfalse" << std::endl;
+// 	std::cout << "\n";
 
-//     std::cout << "Smaller than:" << std::endl;
-//     if (state1 < state2)
-//         std::cout << "\ttrue" << std::endl;
-//     else
-//         std::cout << "\tfalse" << std::endl;
+// 	std::cout << "Greater than:" << std::endl;
+// 	if(state1 > state2)
+// 		std::cout << "\ttrue" << std::endl;
+// 	else
+// 		std::cout << "\tfalse" << std::endl;
 
-//     std::cout << "Equals:" << std::endl;
-//     if (state1 == state2)
-//         std::cout << "\ttrue" << std::endl;
-//     else
-//         std::cout << "\tfalse" << std::endl;
+// 	std::cout << "Smaller than:" << std::endl;
+// 	if(state1 < state2)
+// 		std::cout << "\ttrue" << std::endl;
+// 	else
+// 		std::cout << "\tfalse" << std::endl;
 
-//     std::cout << "Not Equals:" << std::endl;
-//     if (state1 != state2)
-//         std::cout << "\ttrue" << std::endl;
-//     else
-//         std::cout << "\tfalse" << std::endl;
+// 	std::cout << "Equals:" << std::endl;
+// 	if(state1 == state2)
+// 		std::cout << "\ttrue" << std::endl;
+// 	else
+// 		std::cout << "\tfalse" << std::endl;
 
-//     return 0;
+// 	std::cout << "Not Equals:" << std::endl;
+// 	if(state1 != state2)
+// 		std::cout << "\ttrue" << std::endl;
+// 	else
+// 		std::cout << "\tfalse" << std::endl;
+
+// 	return 0;
 // }
 
 #endif
