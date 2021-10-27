@@ -3,6 +3,7 @@
 #include "mpi.h"
 #include <cmath>
 #include <complex>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -50,6 +51,14 @@ vector<unsigned long long> calculateLayerAlloc(int qubitCount, int nodeCount)
 	// Duplicate the size of each number
 	for(size_t i = 0; i < result.size(); ++i) {
 		result[i] *= 2;
+	}
+
+	// Check if layer alloc size is bigger than std_max
+	for(size_t i = 0; i < result.size(); ++i){
+		if (result[i] >= result.max_size()) {
+			cerr << "Exceeded max_size of vector allocation at node " << i << endl;
+			exit(EXIT_FAILURE); 
+		}
 	}
 
 	return result;
