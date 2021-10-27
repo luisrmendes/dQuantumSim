@@ -2,8 +2,6 @@
 
 #define MASK(N) (0x1ull << N)
 
-using namespace std;
-
 dynamic_bitset::dynamic_bitset(uint64_t number)
 {
 	if(number == 0)
@@ -12,28 +10,6 @@ dynamic_bitset::dynamic_bitset(uint64_t number)
 		this->bitset.push_back(number % 2);
 		number = number >> 1; /* / 2 */
 	}
-}
-
-void dynamic_bitset::printBitset() const
-{
-	for(size_t i = this->bitset.size(); i > 0; i--) {
-		std::cout << this->bitset[i - 1];
-	}
-	std::cout << std::endl;
-}
-
-void dynamic_bitset::flip(size_t index)
-{
-	if(index >= this->bitset.size())
-		throw std::invalid_argument("bitset.flip() argument out of bounds!");
-	bitset[index] = !bitset[index];
-}
-
-bool dynamic_bitset::test(size_t index)
-{
-	if(index >= this->bitset.size())
-		throw std::invalid_argument("bitset.test() argument out of bounds!");
-	return this->bitset[index] == 1;
 }
 
 uint64_t dynamic_bitset::to_ullong()
@@ -50,6 +26,47 @@ uint64_t dynamic_bitset::to_ullong()
 	}
 
 	return result;
+}
+
+void dynamic_bitset::printBitset()
+{
+	for(size_t i = this->bitset.size(); i > 0; i--) {
+		std::cout << this->bitset[i - 1];
+	}
+
+	if(this->bitset.size() <= 64)
+		std::cout << " -> " << this->to_ullong();
+	else
+		std::cout << "-> Inf ";
+
+	std::cout << std::endl;
+}
+
+void dynamic_bitset::flip(size_t index)
+{
+	if(index >= this->bitset.size()) {
+		// add 0's while size() - index
+		for(size_t i = 0; i < this->bitset.size() - index - 1; ++i) {
+			this->bitset.push_back(0);
+		}
+	}
+
+	bitset[index] = !bitset[index];
+
+	if(bitset[index] == 0) {
+		size_t aux = this->bitset.size() - 1;
+		while(bitset[aux] == 0) {
+			this->bitset.pop_back();
+			--aux;
+		}
+	}
+}
+
+bool dynamic_bitset::test(size_t index)
+{
+	if(index >= this->bitset.size())
+		throw std::invalid_argument("bitset.test() argument out of bounds!");
+	return this->bitset[index] == 1;
 }
 
 dynamic_bitset dynamic_bitset::operator+(dynamic_bitset b)
