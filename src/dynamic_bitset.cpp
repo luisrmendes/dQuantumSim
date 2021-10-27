@@ -244,3 +244,14 @@ void dynamic_bitset::operator-=(uint64_t n)
 	dynamic_bitset b(n);
 	*this = *this - b;
 }
+
+void dynamic_bitset::operator=(dynamic_bitset b)
+{
+	*this = b;
+}
+
+void dynamic_bitset::operator=(uint64_t n)
+{
+	dynamic_bitset b(n);
+	*this = b;
+}

@@ -13,8 +13,8 @@ class dynamic_bitset
 	dynamic_bitset() {}
 	dynamic_bitset(uint64_t number);
 	std::vector<bool> getBitset() { return this->bitset; }
-	
-    /**
+
+	/**
      * TODO: flip de 1 do mais significativo vira 0. remover 0?
     */
 	void flip(size_t index);
@@ -41,6 +41,8 @@ class dynamic_bitset
 	void operator+=(uint64_t n);
 	void operator-=(dynamic_bitset b);
 	void operator-=(uint64_t n);
+	void operator=(dynamic_bitset b);
+	void operator=(uint64_t n);
 };
 
 #endif
