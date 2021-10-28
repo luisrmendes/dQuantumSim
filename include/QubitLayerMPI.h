@@ -2,6 +2,7 @@
 #define QUBITLAYERMPI_H
 
 #include "constants.h"
+#include "dynamic_bitset.h"
 #include <complex>
 #include <vector>
 
@@ -16,8 +17,8 @@ class QubitLayerMPI
   private:
 	qubitLayer states;
 	unsigned int numQubits;
-	unsigned long long globalStartIndex;
-	unsigned long long globalEndIndex;
+	dynamic_bitset globalStartIndex;
+	dynamic_bitset globalEndIndex;
 
   public:
 	/**
@@ -61,14 +62,14 @@ class QubitLayerMPI
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	 */
-	bool checkStateOOB(unsigned long long state);
+	bool checkStateOOB(dynamic_bitset state);
 
 	void measureQubits(double* result);
 
 	unsigned long long getLocalStartIndex();
 
 	unsigned long long
-	getLocalIndexFromGlobalState(unsigned long long receivedIndex);
+	getLocalIndexFromGlobalState(dynamic_bitset receivedIndex);
 };
 
 #endif
