@@ -56,20 +56,15 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(int i);
 
+	void measureQubits(double* result);
+
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
 	 * vector of the process
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
-	 */
+	*/
 	bool checkStateOOB(dynamic_bitset state);
-
-	void measureQubits(double* result);
-
-	unsigned long long getLocalStartIndex();
-
-	unsigned long long
-	getLocalIndexFromGlobalState(dynamic_bitset receivedIndex);
 };
 
 #endif

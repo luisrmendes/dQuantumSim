@@ -4,6 +4,7 @@
 #include "macros.h"
 #include "mpi.h"
 #include "utils.h"
+#include "utilsMPI.h"
 #include <algorithm>
 #include <cstdio>
 #include <map>
@@ -11,42 +12,6 @@
 #define MASK(N) (0x1 << N)
 
 using namespace std;
-
-unsigned long long
-QubitLayerMPI::getLocalIndexFromGlobalState(dynamic_bitset receivedIndex)
-{
-	dynamic_bitset result = 0;
-
-	for(unsigned long long i = 0; i < ::layerAllocs.size(); ++i) {
-		if(i == (unsigned long long)::rank)
-			break;
-		result += (::layerAllocs[i] / 2);
-	}
-
-	cout << "received index:";
-	receivedIndex.printBitset();
-	cout << "result: ";
-	result.printBitset();
-	cout << "calculated local index: ";
-	(receivedIndex - result).printBitset();
-	cout << "testing ";
-	dynamic_bitset new1(5);
-	dynamic_bitset new2(0);
-	(new1 - new2).printBitset();
-
-	return (receivedIndex - result).to_ullong();
-}
-
-unsigned long long QubitLayerMPI::getLocalStartIndex()
-{
-	unsigned long long result = 0;
-
-	for(int i = 0; i < ::rank; i++) {
-		result += ::layerAllocs[i];
-	}
-
-	return result;
-}
 
 void QubitLayerMPI::measureQubits(double* resultArr)
 {
@@ -381,14 +346,15 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		if(checkZeroState(i)) {
 			dynamic_bitset state = (this->globalStartIndex + i);
 			state.flip(targetQubit);
-			state.printBitset();
-			
 
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
 #ifdef PAULIX_DEBUG_LOGS
-				appendDebugLog(
-					"State |", state.to_ullong(), "> in bounds = ", this->states[2 * i], "\n");
+				appendDebugLog("State |",
+							   state.to_ullong(),
+							   "> in bounds = ",
+							   this->states[2 * i],
+							   "\n");
 #endif
 				unsigned long long localIndex = getLocalIndexFromGlobalState(state);
 				this->states[2 * localIndex + 1] = this->states[2 * i];
@@ -417,8 +383,6 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		// operacao especifica ao pauliX
 		this->states[2 * localIndex + 1] = receivedOps[i + 1];
 	}
-	printStateVector();
-
 	updateStates();
 
 #ifdef PAULIX_DEBUG_LOGS

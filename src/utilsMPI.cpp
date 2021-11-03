@@ -7,6 +7,30 @@
 
 using namespace std;
 
+unsigned long long getLocalIndexFromGlobalState(dynamic_bitset receivedIndex)
+{
+	dynamic_bitset result = 0;
+
+	for(unsigned long long i = 0; i < ::layerAllocs.size(); ++i) {
+		if(i == (unsigned long long)::rank)
+			break;
+		result += (::layerAllocs[i] / 2);
+	}
+
+	return (receivedIndex - result).to_ullong();
+}
+
+unsigned long long getLocalStartIndex()
+{
+	unsigned long long result = 0;
+
+	for(int i = 0; i < ::rank; i++) {
+		result += ::layerAllocs[i];
+	}
+
+	return result;
+}
+
 void gatherResultsMPI(int rank,
 					  int size,
 					  unsigned int numQubits,
