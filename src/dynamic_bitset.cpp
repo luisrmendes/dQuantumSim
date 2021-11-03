@@ -214,6 +214,16 @@ bool dynamic_bitset::operator<(dynamic_bitset second) const
 	return first_is_smaller;
 }
 
+bool dynamic_bitset::operator>=(dynamic_bitset second) const
+{
+	return *this > second || *this == second;
+}
+
+bool dynamic_bitset::operator<=(dynamic_bitset second) const
+{
+	return *this < second || *this == second;
+}
+
 bool dynamic_bitset::operator==(dynamic_bitset second) const
 {
 	if(this->bitset.size() != second.bitset.size())
@@ -242,6 +252,18 @@ bool dynamic_bitset::operator>(uint64_t n) const
 {
 	dynamic_bitset second(n);
 	return *this > second;
+}
+
+bool dynamic_bitset::operator>=(uint64_t n) const
+{
+	dynamic_bitset second(n);
+	return *this > second || *this == second;
+}
+
+bool dynamic_bitset::operator<=(uint64_t n) const
+{
+	dynamic_bitset second(n);
+	return *this < second || *this == second;
 }
 
 bool dynamic_bitset::operator<(uint64_t n) const
