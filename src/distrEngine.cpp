@@ -1,6 +1,8 @@
 #include "distrEngine.h"
 #include "constants.h"
+#include "dynamic_bitset.h"
 #include "mpi.h"
+#include "utilsMPI.h"
 #include <algorithm>
 #include <map>
 
@@ -39,17 +41,18 @@ void sendStatesOOB(vector<complex<double>> statesOOB)
 		node = getNodeOfState(statesOOB[i].real());
 
 		it = mapMsgToSend.find(node);
+		uint64_t localIndex = getLocalIndexFromGlobalState(statesOOB[i].real());
 
 		// if hasn't found node
 		if(it == mapMsgToSend.end()) {
 			vector<complex<double>> vec;
-			vec.push_back(statesOOB[i]);
+			vec.push_back(localIndex);
 			vec.push_back(statesOOB[i + 1]);
 			mapMsgToSend.insert({node, vec});
 		}
 		// if already has node, append the statesOOB
 		else {
-			it->second.push_back(statesOOB[i]);
+			it->second.push_back(localIndex);
 			it->second.push_back(statesOOB[i + 1]);
 		}
 	}
