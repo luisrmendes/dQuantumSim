@@ -8,14 +8,14 @@
 
 using namespace std;
 
-void sendStatesOOB(vector<complex<double>> statesOOB)
+void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 {
 	vector<int> ranks;
 	for(int i = 0; i < ::size; i++) {
 		ranks.push_back(i);
 	}
 
-	long long node = -1;
+	int node = -1;
 	vector<complex<double>> msgToSend;
 
 #ifdef HANDLER_STATES_DEBUG
@@ -37,23 +37,24 @@ void sendStatesOOB(vector<complex<double>> statesOOB)
 	map<unsigned int, vector<complex<double>>> mapMsgToSend;
 	map<unsigned int, vector<complex<double>>>::iterator it;
 
-	for(size_t i = 0; i < statesOOB.size(); i += 2) {
-		node = getNodeOfState(statesOOB[i].real());
+	for(size_t i = 0; i < statesOOB.size(); ++i) {
+		// mudar para dynamic_bitset
+		node = getNodeOfState(get<0>(statesOOB[i]));
 
 		it = mapMsgToSend.find(node);
-		uint64_t localIndex = getLocalIndexFromGlobalState(statesOOB[i].real());
+		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(get<0>(statesOOB[i]), node);
 
 		// if hasn't found node
 		if(it == mapMsgToSend.end()) {
 			vector<complex<double>> vec;
-			vec.push_back(localIndex);
-			vec.push_back(statesOOB[i + 1]);
+			vec.push_back(nodeLocalIndex);
+			vec.push_back(get<1>(statesOOB[i]));
 			mapMsgToSend.insert({node, vec});
 		}
 		// if already has node, append the statesOOB
 		else {
-			it->second.push_back(localIndex);
-			it->second.push_back(statesOOB[i + 1]);
+			it->second.push_back(nodeLocalIndex);
+			it->second.push_back(get<1>(statesOOB[i]));
 		}
 	}
 
@@ -179,11 +180,11 @@ vector<complex<double>> receiveStatesOOB()
 	return receivedOperations;
 }
 
-long long getNodeOfState(unsigned long long state)
+int getNodeOfState(dynamic_bitset state)
 {
 	/** TODO: melhor maneira de fazer isto **/
-	unsigned int lowerBound = 0;
-	unsigned int upperBound = ::layerAllocs[0] / 2;
+	dynamic_bitset lowerBound = 0;
+	dynamic_bitset upperBound = ::layerAllocs[0] / 2;
 
 	int i = 0;
 	for(; i <= ::size; ++i) {

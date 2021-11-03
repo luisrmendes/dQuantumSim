@@ -1,6 +1,7 @@
 #include "QubitLayerMPI.h"
 #include "debug.h"
 #include "distrEngine.h"
+#include "dynamic_bitset.h"
 #include "macros.h"
 #include "mpi.h"
 #include "utils.h"
@@ -8,6 +9,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <map>
+#include <tuple>
 
 #define MASK(N) (0x1 << N)
 
@@ -144,7 +146,7 @@ void QubitLayerMPI::measure()
 // 						"ControlledX: State |", state, "> out of bounds!\n");
 // #endif
 
-// 					// pair (state, intended_value)
+// 					// pair (state, intended_val
 // 					statesOOB.push_back(state);
 // 					statesOOB.push_back(this->states[2 * i]);
 // 				}
@@ -293,7 +295,14 @@ void QubitLayerMPI::measure()
 // 		if(checkZeroState(i)) {
 // 			unsigned long long state = i + this->globalStartIndex;
 // 			// if |0>, scalar 1i applies to |1>
-// 			// if |1>, scalar -1i applies to |0>
+// 			// if |1>, scalar -1i aclear();
+
+// testSum();
+// testSub();
+// testCompressBitsets();
+// testNormalizeBitsets();
+
+// cout << endl;plies to |0>
 // 			// probabily room for optimization here
 // 			state = state ^ MASK(targetQubit);
 
@@ -340,7 +349,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 #endif
 
 	// vector of (stateOTB, value) pairs
-	vector<complex<double>> statesOOB;
+	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -356,15 +365,15 @@ void QubitLayerMPI::pauliX(int targetQubit)
 							   this->states[2 * i],
 							   "\n");
 #endif
-				unsigned long long localIndex = getLocalIndexFromGlobalState(state);
+				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 			} else {
 #ifdef PAULIX_DEBUG_LOGS
 				appendDebugLog("State |", state.to_ullong(), "> out of bounds!\n");
 #endif
 				// pair (state, intended_value) ATENCAO
-				statesOOB.push_back(state.to_ullong());
-				statesOOB.push_back(this->states[2 * i]);
+				statesOOB.push_back({state, this->states[2 * i]});
+				// statesOOB.push_back(this->states[2 * i]);
 			}
 		}
 	}
@@ -374,14 +383,18 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		unsigned long long localIndex =
-			getLocalIndexFromGlobalState(receivedOps[i].real());
+		
+		// unsigned long long localIndex =
+		// 	getLocalIndexFromGlobalState(receivedOps[i].real());
+
+		cout << receivedOps[i].real() << endl;
+		// cout << localIndex << endl;
 
 #ifdef PAULIX_DEBUG_LOGS
 		appendDebugLog("Local Index = ", localIndex, "\n");
 #endif
 		// operacao especifica ao pauliX
-		this->states[2 * localIndex + 1] = receivedOps[i + 1];
+		this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1];
 	}
 	updateStates();
 

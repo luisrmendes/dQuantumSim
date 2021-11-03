@@ -7,12 +7,12 @@
 
 using namespace std;
 
-unsigned long long getLocalIndexFromGlobalState(dynamic_bitset receivedIndex)
+size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node)
 {
 	dynamic_bitset result = 0;
 
 	for(unsigned long long i = 0; i < ::layerAllocs.size(); ++i) {
-		if(i == (unsigned long long)::rank)
+		if(i == (unsigned long long)node)
 			break;
 		result += (::layerAllocs[i] / 2);
 	}

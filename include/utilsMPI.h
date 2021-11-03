@@ -10,7 +10,7 @@ extern std::vector<unsigned long long> layerAllocs;
 
 unsigned long long getLocalStartIndex();
 
-unsigned long long getLocalIndexFromGlobalState(dynamic_bitset receivedIndex);
+size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node);
 
 void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
 							int rank,
