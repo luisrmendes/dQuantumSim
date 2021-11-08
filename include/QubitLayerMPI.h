@@ -54,7 +54,7 @@ class QubitLayerMPI
 	 * Returns true if state has non-zero real component
 	 * @param i State vector iterator position
 	 */
-	bool checkZeroState(int i);
+	bool checkZeroState(size_t i);
 
 	void measureQubits(double* result);
 

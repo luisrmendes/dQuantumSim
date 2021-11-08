@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "utilsMPI.h"
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <map>
 #include <tuple>
@@ -355,7 +356,6 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		if(checkZeroState(i)) {
 			dynamic_bitset state = (this->globalStartIndex + i);
 			state.flip(targetQubit);
-
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
 #ifdef PAULIX_DEBUG_LOGS
@@ -383,11 +383,11 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// calcula o index local do state recebido
-		
+
 		// unsigned long long localIndex =
 		// 	getLocalIndexFromGlobalState(receivedOps[i].real());
 
-		cout << receivedOps[i].real() << endl;
+		// cout << receivedOps[i].real() << endl;
 		// cout << localIndex << endl;
 
 #ifdef PAULIX_DEBUG_LOGS
@@ -403,7 +403,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 #endif
 }
 
-bool QubitLayerMPI::checkZeroState(int i)
+bool QubitLayerMPI::checkZeroState(size_t i)
 {
 	return this->states[i * 2].real() != 0 || this->states[i * 2].imag() != 0;
 }
