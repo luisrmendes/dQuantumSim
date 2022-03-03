@@ -1,5 +1,5 @@
 CXX = mpicxx
-CXXFLAGS = -Wall -c -std=c++17 -O2
+CXXFLAGS = -Wall -c -std=c++17 -O3 -march=native
 PROJ_NAME = simulator
 
 OBJS_DIR := obj
