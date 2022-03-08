@@ -74,8 +74,12 @@ string dynamic_bitset::printBitset() const
 	if(this->bitset.size() <= 64) {
 		output += " -> ";
 		output += to_string(this->to_ullong());
+		output += " ";
 	} else
-		output += "-> Inf ";
+		output += "-> > 64 ";
+
+	output += "Size: ";
+	output += to_string(this->bitset.size());
 
 	return output;
 }
@@ -98,8 +102,8 @@ void dynamic_bitset::flip(size_t index)
 
 bool dynamic_bitset::test(size_t index) const
 {
-	if(index >= this->bitset.size())
-		throw std::invalid_argument("bitset.test() argument out of bounds!");
+	if(index > this->bitset.size())
+		return false;
 	return this->bitset[index] == 1;
 }
 
@@ -154,6 +158,8 @@ dynamic_bitset dynamic_bitset::operator-(dynamic_bitset b)
 
 void dynamic_bitset::operator>>(uint64_t n)
 {
+	if(this->bitset.size() == 1)
+		return;
 	this->bitset.erase(this->bitset.begin(), this->bitset.begin() + n);
 }
 

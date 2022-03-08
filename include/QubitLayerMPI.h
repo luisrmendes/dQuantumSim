@@ -27,6 +27,9 @@ class QubitLayerMPI
 	 */
 	QubitLayerMPI(unsigned int numQubits);
 	qubitLayer getStates() { return this->states; }
+	dynamic_bitset getGlobalStartIndex() { return this->globalStartIndex; }
+	dynamic_bitset getGlobalEndIndex() { return this->globalEndIndex; }
+
 	void setStates(qubitLayer states) { this->states = states; }
 	void updateStates();
 	std::string getStateVector();

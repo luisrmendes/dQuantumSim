@@ -8,7 +8,7 @@ extern int rank;
 extern int size;
 extern std::vector<unsigned long long> layerAllocs;
 
-unsigned long long getLocalStartIndex();
+dynamic_bitset getLocalStartIndex();
 
 size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node);
 

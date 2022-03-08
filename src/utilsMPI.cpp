@@ -20,9 +20,9 @@ size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node)
 	return (receivedIndex - result).to_ullong();
 }
 
-unsigned long long getLocalStartIndex()
+dynamic_bitset getLocalStartIndex()
 {
-	unsigned long long result = 0;
+	dynamic_bitset result = 0;
 
 	for(int i = 0; i < ::rank; i++) {
 		result += ::layerAllocs[i];

@@ -19,9 +19,9 @@ using namespace std;
 void QubitLayerMPI::measureQubits(double* resultArr)
 {
 	// Sum all qubits states of the qubit layer
-	long localStartIndex = getLocalStartIndex();
-	size_t j = 0;
-	size_t resultsSize = this->numQubits * 2;
+	dynamic_bitset localStartIndex = getLocalStartIndex();
+	uint64_t j = 0;
+	int resultsSize = this->numQubits * 2;
 
 	// popular o vetor com os indices dos qubits
 	for(unsigned int i = 0; i < resultsSize; i += 2) {
@@ -31,10 +31,13 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 
 	while(j < this->states.size()) {
 		double result = pow(abs(this->states[j]), 2); // not sure...
-		decltype(localStartIndex) state = (localStartIndex / 2);
+		dynamic_bitset state = localStartIndex; 
+		state >> 1; // div 2
+		// cout << state.printBitset() << endl;
+
 
 		for(unsigned int k = 0; k < this->numQubits; k++) {
-			if(state & MASK(k))
+			if(state.test(k))
 				resultArr[(k * 2) + 1] += result;
 		}
 
@@ -361,6 +364,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		if(checkZeroState(i)) {
 			dynamic_bitset state = (this->globalStartIndex + i);
 			state.flip(targetQubit);
+			cout << state.printBitset() << endl;
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
 #ifdef PAULIX_DEBUG_LOGS
@@ -424,7 +428,7 @@ void QubitLayerMPI::updateStates()
 string QubitLayerMPI::getStateVector()
 {
 	stringstream stateVector;
-	for(size_t i = 0; i < this->states.size(); i++) {
+	for(size_t i = 0; i < 10; i++) {
 		stateVector << this->states[i];
 
 		if(i % 2 == 1)

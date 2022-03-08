@@ -1,5 +1,6 @@
 #include "QubitLayerMPI.h"
 #include "debug.h"
+#include "dynamic_bitset.h"
 #include "macros.h"
 #include "mpi.h"
 #include "parser.h"

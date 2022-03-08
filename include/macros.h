@@ -15,7 +15,7 @@
 // #define PAULIX_DEBUG_LOGS
 // #define HANDLER_STATES_DEBUG
 
-#define OUTPUT_LOGS                                                                 \
+// #define OUTPUT_LOGS                                                                 \
 	TOFFOLI_DEBUG_LOGS || CONTROLLEDZ_DEBUG_LOGS || CONTROLLEDX_DEBUG_LOGS ||       \
 		HADAMARD_DEBUG_LOGS || PAULIZ_DEBUG_LOGS || PAULIY_DEBUG_LOGS ||            \
 		PAULIX_DEBUG_LOGS || HANDLER_STATES_DEBUG || RECEIVED_OPERATION_LOGS ||     \
@@ -27,4 +27,3 @@
  * Outras macros
  */
 #define RECV_BUFFER_OVERFLOW_WARNING
-// #define DISPLAY_MEM_INFO
