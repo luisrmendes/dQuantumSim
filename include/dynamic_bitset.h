@@ -20,6 +20,7 @@ class dynamic_bitset
 	bool test(size_t index) const;
 	uint64_t to_ullong() const;
 	std::string printBitset() const;
+	std::string printBitsetFormatted() const;
 
 	dynamic_bitset operator+(dynamic_bitset b);
 	dynamic_bitset operator-(dynamic_bitset b);

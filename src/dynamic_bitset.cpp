@@ -71,6 +71,16 @@ string dynamic_bitset::printBitset() const
 		output += to_string(this->bitset[i - 1]);
 	}
 
+	return output;
+}
+
+string dynamic_bitset::printBitsetFormatted() const
+{
+	string output;
+	for(size_t i = this->bitset.size(); i > 0; i--) {
+		output += to_string(this->bitset[i - 1]);
+	}
+
 	if(this->bitset.size() <= 64) {
 		output += " -> ";
 		output += to_string(this->to_ullong());
@@ -102,7 +112,7 @@ void dynamic_bitset::flip(size_t index)
 
 bool dynamic_bitset::test(size_t index) const
 {
-	if(index > this->bitset.size())
+	if(index >= this->bitset.size())
 		return false;
 	return this->bitset[index] == 1;
 }
@@ -182,8 +192,8 @@ std::vector<bool>::reference dynamic_bitset::operator[](size_t n)
 
 bool dynamic_bitset::operator>(dynamic_bitset second) const
 {
-	if(this->bitset.size() != second.bitset.size())
-		return (this->bitset.size() > second.bitset.size());
+	// if(this->bitset.size() != second.bitset.size())
+	// 	return (this->bitset.size() > second.bitset.size());
 
 	bool first_is_greater = false;
 	for(size_t i = 0; i < this->bitset.size(); ++i) {
@@ -202,8 +212,8 @@ bool dynamic_bitset::operator>(dynamic_bitset second) const
 
 bool dynamic_bitset::operator<(dynamic_bitset second) const
 {
-	if(this->bitset.size() != second.bitset.size())
-		return (this->bitset.size() < second.bitset.size());
+	// if(this->bitset.size() != second.bitset.size())
+	// 	return (this->bitset.size() < second.bitset.size());
 
 	bool first_is_smaller = false;
 	for(size_t i = 0; i < this->bitset.size(); ++i) {
