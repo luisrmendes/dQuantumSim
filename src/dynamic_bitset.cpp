@@ -119,15 +119,14 @@ bool dynamic_bitset::test(size_t index) const
 
 dynamic_bitset dynamic_bitset::operator+(dynamic_bitset b)
 {
-	normalizeBitsets(this, &b);
+	dynamic_bitset a = *this;
+	normalizeBitsets(&a, &b);
 	dynamic_bitset result;
 
-	size_t i = 0;
 	bool carry = false;
-	for(; i < this->bitset.size(); ++i) {
-		bool sum = (this->bitset[i] ^ b[i]) ^ carry;
-		carry = (this->bitset[i] && b[i]) || (this->bitset[i] && carry) ||
-				(b[i] && carry);
+	for(size_t i = 0; i < a.bitset.size(); ++i) {
+		bool sum = (a.bitset[i] ^ b[i]) ^ carry;
+		carry = (a.bitset[i] && b[i]) || (a.bitset[i] && carry) || (b[i] && carry);
 		result.bitset.push_back(sum);
 	}
 
@@ -142,13 +141,12 @@ dynamic_bitset dynamic_bitset::operator+(dynamic_bitset b)
 
 dynamic_bitset dynamic_bitset::operator-(dynamic_bitset b)
 {
-	normalizeBitsets(this, &b);
-
+	dynamic_bitset a = *this;
+	normalizeBitsets(&a, &b);
 	dynamic_bitset result;
-
-	size_t i = 0;
 	bool borrow = false;
 
+	size_t i = 0;
 	for(; i < b.bitset.size() || i < this->bitset.size(); ++i) {
 		bool sub = (this->bitset[i] ^ b.bitset[i]) ^ borrow;
 		borrow = (!this->bitset[i] && b.bitset[i]) || (!this->bitset[i] && borrow) ||
@@ -192,8 +190,8 @@ std::vector<bool>::reference dynamic_bitset::operator[](size_t n)
 
 bool dynamic_bitset::operator>(dynamic_bitset second) const
 {
-	// if(this->bitset.size() != second.bitset.size())
-	// 	return (this->bitset.size() > second.bitset.size());
+	if(this->bitset.size() != second.bitset.size())
+		return (this->bitset.size() > second.bitset.size());
 
 	bool first_is_greater = false;
 	for(size_t i = 0; i < this->bitset.size(); ++i) {
@@ -212,8 +210,8 @@ bool dynamic_bitset::operator>(dynamic_bitset second) const
 
 bool dynamic_bitset::operator<(dynamic_bitset second) const
 {
-	// if(this->bitset.size() != second.bitset.size())
-	// 	return (this->bitset.size() < second.bitset.size());
+	if(this->bitset.size() != second.bitset.size())
+		return (this->bitset.size() < second.bitset.size());
 
 	bool first_is_smaller = false;
 	for(size_t i = 0; i < this->bitset.size(); ++i) {

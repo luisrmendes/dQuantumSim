@@ -1,11 +1,3 @@
-init 40
+init 2
 
-pauliX 31
-pauliX 32
-pauliX 33
-pauliX 34
-pauliX 35
-pauliX 36
-pauliX 37
-pauliX 38
-pauliX 39
+hadamard 0
