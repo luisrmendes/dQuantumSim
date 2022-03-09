@@ -89,7 +89,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			dynamic_bitset state = this->globalStartIndex + i;
-			if((state.test(controlQubit1)) && (state.test(controlQubit2))) {
+			if(state.test(controlQubit1) && state.test(controlQubit2)) {
 				state.flip(targetQubit);
 
 				// if a state is OOB, store tuple (state, intended_value) to a vector
@@ -169,7 +169,7 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 		if(checkZeroState(i)) {
 			dynamic_bitset state = this->globalStartIndex + i;
 			if(state.test(controlQubit)) {
-				(state.test(targetQubit)) == 1
+				state.test(targetQubit)
 					? this->states[2 * i + 1] = -this->states[2 * i]
 					: this->states[2 * i + 1] = this->states[2 * i];
 			} else {
@@ -259,9 +259,8 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 		if(checkZeroState(i)) {
 			dynamic_bitset state = this->globalStartIndex + i;
 
-			(state.test(targetQubit)) == 1
-				? this->states[2 * i + 1] = -this->states[2 * i]
-				: this->states[2 * i + 1] = this->states[2 * i];
+			state.test(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
+									: this->states[2 * i + 1] = this->states[2 * i];
 
 #ifdef PAULIZ_DEBUG_LOGS
 			appendDebugLog("State vector before update: ", getStateVector());
@@ -294,7 +293,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
 
-				(state.test(targetQubit)) == 0
+				state.test(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 
