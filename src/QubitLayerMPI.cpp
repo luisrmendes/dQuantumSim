@@ -48,8 +48,8 @@ bool QubitLayerMPI::checkStateOOB(dynamic_bitset state)
 	// true if OOB
 	// size_t lowerBound = ::rank * (this->states.size() / 2);
 	// size_t upperBound = (::rank + 1) * (this->states.size() / 2);
-	bool isBigger = state > this->globalEndIndex;
-	bool isLess = state < this->globalStartIndex;
+	// bool isBigger = state > this->globalEndIndex;
+	// bool isLess = state < this->globalStartIndex;
 
 	return state < this->globalStartIndex || state > this->globalEndIndex;
 }
