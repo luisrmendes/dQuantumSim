@@ -22,20 +22,21 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	uint64_t j = 0;
 	unsigned int resultsSize = this->numQubits * 2;
 
-	// popular o vetor com os indices dos qubits
+	// popular o array com os indices dos qubits
 	for(unsigned int i = 0; i < resultsSize; i += 2) {
 		resultArr[i] = (i / 2) + 1;
 		resultArr[i + 1] = 0;
 	}
 
 	while(j < this->states.size()) {
-		double result = pow(abs(this->states[j]), 2); // not sure...
+		double result = pow(abs(this->states[j]), 2);
 		dynamic_bitset state = localStartIndex;
 		state >> 1; // div 2
 
 		for(unsigned int k = 0; k < this->numQubits; k++) {
-			if(state.test(k))
+			if(state.test(k)) {
 				resultArr[(k * 2) + 1] += result;
+			}
 		}
 
 		localStartIndex += 2;
