@@ -1,4 +1,5 @@
-init 2
+init 3
 
 hadamard 0
 hadamard 1
+hadamard 2

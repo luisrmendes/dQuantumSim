@@ -15,11 +15,49 @@
 
 using namespace std;
 
+void QubitLayerMPI::calculateFinalResults()
+{
+	for(auto it = std::begin(this->states); it != std::end(this->states); it+=2) {
+		*it = pow(abs(*it), 2);
+		// this->states.erase(std::next(it));
+	}
+
+}
+
 void QubitLayerMPI::measureQubits(double* resultArr)
 {
+	// // Sum all qubits states of the qubit layer
+
+	// // iniciar o array; 0 -> not searched, 1 -> searched
+	// bool qubit_search_flags[this->numQubits] = {0};
+
+	// // popular o array com os indices dos qubits
+	// for(unsigned int i = 0; i < this->numQubits * 2; i += 2) {
+	// 	resultArr[i] = (i / 2) + 1;
+	// 	resultArr[i + 1] = 0;
+	// }
+
+	// dynamic_bitset localStartIndex = getLocalStartIndex();
+
+	// for(size_t i = 0; i < this->numQubits; i++) {
+	// 	// descobrir 1's no estado
+	// 	for(size_t j = 0; j < this->states.size(); j += 2) {
+	// 		if(state.test(j)) {
+	// 			while(state.test(j)) {
+	// 				state += 2;
+	// 				resultArr[(j * 2) + 1] += this->states[j].real();
+	// 			}
+	// 			while() uint64_t jump = 2 ^ j;
+	// 			// resultArr[(j * 2) + 1] += result;
+	// 		} else {
+	// 			continue;
+	// 		}
+	// 	}
+
+	// 	localStartIndex += 2;
+	// }
+
 	// Sum all qubits states of the qubit layer
-	dynamic_bitset localStartIndex = getLocalStartIndex();
-	uint64_t j = 0;
 	unsigned int resultsSize = this->numQubits * 2;
 
 	// popular o array com os indices dos qubits
@@ -28,19 +66,17 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 		resultArr[i + 1] = 0;
 	}
 
-	while(j < this->states.size()) {
-		double result = pow(abs(this->states[j]), 2);
-		dynamic_bitset state = localStartIndex;
-		state >> 1; // div 2
-
+	dynamic_bitset localStartIndex = getLocalStartIndex();
+	for(size_t i = 0; i < this->states.size(); i+=2) {
+		double result = this->states[i].real();
+	
 		for(unsigned int k = 0; k < this->numQubits; k++) {
-			if(state.test(k)) {
+			if(localStartIndex.test(k)) {
 				resultArr[(k * 2) + 1] += result;
 			}
 		}
 
-		localStartIndex += 2;
-		j += 2;
+		localStartIndex += 1;
 	}
 }
 

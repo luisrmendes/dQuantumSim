@@ -133,9 +133,16 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(::rank == 0)
+		cout << "Calculate final results...\n\n";
+
+	// cout << (int)(sizeof(double) * pow(2, instructions[0])) << endl;
+	// double state_results[(int)(pow(2, instructions[0]))];
+	qL.calculateFinalResults();
+
+	if(::rank == 0)
 		cout << "Gathering results...\n\n";
 
-	double results[instructions[0] * 2];
+	double results[instructions[0] * 2];	// array de (qubit, result)
 	qL.measureQubits(results);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 

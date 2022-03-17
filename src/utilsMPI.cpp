@@ -25,7 +25,7 @@ dynamic_bitset getLocalStartIndex()
 	dynamic_bitset result = 0;
 
 	for(int i = 0; i < ::rank; i++) {
-		result += ::layerAllocs[i];
+		result += ::layerAllocs[i] >> 1;
 	}
 
 	return result;

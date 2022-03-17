@@ -8,6 +8,10 @@ extern int rank;
 extern int size;
 extern std::vector<unsigned long long> layerAllocs;
 
+/**
+ * Returns the first index of the local qubit state vector
+ * according to the global indexation
+ */
 dynamic_bitset getLocalStartIndex();
 
 size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node);

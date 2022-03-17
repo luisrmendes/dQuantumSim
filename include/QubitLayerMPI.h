@@ -42,6 +42,7 @@ class QubitLayerMPI
 	void controlledX(int controlQubit, int targetQubit);
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 
+
 	/**
 	 * Prints the state layer vector with the adequate format
 	 */
@@ -68,6 +69,12 @@ class QubitLayerMPI
 	 * @return true if state is OOB, else false
 	*/
 	bool checkStateOOB(dynamic_bitset state);
+
+	/**
+	 * Calculates the square of each state amplitude, 
+	 * replaces the old real value
+	 */
+	void calculateFinalResults();
 };
 
 #endif
