@@ -60,7 +60,7 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(size_t i);
 
-	void measureQubits(double* result);
+	void measureQubits(double* result, std::vector<double> finalResults);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
@@ -72,9 +72,12 @@ class QubitLayerMPI
 
 	/**
 	 * Calculates the square of each state amplitude, 
-	 * replaces the old real value
+	 * creates a new vector with the results.
+	 * 
+	 * WARN: In this instance, program has two big vectors, may cause 
+	 * segfault when using too much processes per node
 	 */
-	void calculateFinalResults();
+	std::vector<double> calculateFinalResults();
 };
 
 #endif

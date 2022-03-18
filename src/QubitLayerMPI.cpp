@@ -15,18 +15,22 @@
 
 using namespace std;
 
-void QubitLayerMPI::calculateFinalResults()
+vector<double> QubitLayerMPI::calculateFinalResults()
 {
-	for(auto it = std::begin(this->states); it != std::end(this->states); it+=2) {
-		*it = pow(abs(*it), 2);
-		// this->states.erase(std::next(it));
+	vector<double> finalResults(this->states.size() / 2, 0);
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		finalResults[i] = pow(abs(this->states[i * 2]), 2);
 	}
 
+	return finalResults;
 }
 
-void QubitLayerMPI::measureQubits(double* resultArr)
+void QubitLayerMPI::measureQubits(double* resultArr, vector<double> finalResults)
 {
 	// // Sum all qubits states of the qubit layer
+	// for(size_t i = 0; i < this->states.size(); i++) {
+	// 	cout << this->states[i] << endl;
+	// }
 
 	// // iniciar o array; 0 -> not searched, 1 -> searched
 	// bool qubit_search_flags[this->numQubits] = {0};
@@ -37,24 +41,23 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	// 	resultArr[i + 1] = 0;
 	// }
 
-	// dynamic_bitset localStartIndex = getLocalStartIndex();
-
+	// // medir qubit 1
 	// for(size_t i = 0; i < this->numQubits; i++) {
-	// 	// descobrir 1's no estado
-	// 	for(size_t j = 0; j < this->states.size(); j += 2) {
-	// 		if(state.test(j)) {
-	// 			while(state.test(j)) {
-	// 				state += 2;
-	// 				resultArr[(j * 2) + 1] += this->states[j].real();
-	// 			}
-	// 			while() uint64_t jump = 2 ^ j;
-	// 			// resultArr[(j * 2) + 1] += result;
-	// 		} else {
-	// 			continue;
-	// 		}
+	// 	dynamic_bitset localStartIndex = getLocalStartIndex();
+	// 	size_t start_offset = 0;
+	// 	// descobrir qubit 1 a 1 no estado
+	// 	while(!localStartIndex.test(i)) {
+	// 		localStartIndex += 1;
+	// 		start_offset++;
 	// 	}
 
-	// 	localStartIndex += 2;
+	// 	size_t jump = 2 ^ i;
+
+	// 	for(size_t j = start_offset; j < this->states.size(); j += jump) {
+	// 		for(size_t k = j; k < jump; k++) {
+	// 			resultArr[(k * 2) + 1] += this->states[k].real();
+	// 		}
+	// 	}
 	// }
 
 	// Sum all qubits states of the qubit layer
@@ -67,12 +70,11 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	}
 
 	dynamic_bitset localStartIndex = getLocalStartIndex();
-	for(size_t i = 0; i < this->states.size(); i+=2) {
-		double result = this->states[i].real();
-	
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+
 		for(unsigned int k = 0; k < this->numQubits; k++) {
 			if(localStartIndex.test(k)) {
-				resultArr[(k * 2) + 1] += result;
+				resultArr[(k * 2) + 1] += finalResults[i];
 			}
 		}
 

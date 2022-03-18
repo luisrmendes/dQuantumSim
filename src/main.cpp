@@ -137,13 +137,13 @@ int main(int argc, char* argv[])
 
 	// cout << (int)(sizeof(double) * pow(2, instructions[0])) << endl;
 	// double state_results[(int)(pow(2, instructions[0]))];
-	qL.calculateFinalResults();
+	vector<double> finalResults = qL.calculateFinalResults();
 
 	if(::rank == 0)
 		cout << "Gathering results...\n\n";
 
 	double results[instructions[0] * 2];	// array de (qubit, result)
-	qL.measureQubits(results);
+	qL.measureQubits(results, finalResults);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 
 	// print results
