@@ -17,7 +17,8 @@ constexpr int numQubitsMPI = 10;
 #include <unistd.h>
 
 int rank, size;
-std::vector<unsigned long long> layerAllocs;
+std::vector<unsigned long long>
+	layerAllocs; // layer allocation number, input and output pairs
 
 using namespace std;
 
@@ -142,7 +143,7 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << "Gathering results...\n\n";
 
-	double results[instructions[0] * 2];	// array de (qubit, result)
+	double results[instructions[0] * 2]; // array de (qubit, result)
 	qL.measureQubits(results, finalResults);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 

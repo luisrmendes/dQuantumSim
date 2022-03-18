@@ -1,5 +1,5 @@
 CXX = mpicxx
-CXXFLAGS = -Wall -std=c++17 -m64 -c -pipe -O3 
+CXXFLAGS = -Wall -std=c++17 -m64 -c -pipe -O3 -fopenmp
 PROJ_NAME = simulator
 
 OBJS_DIR := obj
@@ -16,7 +16,7 @@ OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
 all: simulator
 
 simulator: $(OBJS_FILES)
-	$(CXX) $(OBJS_FILES) $(LDFLAGS) -o $@
+	$(CXX) $(OBJS_FILES) $(LDFLAGS) -o $@ -fopenmp
 
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp

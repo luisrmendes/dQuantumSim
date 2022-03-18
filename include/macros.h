@@ -22,7 +22,6 @@
 		INSTRUCTIONS_HANDLER_LOGS || MEASURE_DEBUG_LOGS ||                          \
 		GET_STATE_LAYER_INFO_DEBUG_LOGS || MEASURE_STATE_VALUES_DEBUG_LOGS
 
-
 /**
  * Outras macros
  */

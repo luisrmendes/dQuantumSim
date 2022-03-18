@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdio>
 #include <map>
+#include <omp.h>
 #include <tuple>
 
 #define MASK(N) (0x1 << N)
@@ -27,39 +28,6 @@ vector<double> QubitLayerMPI::calculateFinalResults()
 
 void QubitLayerMPI::measureQubits(double* resultArr, vector<double> finalResults)
 {
-	// // Sum all qubits states of the qubit layer
-	// for(size_t i = 0; i < this->states.size(); i++) {
-	// 	cout << this->states[i] << endl;
-	// }
-
-	// // iniciar o array; 0 -> not searched, 1 -> searched
-	// bool qubit_search_flags[this->numQubits] = {0};
-
-	// // popular o array com os indices dos qubits
-	// for(unsigned int i = 0; i < this->numQubits * 2; i += 2) {
-	// 	resultArr[i] = (i / 2) + 1;
-	// 	resultArr[i + 1] = 0;
-	// }
-
-	// // medir qubit 1
-	// for(size_t i = 0; i < this->numQubits; i++) {
-	// 	dynamic_bitset localStartIndex = getLocalStartIndex();
-	// 	size_t start_offset = 0;
-	// 	// descobrir qubit 1 a 1 no estado
-	// 	while(!localStartIndex.test(i)) {
-	// 		localStartIndex += 1;
-	// 		start_offset++;
-	// 	}
-
-	// 	size_t jump = 2 ^ i;
-
-	// 	for(size_t j = start_offset; j < this->states.size(); j += jump) {
-	// 		for(size_t k = j; k < jump; k++) {
-	// 			resultArr[(k * 2) + 1] += this->states[k].real();
-	// 		}
-	// 	}
-	// }
-
 	// Sum all qubits states of the qubit layer
 	unsigned int resultsSize = this->numQubits * 2;
 
@@ -70,16 +38,67 @@ void QubitLayerMPI::measureQubits(double* resultArr, vector<double> finalResults
 	}
 
 	dynamic_bitset localStartIndex = getLocalStartIndex();
-	for(size_t i = 0; i < this->states.size() / 2; i++) {
 
+	// const int nthreads = omp_get_num_threads();
+	// const int ithread = omp_get_thread_num();
+	// cout << nthreads << " " << ithread << endl;
+
+	// #pragma omp for
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		for(unsigned int k = 0; k < this->numQubits; k++) {
 			if(localStartIndex.test(k)) {
 				resultArr[(k * 2) + 1] += finalResults[i];
 			}
 		}
-
 		localStartIndex += 1;
 	}
+
+	/* JUMP Attempt */
+	// // Sum all qubits states of the qubit layer
+	// dynamic_bitset localStartIndex = getLocalStartIndex();
+	// for(size_t i = 0; i < finalResults.size(); i++) {
+	// 	cout << localStartIndex.printBitset() << " -> " << finalResults[i] << endl;
+	// 	localStartIndex += 1;
+	// }
+
+	// // popular o array com os indices dos qubits
+	// for(unsigned int i = 0; i < this->numQubits * 2; i += 2) {
+	// 	resultArr[i] = (i / 2) + 1;
+	// 	resultArr[i + 1] = 0;
+	// }
+
+	// // medir qubit 1
+	// for(size_t i = 0; i < ::layerAllocs.size(); i++) {
+	// 	cout << ::layerAllocs[i] << endl;
+	// }
+
+	// for(size_t i = 0; i < 3; i++) {
+	// 	size_t start_offset = 0;
+	// 	dynamic_bitset localStartIndex = getLocalStartIndex();
+
+	// 	// descobrir qubit 1 a 1 no estado
+	// 	while(!localStartIndex.test(i)) {
+	// 		localStartIndex += 1;
+	// 		start_offset++;
+	// 	}
+
+	// 	// if(localStartIndex.getBitset().size() > i + 1) {
+	// 	// 	continue;
+	// 	// }
+
+	// 	size_t jump = pow(2, i);
+
+	// 	for(size_t j = start_offset; j < finalResults.size(); j++) {
+	// 		for(size_t k = 0; k < jump && k < finalResults.size(); k++) {
+	// 			if(::rank == 1)
+	// 				cout << start_offset << " jump: " << jump << " "
+	// 					 << resultArr[(i * 2)] << endl;
+	// 			resultArr[(i * 2) + 1] += finalResults[k + j];
+	// 		}
+	// 		j += jump;
+	// 	}
+	// }
+	// cout << " EXIT" << endl;
 }
 
 bool QubitLayerMPI::checkStateOOB(dynamic_bitset state)

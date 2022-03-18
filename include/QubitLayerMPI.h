@@ -42,7 +42,6 @@ class QubitLayerMPI
 	void controlledX(int controlQubit, int targetQubit);
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 
-
 	/**
 	 * Prints the state layer vector with the adequate format
 	 */
