@@ -41,10 +41,6 @@ array<double, THREAD_ARRAY_SIZE> func(unsigned int numQubits,
 
 	for(size_t i = start; i < end; i++) {
 		for(unsigned int j = 0; j < numQubits; j++) {
-			// cout << "i:" << i << " j:" << j << " results:" << results[j]
-			// 	 << " finalResults:" << finalResults[i]
-			// 	 << " localStartIndex:" << localStartIndex.printBitset()
-			// 	 << " localStartIndex.test(j):" << localStartIndex.test(j) << endl;
 			if(localStartIndex.test(j)) {
 				results[j] += finalResults[i];
 			}
@@ -62,63 +58,121 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 {
 	dynamic_bitset localStartIndex = getLocalStartIndex();
 
-	// for(size_t i = 0; i < this->states.size() / 2; i++) {
-	// 	cout << finalResults[i] << endl;
-	// }
-
-	// unsigned int numThreads = std::thread::hardware_concurrency();
-	const unsigned int numThreads = 2;
-	const size_t section_size = (this->states.size() / 2) / numThreads;
-	cout << "states size: " << this->states.size() / 2 << endl;
-
-	// array of futures
-	future<array<double, THREAD_ARRAY_SIZE>> future_array[numThreads];
-
-	// launch threads
-	unsigned int section_increments = 0;
-	for(size_t i = 0; i < numThreads; i++) {
-		future_array[i] = async(launch::async,
-								&func,
-								move(this->numQubits),
-								move(localStartIndex),
-								move(section_increments),
-								move(section_increments + section_size));
-		section_increments += section_size;
-		localStartIndex += section_size;
-	}
-
-	// array of results
-	array<double, THREAD_ARRAY_SIZE> all_results[numThreads];
-
-	// gather results
-	for(size_t i = 0; i < numThreads; i++) {
-		all_results[i] = future_array[i].get();
-	}
-
-	// for(size_t i = 0; i < numThreads; i++) {
-	// 	cout << "array 1: " << endl;
-	// 	for(size_t j = 0; j < numQubits; j++) {
-	// 		cout << all_results[i][j] << endl;
-	// 	}
-	// 	cout << endl;
-	// }
-
-	// join results
-	// Sum all qubits states of the qubit layer
-	// // popular o array com os indices dos qubits
 	for(unsigned int i = 0; i < numQubits; i++) {
 		resultArr[i] = 0;
 	}
 
-	for(unsigned int i = 0; i < numQubits; i++) {
-		for(unsigned int j = 0; j < numThreads; j++) {
-			resultArr[i] += all_results[j][i];
+	// decide if multithreading of singlethreading
+	if(this->states.size() / 2 < 100) {
+		cout << "\tSingle Threaded\n\n";
+		for(size_t i = 0; i < this->states.size() / 2; i++) {
+			for(unsigned int j = 0; j < this->numQubits; j++) {
+				if(localStartIndex.test(j)) {
+					resultArr[j] += finalResults[i];
+				}
+			}
+			localStartIndex += 1;
+		}
+	} else {
+		cout << "\tMulti Threaded\n\n";
+		// unsigned int numThreads = std::thread::hardware_concurrency();
+		const unsigned int numThreads = 2;
+		const size_t section_size = (this->states.size() / 2) / numThreads;
+		// cout << "states size: " << this->states.size() / 2 << endl;
+
+		future<array<double, THREAD_ARRAY_SIZE>> future_thread_1;
+		future<array<double, THREAD_ARRAY_SIZE>> future_thread_2;
+
+		// launch threads
+		future_thread_1 = async(launch::async,
+								&func,
+								move(this->numQubits),
+								move(localStartIndex),
+								move(0),
+								move(section_size));
+		future_thread_2 = async(launch::async,
+								&func,
+								move(this->numQubits),
+								move(localStartIndex + section_size),
+								move(section_size),
+								move(finalResults.size()));
+
+		// array of results
+		array<double, THREAD_ARRAY_SIZE> all_results[numThreads];
+
+		// gather results
+		all_results[0] = future_thread_1.get();
+		all_results[1] = future_thread_2.get();
+
+		for(unsigned int i = 0; i < numQubits; i++) {
+			resultArr[i] += all_results[0][i];
+			resultArr[i] += all_results[1][i];
 		}
 	}
 
-	for(unsigned int i = 0; i < numQubits; i++) {
-		cout << resultArr[i] << endl;
-	}
+	// for(unsigned int i = 0; i < numQubits; i++) {
+	// 	cout << resultArr[i] << endl;
+	// }
+
+	// dynamic_bitset localStartIndex = getLocalStartIndex();
+
+	// // for(size_t i = 0; i < this->states.size() / 2; i++) {
+	// // 	cout << finalResults[i] << endl;
+	// // }
+
+	// // unsigned int numThreads = std::thread::hardware_concurrency();
+	// const unsigned int numThreads = 2;
+	// const size_t section_size = (this->states.size() / 2) / numThreads;
+	// cout << "states size: " << this->states.size() / 2 << endl;
+
+	// // array of futures
+	// future<array<double, THREAD_ARRAY_SIZE>> future_array[numThreads];
+
+	// // launch threads
+	// unsigned int section_increments = 0;
+	// for(size_t i = 0; i < numThreads; i++) {
+	// 	future_array[i] = async(launch::async,
+	// 							&func,
+	// 							move(this->numQubits),
+	// 							move(localStartIndex),
+	// 							move(section_increments),
+	// 							move(section_increments + section_size));
+	// 	section_increments += section_size;
+	// 	localStartIndex += section_size;
+	// }
+
+	// // array of results
+	// array<double, THREAD_ARRAY_SIZE> all_results[numThreads];
+
+	// // gather results
+	// for(size_t i = 0; i < numThreads; i++) {
+	// 	all_results[i] = future_array[i].get();
+	// }
+
+	// // for(size_t i = 0; i < numThreads; i++) {
+	// // 	cout << "array 1: " << endl;
+	// // 	for(size_t j = 0; j < numQubits; j++) {
+	// // 		cout << all_results[i][j] << endl;
+	// // 	}
+	// // 	cout << endl;
+	// // }
+
+	// // join results
+	// // Sum all qubits states of the qubit layer
+	// // // popular o array com os indices dos qubits
+	// for(unsigned int i = 0; i < numQubits; i++) {
+	// 	resultArr[i] = 0;
+	// }
+
+	// for(unsigned int i = 0; i < numQubits; i++) {
+	// 	for(unsigned int j = 0; j < numThreads; j++) {
+	// 		resultArr[i] += all_results[j][i];
+	// 	}
+	// }
+
+	// for(unsigned int i = 0; i < numQubits; i++) {
+	// 	cout << resultArr[i] << endl;
+	// }
 
 	// // decide if multithreading of singlethreading
 	// if(this->states.size() / 2 < 1000) {
