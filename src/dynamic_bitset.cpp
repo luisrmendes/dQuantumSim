@@ -114,7 +114,14 @@ bool dynamic_bitset::test(size_t index) const
 {
 	if(index >= this->bitset.size())
 		return false;
+	
 	return this->bitset[index] == 1;
+
+	// try {
+	// 	return this->bitset.at(index);
+	// } catch (std::out_of_range const& exc) {
+	// 	return false;
+	// }
 }
 
 dynamic_bitset dynamic_bitset::operator+(dynamic_bitset b)

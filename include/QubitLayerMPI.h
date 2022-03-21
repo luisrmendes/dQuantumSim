@@ -9,6 +9,7 @@
 extern int rank;
 extern int size;
 extern std::vector<unsigned long long> layerAllocs;
+extern std::vector<double> finalResults;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
@@ -59,7 +60,7 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(size_t i);
 
-	void measureQubits(double* result, std::vector<double> finalResults);
+	void measureQubits(double* result);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer

@@ -19,6 +19,7 @@ constexpr int numQubitsMPI = 10;
 int rank, size;
 std::vector<unsigned long long>
 	layerAllocs; // layer allocation number, input and output pairs
+std::vector<double> finalResults;
 
 using namespace std;
 
@@ -138,20 +139,20 @@ int main(int argc, char* argv[])
 
 	// cout << (int)(sizeof(double) * pow(2, instructions[0])) << endl;
 	// double state_results[(int)(pow(2, instructions[0]))];
-	vector<double> finalResults = qL.calculateFinalResults();
+	finalResults = qL.calculateFinalResults();
 
 	if(::rank == 0)
 		cout << "Gathering results...\n\n";
 
-	double results[instructions[0] * 2]; // array de (qubit, result)
-	qL.measureQubits(results, finalResults);
+	double results[instructions[0]]; // array de resultados
+	qL.measureQubits(results);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 
 	// print results
 	if(::rank == 0) {
 		cout << "Results: \n";
-		for(size_t i = 0; i < instructions[0] * 2; i += 2) {
-			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100
+		for(size_t i = 0; i < instructions[0]; i++) {
+			cout << "Qubit " << i + 1 << " -> " << results[i] * 100
 				 << "% chance of being ON\n";
 		}
 	}

@@ -37,28 +37,27 @@ void gatherResultsMPI(int rank,
 					  double* finalResults)
 {
 	MPI_Status status;
-	size_t resultsSize = numQubits * 2;
 
 	if(rank == 0) {
-		double receivedResults[resultsSize];
+		double receivedResults[numQubits];
 
 		/** TODO: MPI_Gather? **/
 		for(int node = 1; node < size; node++) {
 			MPI_Recv(&receivedResults,
-					 resultsSize,
+					 numQubits,
 					 MPI_DOUBLE,
 					 node,
 					 0,
 					 MPI_COMM_WORLD,
 					 &status);
 
-			for(size_t i = 0; i < resultsSize; i += 2) {
-				finalResults[i + 1] += receivedResults[i + 1];
+			for(size_t i = 0; i < numQubits; i++) {
+				finalResults[i] += receivedResults[i];
 			}
 		}
 		return;
 	} else {
-		MPI_Send(finalResults, resultsSize, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+		MPI_Send(finalResults, numQubits, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
 		return;
 	}
 }
