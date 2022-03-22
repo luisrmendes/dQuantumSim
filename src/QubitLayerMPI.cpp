@@ -622,11 +622,8 @@ QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
 	this->numQubits = numQubits;
 
 	// populate vector with all (0,0)
-	unsigned long long i = 0;
-	while(i < ::layerAllocs[::rank]) {
-		this->states.push_back(0);
-		++i;
-	}
+	this->states.resize(::layerAllocs[::rank]);
+	fill(this->states.begin(), this->states.end(), 0);
 
 	// Initialze state vector as |0...0>
 	if(::rank == 0)

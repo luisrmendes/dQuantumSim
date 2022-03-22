@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 	finalResults = qL.calculateFinalResults();
 
 	if(::rank == 0)
-		cout << printBold("Gathering results...\n\n");
+		cout << printBold("Gathering results...\n");
 
 	double results[instructions[0]]; // array de resultados
 	qL.measureQubits(results);
