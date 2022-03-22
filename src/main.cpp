@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << printBold("Gathering results...\n");
 
-	double results[instructions[0]]; // array de resultados
+	double results[MAX_NUMBER_QUBITS]; // array de resultados
 	qL.measureQubits(results);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 

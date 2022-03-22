@@ -39,7 +39,7 @@ void gatherResultsMPI(int rank,
 	MPI_Status status;
 
 	if(rank == 0) {
-		double receivedResults[numQubits];
+		double receivedResults[MAX_NUMBER_QUBITS];
 
 		/** TODO: MPI_Gather? **/
 		for(int node = 1; node < size; node++) {
