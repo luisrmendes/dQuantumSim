@@ -1,3 +1,8 @@
-init 29
+init 2
 
-pauliX 28
+pauliX 0
+pauliX 1
+# pauliX 2
+# hadamard 3
+# hadamard 4
+# hadamard 5

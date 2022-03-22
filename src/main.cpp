@@ -1,10 +1,12 @@
 #include "QubitLayerMPI.h"
 #include "debug.h"
+#include "dynamic_bitset.h"
 #include "macros.h"
 #include "mpi.h"
 #include "parser.h"
 #include "utils.h"
 #include "utilsMPI.h"
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <stdio.h>
@@ -12,12 +14,12 @@
 #include <bitset>
 constexpr int numQubitsMPI = 10;
 #endif
-#ifdef DISPLAY_MEM_INFO
 #include <unistd.h>
-#endif
 
 int rank, size;
-std::vector<unsigned long long> layerAllocs;
+std::vector<unsigned long long>
+	layerAllocs; // layer allocation number, input and output pairs
+std::vector<double> finalResults;
 
 using namespace std;
 
@@ -46,7 +48,6 @@ int main(int argc, char* argv[])
 		instructions = sourceParser(argv[1]);
 	instructionsHandlerMPI(instructions, ::rank, ::size);
 
-#ifdef DISPLAY_MEM_INFO
 	if(::rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
 		long page_size = sysconf(_SC_PAGE_SIZE);
@@ -55,7 +56,6 @@ int main(int argc, char* argv[])
 		cout << "Expected Total Memory Usage: \n\t~"
 			 << 2 * 2 * 8 * pow(2, instructions[0]) * pow(10, -9) << " GB \n\n";
 	}
-#endif
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -91,7 +91,6 @@ int main(int argc, char* argv[])
 
 		switch(instructions[i]) {
 		case 1:
-			// cout << "pauliX" << endl;
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
 			MPI_Barrier(MPI_COMM_WORLD);
@@ -136,17 +135,24 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(::rank == 0)
+		cout << "Calculate final results...\n\n";
+
+	// cout << (int)(sizeof(double) * pow(2, instructions[0])) << endl;
+	// double state_results[(int)(pow(2, instructions[0]))];
+	finalResults = qL.calculateFinalResults();
+
+	if(::rank == 0)
 		cout << "Gathering results...\n\n";
 
-	double results[instructions[0] * 2];
+	double results[instructions[0]]; // array de resultados
 	qL.measureQubits(results);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 
 	// print results
 	if(::rank == 0) {
 		cout << "Results: \n";
-		for(size_t i = 0; i < instructions[0] * 2; i += 2) {
-			cout << "Qubit " << (i / 2) + 1 << " -> " << results[i + 1] * 100
+		for(size_t i = 0; i < instructions[0]; i++) {
+			cout << "Qubit " << i + 1 << " -> " << results[i] * 100
 				 << "% chance of being ON\n";
 		}
 	}

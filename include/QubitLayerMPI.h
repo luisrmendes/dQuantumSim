@@ -2,12 +2,14 @@
 #define QUBITLAYERMPI_H
 
 #include "constants.h"
+#include "dynamic_bitset.h"
 #include <complex>
 #include <vector>
 
 extern int rank;
 extern int size;
 extern std::vector<unsigned long long> layerAllocs;
+extern std::vector<double> finalResults;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
@@ -16,8 +18,8 @@ class QubitLayerMPI
   private:
 	qubitLayer states;
 	unsigned int numQubits;
-	unsigned long long globalStartIndex;
-	unsigned long long globalEndIndex;
+	dynamic_bitset globalStartIndex;
+	dynamic_bitset globalEndIndex;
 
   public:
 	/**
@@ -26,6 +28,9 @@ class QubitLayerMPI
 	 */
 	QubitLayerMPI(unsigned int numQubits);
 	qubitLayer getStates() { return this->states; }
+	dynamic_bitset getGlobalStartIndex() { return this->globalStartIndex; }
+	dynamic_bitset getGlobalEndIndex() { return this->globalEndIndex; }
+
 	void setStates(qubitLayer states) { this->states = states; }
 	void updateStates();
 	std::string getStateVector();
@@ -53,22 +58,26 @@ class QubitLayerMPI
 	 * Returns true if state has non-zero real component
 	 * @param i State vector iterator position
 	 */
-	bool checkZeroState(int i);
+	bool checkZeroState(size_t i);
+
+	void measureQubits(double* result);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
 	 * vector of the process
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
+	*/
+	bool checkStateOOB(dynamic_bitset state);
+
+	/**
+	 * Calculates the square of each state amplitude, 
+	 * creates a new vector with the results.
+	 * 
+	 * WARN: In this instance, program has two big vectors, may cause 
+	 * segfault when using too much processes per node
 	 */
-	bool checkStateOOB(unsigned long long state);
-
-	void measureQubits(double* result);
-
-	unsigned long long getLocalStartIndex();
-
-	unsigned long long
-	getLocalIndexFromGlobalState(unsigned long long receivedIndex);
+	std::vector<double> calculateFinalResults();
 };
 
 #endif

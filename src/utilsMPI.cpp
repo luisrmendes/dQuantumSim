@@ -7,34 +7,57 @@
 
 using namespace std;
 
+size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node)
+{
+	dynamic_bitset result = 0;
+
+	for(unsigned long long i = 0; i < ::layerAllocs.size(); ++i) {
+		if(i == (unsigned long long)node)
+			break;
+		result += (::layerAllocs[i] / 2);
+	}
+
+	return (receivedIndex - result).to_ullong();
+}
+
+dynamic_bitset getLocalStartIndex()
+{
+	dynamic_bitset result = 0;
+
+	for(int i = 0; i < ::rank; i++) {
+		result += ::layerAllocs[i] >> 1;
+	}
+
+	return result;
+}
+
 void gatherResultsMPI(int rank,
 					  int size,
 					  unsigned int numQubits,
 					  double* finalResults)
 {
 	MPI_Status status;
-	size_t resultsSize = numQubits * 2;
 
 	if(rank == 0) {
-		double receivedResults[resultsSize];
+		double receivedResults[numQubits];
 
 		/** TODO: MPI_Gather? **/
 		for(int node = 1; node < size; node++) {
 			MPI_Recv(&receivedResults,
-					 resultsSize,
+					 numQubits,
 					 MPI_DOUBLE,
 					 node,
 					 0,
 					 MPI_COMM_WORLD,
 					 &status);
 
-			for(size_t i = 0; i < resultsSize; i += 2) {
-				finalResults[i + 1] += receivedResults[i + 1];
+			for(size_t i = 0; i < numQubits; i++) {
+				finalResults[i] += receivedResults[i];
 			}
 		}
 		return;
 	} else {
-		MPI_Send(finalResults, resultsSize, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+		MPI_Send(finalResults, numQubits, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
 		return;
 	}
 }
