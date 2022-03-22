@@ -160,6 +160,7 @@ int main(int argc, char* argv[])
 	// cout << (int)(sizeof(double) * pow(2, instructions[0])) << endl;
 	// double state_results[(int)(pow(2, instructions[0]))];
 	finalResults = qL.calculateFinalResults();
+	qL.clearStates();
 
 	if(::rank == 0)
 		cout << printBold("Gathering results...\n");

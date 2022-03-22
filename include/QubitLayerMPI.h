@@ -32,6 +32,7 @@ class QubitLayerMPI
 	dynamic_bitset getGlobalEndIndex() { return this->globalEndIndex; }
 
 	void setStates(qubitLayer states) { this->states = states; }
+	void clearStates() {this->states.clear(); this->states.shrink_to_fit(); }
 	void updateStates();
 	std::string getStateVector();
 
@@ -76,6 +77,8 @@ class QubitLayerMPI
 	 * 
 	 * WARN: In this instance, program has two big vectors, may cause 
 	 * segfault when using too much processes per node
+	 * 
+	 * TODO: How to avoid the spike in memory
 	 */
 	std::vector<double> calculateFinalResults();
 };

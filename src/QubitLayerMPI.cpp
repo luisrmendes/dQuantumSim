@@ -21,7 +21,7 @@ using namespace std;
 
 vector<double> QubitLayerMPI::calculateFinalResults()
 {
-	vector<double> finalResults(this->states.size() / 2, 0);
+	vector<double> finalResults(this->states.size() / 2);
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		finalResults[i] = pow(abs(this->states[i * 2]), 2);
 	}
@@ -63,9 +63,10 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 	}
 
 	// decide if multithreading of singlethreading
-	if(this->states.size() / 2 < 100) {
-		cout << "\tSingle Threaded\n\n";
-		for(size_t i = 0; i < this->states.size() / 2; i++) {
+	if(finalResults.size() < 100) {
+		if(::rank == 0)
+			cout << "\tSingle Threaded\n\n";
+		for(size_t i = 0; i < finalResults.size(); i++) {
 			for(unsigned int j = 0; j < this->numQubits; j++) {
 				if(localStartIndex.test(j)) {
 					resultArr[j] += finalResults[i];
@@ -74,10 +75,11 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 			localStartIndex += 1;
 		}
 	} else {
-		cout << "\tMulti Threaded\n\n";
+		if(::rank == 0)
+			cout << "\tMulti Threaded\n\n";
 		// unsigned int numThreads = std::thread::hardware_concurrency();
 		const unsigned int numThreads = 2;
-		const size_t section_size = (this->states.size() / 2) / numThreads;
+		const size_t section_size = finalResults.size() / numThreads;
 		// cout << "states size: " << this->states.size() / 2 << endl;
 
 		future<array<double, THREAD_ARRAY_SIZE>> future_thread_1;
