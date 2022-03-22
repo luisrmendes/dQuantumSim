@@ -1,4 +1,5 @@
 #include "QubitLayerMPI.h"
+#include "consoleUtils.h"
 #include "debug.h"
 #include "dynamic_bitset.h"
 #include "macros.h"
@@ -30,6 +31,16 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	if(::rank == 0) {
+		cout << "\n\n";
+		cout << printBold("▓▓▓▓▓▓▓   ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
+		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
+		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓       ▓▓   ▓▓   ▓▓  ▓▓▓  ▓▓ ") << endl;
+		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("             ▓▓                               ") << endl;
+	}
+
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &::size);
@@ -51,16 +62,25 @@ int main(int argc, char* argv[])
 	if(::rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
 		long page_size = sysconf(_SC_PAGE_SIZE);
-		cout << "\nAvaliable System Memory: \n\t~"
-			 << ((pages * page_size) * pow(10, -9)) / 1.073741824 << " GB \n\n";
-		cout << "Expected Total Memory Usage: \n\t~"
-			 << 2 * 2 * 8 * pow(2, instructions[0]) * pow(10, -9) << " GB \n\n";
+		double system_memory = ((pages * page_size) * pow(10, -9)) / 1.073741824;
+		double expected_distributed_memory =
+			2 * 2 * 8 * pow(2, instructions[0]) * pow(10, -9);
+
+		cout << "\nAvaliable System Memory: \n\t~" << system_memory << " GB \n\n";
+		if(expected_distributed_memory > system_memory) {
+			cout << printYellowBold("Expected Distributed Memory Usage: \n\t~")
+				 << expected_distributed_memory
+				 << " GB \n\n";
+		} else {
+			cout << "Expected Distributed Memory Usage: \n\t~"
+				 << expected_distributed_memory << " GB \n\n";
+		}
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(::rank == 0)
-		cout << "Allocating vector...\n\n";
+		cout << printBold("Allocating vector...\n\n");
 
 	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
 
@@ -82,7 +102,7 @@ int main(int argc, char* argv[])
 #endif
 
 	if(::rank == 0)
-		cout << "Executing operations...\n\n";
+		cout << printBold("Executing operations...\n\n");
 
 	for(size_t i = 1; i < instructions.size(); i++) {
 #ifdef MEASURE_DEBUG_LOGS
@@ -135,14 +155,14 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(::rank == 0)
-		cout << "Calculate final results...\n\n";
+		cout << printBold("Calculate final results...\n\n");
 
 	// cout << (int)(sizeof(double) * pow(2, instructions[0])) << endl;
 	// double state_results[(int)(pow(2, instructions[0]))];
 	finalResults = qL.calculateFinalResults();
 
 	if(::rank == 0)
-		cout << "Gathering results...\n\n";
+		cout << printBold("Gathering results...\n\n");
 
 	double results[instructions[0]]; // array de resultados
 	qL.measureQubits(results);

@@ -1,5 +1,5 @@
 CXX = mpicxx
-CXXFLAGS = -Wall -std=c++17 -m64 -c -pipe -O3 -fopenmp
+CXXFLAGS = -Wall -std=c++17 -m64 -c -pipe -O3
 PROJ_NAME = simulator
 
 OBJS_DIR := obj
@@ -7,7 +7,7 @@ SRCS_DIR := src
 INC_DIR := include
 SRCS_FILES := $(SRCS_DIR)/main.cpp $(SRCS_DIR)/QubitLayerMPI.cpp \
 $(SRCS_DIR)/utils.cpp $(SRCS_DIR)/parser.cpp $(SRCS_DIR)/dynamic_bitset.cpp \
-$(SRCS_DIR)/utilsMPI.cpp $(SRCS_DIR)/distrEngine.cpp 
+$(SRCS_DIR)/utilsMPI.cpp $(SRCS_DIR)/distrEngine.cpp $(SRCS_DIR)/consoleUtils.cpp 
 
 OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
 
@@ -16,7 +16,7 @@ OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
 all: simulator
 
 simulator: $(OBJS_FILES)
-	$(CXX) $(OBJS_FILES) $(LDFLAGS) -o $@ -fopenmp
+	$(CXX) $(OBJS_FILES) $(LDFLAGS) -o $@
 
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp
