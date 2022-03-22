@@ -1,5 +1,5 @@
 // constexpr int numQubitsMPI = 26;
 
 #define MPI_RECV_BUFFER_SIZE 262145
-#define MPI_MAX_BUFFER 1000
-#define THREAD_ARRAY_SIZE 100   // related to the max number of qubits
+#define MPI_MAX_BUFFER		 1000
+#define MAX_NUMBER_QUBITS	 100 // used in the arrays on measuring results

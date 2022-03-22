@@ -29,31 +29,6 @@ vector<double> QubitLayerMPI::calculateFinalResults()
 	return finalResults;
 }
 
-array<double, THREAD_ARRAY_SIZE> func(unsigned int numQubits,
-									  dynamic_bitset localStartIndex,
-									  size_t start,
-									  size_t end)
-{
-	array<double, THREAD_ARRAY_SIZE> results;
-	results.fill(0);
-
-	// cout << "Start: " << start << " End: " << end << endl;
-
-	for(size_t i = start; i < end; i++) {
-		for(unsigned int j = 0; j < numQubits; j++) {
-			if(localStartIndex.test(j)) {
-				results[j] += finalResults[i];
-			}
-		}
-		localStartIndex += 1;
-	}
-
-	// cout << "results[2]: " << results[2]
-	// 		 << " finalResults[7]: " << finalResults[7] << endl;
-
-	return results;
-}
-
 void QubitLayerMPI::measureQubits(double* resultArr)
 {
 	dynamic_bitset localStartIndex = getLocalStartIndex();
@@ -62,19 +37,39 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 		resultArr[i] = 0;
 	}
 
-	// decide if multithreading of singlethreading
-	if(finalResults.size() < 100) {
-		if(::rank == 0)
-			cout << "\tSingle Threaded\n\n";
-		for(size_t i = 0; i < finalResults.size(); i++) {
-			for(unsigned int j = 0; j < this->numQubits; j++) {
+	auto func = [](unsigned int numQubits,
+				   dynamic_bitset localStartIndex,
+				   size_t start,
+				   size_t end) {
+		array<double, MAX_NUMBER_QUBITS> results;
+		results.fill(0);
+
+		for(size_t i = start; i < end; i++) {
+			for(unsigned int j = 0; j < numQubits; j++) {
 				if(localStartIndex.test(j)) {
-					resultArr[j] += finalResults[i];
+					results[j] += finalResults[i];
 				}
 			}
 			localStartIndex += 1;
 		}
-	} else {
+
+		return results;
+	};
+
+	// decide if multithreading of singlethreading
+	if(finalResults.size() < 100) {
+		if(::rank == 0)
+			cout << "\tSingle Threaded\n\n";
+
+		array<double, MAX_NUMBER_QUBITS> results_aux =
+			func(this->numQubits, localStartIndex, 0, finalResults.size());
+
+		for(unsigned int i = 0; i < MAX_NUMBER_QUBITS; i++) {
+			resultArr[i] += results_aux[i];
+		}
+	}
+
+	else {
 		if(::rank == 0)
 			cout << "\tMulti Threaded\n\n";
 		// unsigned int numThreads = std::thread::hardware_concurrency();
@@ -82,25 +77,25 @@ void QubitLayerMPI::measureQubits(double* resultArr)
 		const size_t section_size = finalResults.size() / numThreads;
 		// cout << "states size: " << this->states.size() / 2 << endl;
 
-		future<array<double, THREAD_ARRAY_SIZE>> future_thread_1;
-		future<array<double, THREAD_ARRAY_SIZE>> future_thread_2;
+		future<array<double, MAX_NUMBER_QUBITS>> future_thread_1;
+		future<array<double, MAX_NUMBER_QUBITS>> future_thread_2;
 
 		// launch threads
 		future_thread_1 = async(launch::async,
-								&func,
+								move(func),
 								move(this->numQubits),
 								move(localStartIndex),
 								move(0),
 								move(section_size));
 		future_thread_2 = async(launch::async,
-								&func,
+								move(func),
 								move(this->numQubits),
 								move(localStartIndex + section_size),
 								move(section_size),
 								move(finalResults.size()));
 
 		// array of results
-		array<double, THREAD_ARRAY_SIZE> all_results[numThreads];
+		array<double, MAX_NUMBER_QUBITS> all_results[numThreads];
 
 		// gather results
 		all_results[0] = future_thread_1.get();
