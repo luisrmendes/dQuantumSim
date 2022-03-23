@@ -30,6 +30,10 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &::size);
+
 	if(::rank == 0) {
 		cout << "\n\n";
 		cout << printBold("▓▓▓▓▓▓▓   ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
@@ -39,11 +43,7 @@ int main(int argc, char* argv[])
 		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
 		cout << printBold("             ▓▓                               ") << endl;
 	}
-
-	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &::size);
-
+	
 #ifdef OUTPUT_LOGS
 	if(::rank == 0) {
 		filesystem::remove_all("logs");
@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
 	vector<unsigned int> instructions;
 	if(::rank == 0)
 		instructions = sourceParser(argv[1]);
+
 	instructionsHandlerMPI(instructions, ::rank, ::size);
 
 	if(::rank == 0) {
