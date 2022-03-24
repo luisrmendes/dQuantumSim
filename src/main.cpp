@@ -17,7 +17,7 @@ constexpr int numQubitsMPI = 10;
 #include <unistd.h>
 
 int rank, size;
-std::vector<unsigned long long>
+std::vector<size_t>
 	layerAllocs; // layer allocation number, input and output pairs
 
 using namespace std;

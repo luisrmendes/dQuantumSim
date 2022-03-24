@@ -17,9 +17,9 @@ stringstream getFormattedQubitLayer(vector<complex<double>> states)
 	return result;
 }
 
-vector<unsigned long long> calculateLayerAlloc(int qubitCount, int nodeCount)
+vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount)
 {
-	vector<unsigned long long> result;
+	vector<size_t> result;
 	size_t layerSize = pow(2, qubitCount);
 
 	if(layerSize / 2 < (size_t)nodeCount) {

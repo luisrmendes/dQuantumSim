@@ -6,7 +6,7 @@
 
 extern int rank;
 extern int size;
-extern std::vector<unsigned long long> layerAllocs;
+extern std::vector<size_t> layerAllocs;
 
 /**
  * Returns the first index of the local qubit state vector

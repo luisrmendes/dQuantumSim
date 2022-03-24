@@ -11,8 +11,8 @@ size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node)
 {
 	dynamic_bitset result = 0;
 
-	for(unsigned long long i = 0; i < ::layerAllocs.size(); ++i) {
-		if(i == (unsigned long long)node)
+	for(size_t i = 0; i < ::layerAllocs.size(); ++i) {
+		if(i == (size_t)node)
 			break;
 		result += (::layerAllocs[i] / 2);
 	}

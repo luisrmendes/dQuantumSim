@@ -7,7 +7,7 @@
 
 extern int rank;
 extern int size;
-extern std::vector<unsigned long long> layerAllocs;
+extern std::vector<size_t> layerAllocs;
 
 typedef std::vector<std::complex<double>> qubitLayer;
 
