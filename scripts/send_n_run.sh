@@ -14,12 +14,10 @@ scp quantum.targz mendes1@juwels-cluster.fz-juelich.de:~
 #     && make \
 #     && mpirun -np 2 ./simulator myqasmTests/testing.myqasm'
 
-ssh mendes1@juwels-cluster.fz-juelich.de 'module load Intel/2021.4.0 IntelMPI/2021.4.0 \
+ssh mendes1@juwels08.fz-juelich.de 'module load Intel/2021.4.0 IntelMPI/2021.4.0 \
     && yes | rm -r /p/home/jusers/mendes1/juwels/quantum-simulator-sandbox \
     && tar -xzf /p/home/jusers/mendes1/juwels/quantum.targz \
     && cd quantum-simulator-sandbox \
     && make clean \
     && make \
-    && mpirun -np 30 ./simulator myqasmTests/testing.myqasm'
-
-exit 0
+    && mpirun -np 20 ./simulator myqasmTests/q34_test1.myqasm'
