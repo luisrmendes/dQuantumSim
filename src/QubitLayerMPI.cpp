@@ -372,7 +372,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("--- HADAMARD ---\n\n");
 #endif
-	constexpr double hadamard_const = 1 / sqrt(2);
+	constexpr double hadamard_const = 1 / 1.414213562373095;
 
 	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
 
