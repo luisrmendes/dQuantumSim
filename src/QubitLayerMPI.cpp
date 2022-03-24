@@ -1,21 +1,12 @@
 #include "QubitLayerMPI.h"
+#include "_utils.h"
+#include "macros.h"
 #include "debug.h"
 #include "distrEngine.h"
-#include "macros.h"
+#include "flags.h"
 #include "mpi.h"
-#include "utils.h"
 #include "utilsMPI.h"
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstdio>
 #include <future>
-#include <map>
-#include <thread>
-#include <tuple>
-#include <utility>
-
-#define MASK(N) (0x1 << N)
 
 using namespace std;
 
@@ -34,9 +25,9 @@ void QubitLayerMPI::measureQubits(double* resultArr, vector<double> finalResults
 	dynamic_bitset localStartIndex = getLocalStartIndex();
 
 	auto func = [&](unsigned int numQubits,
-				   dynamic_bitset localStartIndex,
-				   size_t start,
-				   size_t end) {
+					dynamic_bitset localStartIndex,
+					size_t start,
+					size_t end) {
 		array<double, MAX_NUMBER_QUBITS> results;
 		results.fill(0);
 
@@ -381,7 +372,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("--- HADAMARD ---\n\n");
 #endif
-	constexpr double hadamard_const = 1 / 1.414213562373095;
+	constexpr double hadamard_const = 1 / sqrt(2);
 
 	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
 
@@ -615,9 +606,6 @@ QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
 	this->numQubits = numQubits;
 
 	// populate vector with all (0,0)
-	// this->states.resize(::layerAllocs[::rank]);
-	// fill(this->states.begin(), this->states.end(), 0);
-
 	this->states = vector<complex<double>>(::layerAllocs[::rank], 0);
 
 	// Initialze state vector as |0...0>

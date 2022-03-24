@@ -1,5 +1,5 @@
 #include "distrEngine.h"
-#include "constants.h"
+#include "macros.h"
 #include "dynamic_bitset.h"
 #include "mpi.h"
 #include "utilsMPI.h"

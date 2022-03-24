@@ -1,16 +1,15 @@
 #include "QubitLayerMPI.h"
+#include "_utils.h"
 #include "consoleUtils.h"
+#include "macros.h"
 #include "debug.h"
 #include "dynamic_bitset.h"
-#include "macros.h"
+#include "flags.h"
 #include "mpi.h"
 #include "parser.h"
-#include "utils.h"
 #include "utilsMPI.h"
-#include <cstdlib>
 #include <filesystem>
 #include <iostream>
-#include <stdio.h>
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
 #include <bitset>
 constexpr int numQubitsMPI = 10;
@@ -43,7 +42,7 @@ int main(int argc, char* argv[])
 		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
 		cout << printBold("             ▓▓                               ") << endl;
 	}
-	
+
 #ifdef OUTPUT_LOGS
 	if(::rank == 0) {
 		filesystem::remove_all("logs");
@@ -69,8 +68,7 @@ int main(int argc, char* argv[])
 		cout << "\nAvaliable System Memory: \n\t~" << system_memory << " GB \n\n";
 		if(expected_distributed_memory > system_memory) {
 			cout << printYellowBold("Expected Distributed Memory Usage: \n\t~")
-				 << expected_distributed_memory
-				 << " GB \n\n";
+				 << expected_distributed_memory << " GB \n\n";
 		} else {
 			cout << "Expected Distributed Memory Usage: \n\t~"
 				 << expected_distributed_memory << " GB \n\n";
@@ -163,7 +161,7 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << printBold("Gathering results...\n");
 
-	double results[MAX_NUMBER_QUBITS] = { 0 }; // array de resultados
+	double results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
 	qL.measureQubits(results, finalResults);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 

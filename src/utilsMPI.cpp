@@ -1,7 +1,7 @@
 #include "utilsMPI.h"
-#include "constants.h"
-#include "debug.h"
 #include "macros.h"
+#include "debug.h"
+#include "flags.h"
 #include "mpi.h"
 #include <iostream>
 

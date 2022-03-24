@@ -6,7 +6,7 @@ OBJS_DIR := obj
 SRCS_DIR := src
 INC_DIR := include
 SRCS_FILES := $(SRCS_DIR)/main.cpp $(SRCS_DIR)/QubitLayerMPI.cpp \
-$(SRCS_DIR)/utils.cpp $(SRCS_DIR)/parser.cpp $(SRCS_DIR)/dynamic_bitset.cpp \
+$(SRCS_DIR)/_utils.cpp $(SRCS_DIR)/parser.cpp $(SRCS_DIR)/dynamic_bitset.cpp \
 $(SRCS_DIR)/utilsMPI.cpp $(SRCS_DIR)/distrEngine.cpp $(SRCS_DIR)/consoleUtils.cpp 
 
 OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
