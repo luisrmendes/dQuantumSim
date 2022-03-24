@@ -457,7 +457,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 	updateStates();
 
 #ifdef PAULIZ_DEBUG_LOGS
-	appendDebugLog("State vector after update: ", getStateVector());
+	appendDebugLog("State vector after update: ", printStateVector());
 #endif
 }
 
@@ -577,7 +577,7 @@ void QubitLayerMPI::updateStates()
 	}
 }
 
-string QubitLayerMPI::getStateVector()
+string QubitLayerMPI::printStateVector()
 {
 	stringstream stateVector;
 	for(size_t i = 0; i < 10; i++) {
@@ -588,17 +588,6 @@ string QubitLayerMPI::getStateVector()
 	}
 	stateVector << "\n";
 	return stateVector.str();
-}
-
-void QubitLayerMPI::printStateVector()
-{
-	for(size_t i = 0; i < this->states.size(); i++) {
-		cout << this->states[i];
-
-		if(i % 2 == 1)
-			cout << " | ";
-	}
-	cout << endl << endl;
 }
 
 QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
