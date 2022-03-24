@@ -1,6 +1,8 @@
 #include "distrEngine.h"
-#include "macros.h"
+#include "consoleUtils.h"
 #include "dynamic_bitset.h"
+#include "flags.h"
+#include "macros.h"
 #include "mpi.h"
 #include "utilsMPI.h"
 #include <algorithm>
@@ -40,9 +42,10 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 	for(size_t i = 0; i < statesOOB.size(); ++i) {
 		// mudar para dynamic_bitset
 		node = getNodeOfState(get<0>(statesOOB[i]));
+		uint64_t nodeLocalIndex =
+			getLocalIndexFromGlobalState(get<0>(statesOOB[i]), node);
 
 		it = mapMsgToSend.find(node);
-		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(get<0>(statesOOB[i]), node);
 
 		// if hasn't found node
 		if(it == mapMsgToSend.end()) {
@@ -86,6 +89,7 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
 #ifdef RECV_BUFFER_OVERFLOW_WARNING
+		cout << printYellowBold(to_string(it->second.size())) << endl;
 		if(it->second.size() >= MPI_RECV_BUFFER_SIZE) {
 			cerr << "RECV Buffer overload, segfaulting!\nmsgToSend size = "
 				 << it->second.size() << endl;

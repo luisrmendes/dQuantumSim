@@ -1,10 +1,10 @@
 #include "QubitLayerMPI.h"
 #include "_utils.h"
 #include "consoleUtils.h"
-#include "macros.h"
 #include "debug.h"
 #include "dynamic_bitset.h"
 #include "flags.h"
+#include "macros.h"
 #include "mpi.h"
 #include "parser.h"
 #include "utilsMPI.h"
@@ -17,8 +17,7 @@ constexpr int numQubitsMPI = 10;
 #include <unistd.h>
 
 int rank, size;
-std::vector<size_t>
-	layerAllocs; // layer allocation number, input and output pairs
+std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
 
 using namespace std;
 
