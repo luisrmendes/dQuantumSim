@@ -89,14 +89,13 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
 #ifdef RECV_BUFFER_OVERFLOW_WARNING
-		cout << printYellowBold(to_string(it->second.size())) << endl;
 		if(it->second.size() >= MPI_RECV_BUFFER_SIZE) {
-			cerr << "RECV Buffer overload, segfaulting!\nmsgToSend size = "
-				 << it->second.size() << endl;
+			cerr << printRedBold("MPI Buffer overload!\n\tmsgToSend size = ")
+				 << printRedBold(to_string(it->second.size())) << endl;
 		}
 #endif
 
-		complex<double> msg[it->second.size()];
+		complex<double>* msg = new complex<double>[it->second.size()];
 		copy(it->second.begin(), it->second.end(), msg);
 
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem

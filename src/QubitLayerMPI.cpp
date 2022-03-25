@@ -521,7 +521,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
-		if(checkZeroState(i)) {
+			if(checkZeroState(i)) {
 			dynamic_bitset state = this->globalStartIndex + i;
 			state.flip(targetQubit);
 
