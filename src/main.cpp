@@ -34,9 +34,9 @@ int main(int argc, char* argv[])
 
 	if(::rank == 0) {
 		cout << "\n\n";
-		cout << printBold("▓▓▓▓▓▓▓   ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
-		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
-		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
+		cout << printBold("      ▓▓  ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("      ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
+		cout << printBold("  ▓▓▓▓▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
 		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓       ▓▓   ▓▓   ▓▓  ▓▓▓  ▓▓ ") << endl;
 		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
 		cout << printBold("             ▓▓                               ") << endl;
@@ -105,6 +105,13 @@ int main(int argc, char* argv[])
 #ifdef MEASURE_DEBUG_LOGS
 		qL.measure();
 #endif
+		if(::rank == 0) {
+			std::cout << "\x1b[1A"
+					  << "\x1b[2K"; // Delete the entire line
+			cout << "\tProgress: "
+				 << round((float)((float)i / (float)instructions.size()) * 100)
+				 << "%" << endl;
+		}
 
 		switch(instructions[i]) {
 		case 1:
