@@ -79,7 +79,7 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 #endif
 
 		// converter o vetor para array
-		unsigned int instructions_arr[(instructions.size())];
+		unsigned int* instructions_arr = new unsigned int[(instructions.size())];
 		copy(instructions.begin(), instructions.end(), instructions_arr);
 
 		/** TODO: MPI_Broadcast? **/
