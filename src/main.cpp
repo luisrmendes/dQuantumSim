@@ -18,6 +18,7 @@ constexpr int numQubitsMPI = 10;
 
 int rank, size;
 std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
+std::vector<dynamic_bitset> layerLimits; // layer limits per node
 
 using namespace std;
 
@@ -52,10 +53,10 @@ int main(int argc, char* argv[])
 #endif
 
 	vector<unsigned int> instructions;
-	// if(::rank == 0)
-	instructions = sourceParser(argv[1]);
+	if(::rank == 0)
+		instructions = sourceParser(argv[1]);
 
-	// instructionsHandlerMPI(instructions, ::rank, ::size);
+	instructionsHandlerMPI(instructions, ::rank, ::size);
 
 	if(::rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
@@ -80,6 +81,7 @@ int main(int argc, char* argv[])
 		cout << printBold("Allocating vector...\n\n");
 
 	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
+	::layerLimits = calculateLayerLimits(::layerAllocs);
 
 	QubitLayerMPI qL(instructions[0]);
 
@@ -159,7 +161,7 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(::rank == 0)
-		cout << printBold("Calculate final results...\n\n");
+		cout << printBold("\nCalculate final results...\n\n");
 
 	std::vector<double> finalResults = qL.calculateFinalResults();
 	qL.clearStates();

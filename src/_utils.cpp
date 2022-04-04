@@ -3,6 +3,18 @@
 
 using namespace std;
 
+vector<dynamic_bitset> calculateLayerLimits(vector<size_t> layerAllocs) {
+	vector<dynamic_bitset> layerLimits(layerAllocs.size());
+
+	dynamic_bitset aux = 0;
+	for (size_t i = 0; i < layerLimits.size(); i++) {
+		aux += layerAllocs[i] / 2;
+		layerLimits[i] = aux;
+	}
+
+	return layerLimits;
+}
+
 stringstream getFormattedQubitLayer(vector<complex<double>> states)
 {
 	stringstream result;

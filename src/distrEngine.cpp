@@ -158,9 +158,7 @@ vector<complex<double>> receiveStatesOOB()
 
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
-			for(int i = 0; i < status.MPI_TAG; i++) {
-				receivedOperations.push_back(msg[i]);
-			}
+			receivedOperations.insert(receivedOperations.end(), &msg[0], &msg[status.MPI_TAG]);
 		}
 	}
 	// #ifdef HANDLER_STATES_DEBUG
@@ -184,17 +182,27 @@ vector<complex<double>> receiveStatesOOB()
 
 int getNodeOfState(dynamic_bitset state)
 {
-	/** TODO: melhor maneira de fazer isto **/
-	dynamic_bitset lowerBound = 0;
-	dynamic_bitset upperBound = ::layerAllocs[0] / 2;
-
-	int i = 0;
-	for(; i <= ::size; ++i) {
-		if(state < upperBound && state >= lowerBound)
-			break;
-		lowerBound = upperBound;
-		upperBound += ::layerAllocs[i + 1] / 2;
+	size_t i = 0;
+	while (i < ::layerLimits.size()) {
+		if (state < ::layerLimits[i]) {
+			return i;
+		}
+		i++;
 	}
 
 	return i;
+	
+	/** TODO: melhor maneira de fazer isto **/
+	// dynamic_bitset lowerBound = 0;
+	// dynamic_bitset upperBound = ::layerAllocs[0] / 2;
+
+	// int i = 0;
+	// for(; i <= ::size; ++i) {
+	// 	if(state < upperBound && state >= lowerBound)
+	// 		break;
+	// 	lowerBound = upperBound;
+	// 	upperBound += ::layerAllocs[i + 1] / 2;
+	// }
+
+	// return i;
 }
