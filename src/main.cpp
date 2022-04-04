@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 		cout << printBold("Gathering results...\n");
 
 	double results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
-	qL.measureQubits(results, finalResults);
+	qL.measureQubits(::layerLimits, results, finalResults);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 
 	// print results

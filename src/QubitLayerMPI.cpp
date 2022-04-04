@@ -20,9 +20,15 @@ vector<double> QubitLayerMPI::calculateFinalResults()
 	return finalResults;
 }
 
-void QubitLayerMPI::measureQubits(double* resultArr, vector<double> finalResults)
+void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
+								  double* resultArr,
+								  vector<double> finalResults)
 {
-	dynamic_bitset localStartIndex = getLocalStartIndex();
+	dynamic_bitset localStartIndex;
+	if(::rank == 0)
+		localStartIndex = 0;
+	else
+		localStartIndex = ::layerLimits[::rank - 1];
 
 	auto func = [&](unsigned int numQubits,
 					dynamic_bitset localStartIndex,

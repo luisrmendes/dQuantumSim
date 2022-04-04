@@ -30,7 +30,11 @@ class QubitLayerMPI
 	dynamic_bitset getGlobalEndIndex() { return this->globalEndIndex; }
 
 	void setStates(qubitLayer states) { this->states = states; }
-	void clearStates() { this->states.clear(); this->states.shrink_to_fit(); }
+	void clearStates()
+	{
+		this->states.clear();
+		this->states.shrink_to_fit();
+	}
 	void updateStates();
 
 	void pauliX(int targetQubit);
@@ -58,7 +62,9 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(size_t i);
 
-	void measureQubits(double* result, std::vector<double> finalResults);
+	void measureQubits(std::vector<dynamic_bitset> layerLimits,
+					   double* result,
+					   std::vector<double> finalResults);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
