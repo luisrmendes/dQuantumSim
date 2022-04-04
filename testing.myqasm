@@ -1,0 +1,13 @@
+init 10
+
+hadamard 0
+hadamard 1
+hadamard 2
+hadamard 3
+hadamard 4
+hadamard 5
+hadamard 6
+hadamard 7
+hadamard 8
+hadamard 9
+hadamard 9

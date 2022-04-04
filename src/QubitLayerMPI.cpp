@@ -54,9 +54,7 @@ void QubitLayerMPI::measureQubits(double* resultArr, vector<double> finalResults
 		for(unsigned int i = 0; i < MAX_NUMBER_QUBITS; i++) {
 			resultArr[i] += results_aux[i];
 		}
-	}
-
-	else {
+	} else {
 		if(::rank == 0)
 			cout << "\tMulti Threaded\n\n";
 		// unsigned int numThreads = std::thread::hardware_concurrency();
@@ -452,6 +450,18 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("\n");
 #endif
+
+	// // if (statesOOB.size() != 0)
+	// future<void> sendStatesFuture;
+	// sendStatesFuture = async(launch::async, move(sendStatesOOB), move(statesOOB));
+
+	// future<vector<complex<double>>> receivedOpsFuture;
+	// receivedOpsFuture = async(launch::async, move(receiveStatesOOB));
+
+	// sendStatesFuture.get();
+	// // MPI_Barrier(MPI_COMM_WORLD);
+	// vector<complex<double>> receivedOps = receivedOpsFuture.get();
+
 	sendStatesOOB(statesOOB);
 	vector<complex<double>> receivedOps = receiveStatesOOB();
 

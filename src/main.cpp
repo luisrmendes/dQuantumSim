@@ -113,7 +113,6 @@ int main(int argc, char* argv[])
 				 << "%" << endl;
 		}
 
-		// cout << "Rank: " << ::rank << " " << instructions[i] << " " << i << endl;
 		switch(instructions[i]) {
 		case 1:
 			qL.pauliX(instructions[i + 1]);

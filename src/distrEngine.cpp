@@ -12,6 +12,7 @@ using namespace std;
 
 void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 {
+	MPI_Request mpi_req;
 	vector<int> ranks;
 	for(int i = 0; i < ::size; i++) {
 		ranks.push_back(i);
@@ -85,7 +86,6 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 #endif
 
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
-		// probabily a better way to do this
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
 #ifdef RECV_BUFFER_OVERFLOW_WARNING
@@ -94,31 +94,29 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 				 << printRedBold(to_string(it->second.size())) << endl;
 		}
 #endif
-
 		complex<double>* msg = new complex<double>[it->second.size()];
 		copy(it->second.begin(), it->second.end(), msg);
-
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
-		MPI_Send(msg,
+		MPI_Isend(msg,
 				 it->second.size(),
 				 MPI_DOUBLE_COMPLEX,
 				 it->first,
 				 it->second.size(),
-				 MPI_COMM_WORLD);
+				 MPI_COMM_WORLD, &mpi_req);
 	}
 
 #ifdef HANDLER_STATES_DEBUG
-	// appendDebugLog(rank, size, "Sending to node ", node, "\n");
-	// for(size_t z = 0; z < msgToSend.size(); z += 2) {
-	// 	appendDebugLog(rank,
-	// 				   size,
-	// 				   "\t|",
-	// 				   bitset<numQubitsMPI>(msgToSend[z].real()),
-	// 				   "> value: ",
-	// 				   msgToSend[z + 1],
-	// 				   "\n");
-	// }
-	// appendDebugLog(rank, size, "\n");
+// appendDebugLog(rank, size, "Sending to node ", node, "\n");
+// for(size_t z = 0; z < msgToSend.size(); z += 2) {
+// 	appendDebugLog(rank,
+// 				   size,
+// 				   "\t|",
+// 				   bitset<numQubitsMPI>(msgToSend[z].real()),
+// 				   "> value: ",
+// 				   msgToSend[z + 1],
+// 				   "\n");
+// }
+// appendDebugLog(rank, size, "\n");
 #endif
 
 	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
@@ -144,6 +142,7 @@ vector<complex<double>> receiveStatesOOB()
 	MPI_Status status;
 	complex<double> msg[MPI_RECV_BUFFER_SIZE];
 	msg[0] = 0;
+	// cout << "Rank " << ::rank << " listening... " << endl;
 	for(int node = 0; node < ::size; node++) {
 		// exceto a dele proprio
 		if(node == ::rank)
