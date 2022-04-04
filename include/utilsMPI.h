@@ -7,6 +7,7 @@
 extern int rank;
 extern int size;
 extern std::vector<size_t> layerAllocs;
+extern std::vector<dynamic_bitset> layerLimits;
 
 
 size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node);

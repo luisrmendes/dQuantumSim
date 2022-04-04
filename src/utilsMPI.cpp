@@ -1,7 +1,7 @@
 #include "utilsMPI.h"
-#include "macros.h"
 #include "debug.h"
 #include "flags.h"
+#include "macros.h"
 #include "mpi.h"
 #include <iostream>
 
@@ -9,15 +9,19 @@ using namespace std;
 
 size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node)
 {
-	dynamic_bitset result = 0;
+	if(node == 0)
+		return receivedIndex.to_ullong();
 
-	for(size_t i = 0; i < ::layerAllocs.size(); ++i) {
-		if(i == (size_t)node)
-			break;
-		result += (::layerAllocs[i] / 2);
-	}
+	return (receivedIndex - ::layerLimits[node - 1]).to_ullong();
+	// dynamic_bitset result = 0;
 
-	return (receivedIndex - result).to_ullong();
+	// for(size_t i = 0; i < ::layerAllocs.size(); ++i) {
+	// 	if(i == (size_t)node)
+	// 		break;
+	// 	result += (::layerAllocs[i] / 2);
+	// }
+
+	// return (receivedIndex - result).to_ullong();
 }
 
 void gatherResultsMPI(int rank,
