@@ -134,15 +134,12 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 
 vector<complex<double>> receiveStatesOOB()
 {
-	// Receber todas as mensagens
-
 	// Constroi um vetor com as operacoes recebidas
 	vector<complex<double>> receivedOperations;
-
-	MPI_Status status;
 	complex<double> msg[MPI_RECV_BUFFER_SIZE];
 	msg[0] = 0;
-	// cout << "Rank " << ::rank << " listening... " << endl;
+	MPI_Status status;
+
 	for(int node = 0; node < ::size; node++) {
 		// exceto a dele proprio
 		if(node == ::rank)
@@ -158,24 +155,10 @@ vector<complex<double>> receiveStatesOOB()
 
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
+			receivedOperations.reserve(status.MPI_TAG);
 			receivedOperations.insert(receivedOperations.end(), &msg[0], &msg[status.MPI_TAG]);
 		}
 	}
-	// #ifdef HANDLER_STATES_DEBUG
-	// 	if(receivedOperations.size() != 0) {
-	// 		appendDebugLog(rank, size, "Has received this: \n");
-	// 		for(size_t i = 0; i < receivedOperations.size(); i += 2) {
-	// 			appendDebugLog(rank,
-	// 						   size,
-	// 						   "\t|",
-	// 						   bitset<numQubitsMPI>(receivedOperations[i].real()),
-	// 						   "> value: ",
-	// 						   receivedOperations[i + 1],
-	// 						   "\n");
-	// 		}
-	// 		appendDebugLog(rank, size, "\n");
-	// 	}
-	// #endif
 
 	return receivedOperations;
 }
