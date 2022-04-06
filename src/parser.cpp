@@ -33,8 +33,10 @@ int checkValidInstruction(std::string line)
 		return 2;
 	} else if(line == "toffoli")
 		return 3;
-	else
+	else {
+		cerr << "Instruction not recognized: " << line << endl;
 		return -1;
+	}
 }
 
 vector<unsigned int> sourceParser(char* fileName)

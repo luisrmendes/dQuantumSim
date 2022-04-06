@@ -53,10 +53,10 @@ int main(int argc, char* argv[])
 #endif
 
 	vector<unsigned int> instructions;
-	if(::rank == 0)
+	// if(::rank == 0)
 		instructions = sourceParser(argv[1]);
 
-	instructionsHandlerMPI(instructions, ::rank, ::size);
+	// instructionsHandlerMPI(instructions, ::rank, ::size);
 
 	if(::rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
