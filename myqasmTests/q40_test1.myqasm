@@ -1,7 +1,4 @@
-# Results: 
-#   All 100%
-
-init 27
+init 40
 
 pauliX 0
 pauliX 1
@@ -30,4 +27,10 @@ pauliX 23
 pauliX 24
 pauliX 25
 pauliX 26
-
+pauliX 27
+pauliX 28
+pauliX 29
+pauliX 30
+pauliX 31
+pauliX 32
+pauliX 33
