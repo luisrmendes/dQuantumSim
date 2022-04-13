@@ -12,6 +12,24 @@ using namespace std;
 
 vector<double> QubitLayerMPI::calculateFinalResults()
 {
+	// pre-calculate sub-iteration times
+	// size_t num_sub_iterations = (this->states.size()/2) / iteration_size;
+	// if(num_sub_iterations == 0) {
+	// 	for(size_t i = 0; i < this->states.size(); i += 2) {
+	// 		results[i / 2] = pow(abs(this->states[i]), 2);
+	// 	}
+	// } else {
+	// 	cout << num_sub_iterations << endl;
+	// 	for(uint64_t i = 0; i < num_sub_iterations; i++) {
+	// 		for(size_t j = 0; j < iteration_size; j++) {
+	// 			results[j + (iteration_size * i)] = pow(abs(this->states.at(j * 2)), 2);
+	// 		}
+	// 		this->states.erase(this->states.begin(),
+	// 						   this->states.begin() + iteration_size * 2);
+	// 		this->states.shrink_to_fit();
+	// 	}
+	// }
+
 	vector<double> finalResults(this->states.size() / 2);
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		finalResults[i] = pow(abs(this->states[i * 2]), 2);
@@ -38,6 +56,10 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 		results.fill(0);
 
 		for(size_t i = start; i < end; i++) {
+			if(finalResults[i] == 0) {
+				localStartIndex += 1;
+				continue;
+			}
 			for(unsigned int j = 0; j < numQubits; j++) {
 				if(localStartIndex.test(j)) {
 					results[j] += finalResults[i];
