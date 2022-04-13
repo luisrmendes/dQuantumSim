@@ -1,4 +1,4 @@
-init 29
+init 32
 
 pauliX 0
 pauliX 1
@@ -29,4 +29,6 @@ pauliX 25
 pauliX 26
 pauliX 27
 pauliX 28
-
+pauliX 29
+pauliX 30
+pauliX 31
