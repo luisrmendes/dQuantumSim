@@ -85,25 +85,26 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 	// appendDebugLog(rank, size, "\n");
 #endif
 
+	/* 	Pode ser ajustado para um vla com o tamanho de it->second
+		Quanto custa a transmissão no MPI de arrays grandes, talvez
+		valha a pena usar vla
+	*/
+	complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
+
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
-#ifdef RECV_BUFFER_OVERFLOW_WARNING
-		if(it->second.size() >= MPI_RECV_BUFFER_SIZE) {
-			cerr << printRedBold("MPI Buffer overload!\n\tmsgToSend size = ")
-				 << printRedBold(to_string(it->second.size())) << endl;
-		}
-#endif
-		complex<double>* msg = new complex<double>[it->second.size()];
 		copy(it->second.begin(), it->second.end(), msg);
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
 		MPI_Isend(msg,
-				 it->second.size(),
-				 MPI_DOUBLE_COMPLEX,
-				 it->first,
-				 it->second.size(),
-				 MPI_COMM_WORLD, &mpi_req);
+				  it->second.size(),
+				  MPI_DOUBLE_COMPLEX,
+				  it->first,
+				  it->second.size(),
+				  MPI_COMM_WORLD,
+				  &mpi_req);
 	}
+	delete[] msg;
 
 #ifdef HANDLER_STATES_DEBUG
 // appendDebugLog(rank, size, "Sending to node ", node, "\n");
@@ -156,7 +157,8 @@ vector<complex<double>> receiveStatesOOB()
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
 			receivedOperations.reserve(status.MPI_TAG);
-			receivedOperations.insert(receivedOperations.end(), &msg[0], &msg[status.MPI_TAG]);
+			receivedOperations.insert(
+				receivedOperations.end(), &msg[0], &msg[status.MPI_TAG]);
 		}
 	}
 
@@ -166,15 +168,15 @@ vector<complex<double>> receiveStatesOOB()
 int getNodeOfState(dynamic_bitset state)
 {
 	size_t i = 0;
-	while (i < ::layerLimits.size()) {
-		if (state < ::layerLimits[i]) {
+	while(i < ::layerLimits.size()) {
+		if(state < ::layerLimits[i]) {
 			return i;
 		}
 		i++;
 	}
 
 	return i;
-	
+
 	/** TODO: melhor maneira de fazer isto **/
 	// dynamic_bitset lowerBound = 0;
 	// dynamic_bitset upperBound = ::layerAllocs[0] / 2;
