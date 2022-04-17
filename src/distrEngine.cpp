@@ -89,7 +89,7 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 		Quanto custa a transmissão no MPI de arrays grandes, talvez
 		valha a pena usar vla
 	*/
-	complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
+	complex<double> msg[MPI_RECV_BUFFER_SIZE];
 
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
@@ -104,7 +104,6 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 				  MPI_COMM_WORLD,
 				  &mpi_req);
 	}
-	delete[] msg;
 
 #ifdef HANDLER_STATES_DEBUG
 // appendDebugLog(rank, size, "Sending to node ", node, "\n");
