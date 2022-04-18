@@ -2,6 +2,7 @@
 #define DISTRENGINE_H
 
 #include "dynamic_bitset.h"
+#include "macros.h"
 #include <complex>
 #include <vector>
 
@@ -18,9 +19,9 @@ extern std::vector<dynamic_bitset> layerLimits;
  * @returns Vector with (state, intended_value) received operations
  */
 void sendStatesOOB(
-	std::vector<std::tuple<dynamic_bitset, std::complex<double>>> statesOOB);
+	std::vector<std::tuple<dynamic_bitset, std::complex<PRECISION_TYPE>>> statesOOB);
 
-std::vector<std::complex<double>> receiveStatesOOB();
+std::vector<std::complex<PRECISION_TYPE>> receiveStatesOOB();
 
 /**
  * Gets the node that posesses the state

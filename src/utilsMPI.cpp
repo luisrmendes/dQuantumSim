@@ -27,18 +27,18 @@ size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node)
 void gatherResultsMPI(int rank,
 					  int size,
 					  unsigned int numQubits,
-					  double* finalResults)
+					  PRECISION_TYPE* finalResults)
 {
 	MPI_Status status;
 
 	if(rank == 0) {
-		double receivedResults[MAX_NUMBER_QUBITS];
+		PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];
 
 		/** TODO: MPI_Gather? **/
 		for(int node = 1; node < size; node++) {
 			MPI_Recv(&receivedResults,
 					 numQubits,
-					 MPI_DOUBLE,
+					 MPI_PRECISION_TYPE,
 					 node,
 					 0,
 					 MPI_COMM_WORLD,
@@ -50,7 +50,7 @@ void gatherResultsMPI(int rank,
 		}
 		return;
 	} else {
-		MPI_Send(finalResults, numQubits, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+		MPI_Send(finalResults, numQubits, MPI_PRECISION_TYPE, 0, 0, MPI_COMM_WORLD);
 		return;
 	}
 }

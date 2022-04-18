@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 		long page_size = sysconf(_SC_PAGE_SIZE);
 		double system_memory = ((pages * page_size) * pow(10, -9)) / 1.073741824;
 		double expected_distributed_memory =
-			2 * 2 * 8 * pow(2, instructions[0]) * pow(10, -9);
+			2 * 2 * sizeof(PRECISION_TYPE) * pow(2, instructions[0]) * pow(10, -9);
 
 		cout << "\nAvaliable System Memory: \n\t~" << system_memory << " GB \n\n";
 		if(expected_distributed_memory > system_memory) {
@@ -163,13 +163,13 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << printBold("\nCalculate final results...\n\n");
 
-	std::vector<double> finalResults = qL.calculateFinalResults();
+	std::vector<PRECISION_TYPE> finalResults = qL.calculateFinalResults();
 	qL.clearStates();
 
 	if(::rank == 0)
 		cout << printBold("Gathering results...\n");
 
-	double results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
+	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
 	qL.measureQubits(::layerLimits, results, finalResults);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 

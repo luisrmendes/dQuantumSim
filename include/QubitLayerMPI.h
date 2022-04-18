@@ -2,6 +2,7 @@
 #define QUBITLAYERMPI_H
 
 #include "dynamic_bitset.h"
+#include "macros.h"
 #include <complex>
 #include <vector>
 
@@ -9,7 +10,7 @@ extern int rank;
 extern int size;
 extern std::vector<size_t> layerAllocs;
 
-typedef std::vector<std::complex<double>> qubitLayer;
+typedef std::vector<std::complex<PRECISION_TYPE>> qubitLayer;
 
 class QubitLayerMPI
 {
@@ -63,8 +64,8 @@ class QubitLayerMPI
 	bool checkZeroState(size_t i);
 
 	void measureQubits(std::vector<dynamic_bitset> layerLimits,
-					   double* result,
-					   std::vector<double> finalResults);
+					   PRECISION_TYPE* result,
+					   std::vector<PRECISION_TYPE> finalResults);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
@@ -83,7 +84,7 @@ class QubitLayerMPI
 	 * 
 	 * TODO: How to avoid the spike in memory
 	 */
-	std::vector<double> calculateFinalResults();
+	std::vector<PRECISION_TYPE> calculateFinalResults();
 };
 
 #endif

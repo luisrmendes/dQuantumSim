@@ -2,12 +2,13 @@
 #define _UTILS_H
 
 #include "dynamic_bitset.h"
+#include "macros.h"
 #include <complex>
 #include <sstream>
 #include <vector>
 
-
-std::stringstream getFormattedQubitLayer(std::vector<std::complex<double>> states);
+std::stringstream
+getFormattedQubitLayer(std::vector<std::complex<PRECISION_TYPE>> states);
 
 /**
  * WARN: 3 qubits (vector size 16) +4 processes  

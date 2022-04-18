@@ -10,7 +10,7 @@
 
 using namespace std;
 
-vector<double> QubitLayerMPI::calculateFinalResults()
+vector<PRECISION_TYPE> QubitLayerMPI::calculateFinalResults()
 {
 	// pre-calculate sub-iteration times
 	// size_t num_sub_iterations = (this->states.size()/2) / iteration_size;
@@ -30,7 +30,7 @@ vector<double> QubitLayerMPI::calculateFinalResults()
 	// 	}
 	// }
 
-	vector<double> finalResults(this->states.size() / 2);
+	vector<PRECISION_TYPE> finalResults(this->states.size() / 2);
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		finalResults[i] = pow(abs(this->states[i * 2]), 2);
 	}
@@ -39,8 +39,8 @@ vector<double> QubitLayerMPI::calculateFinalResults()
 }
 
 void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
-								  double* resultArr,
-								  vector<double> finalResults)
+								  PRECISION_TYPE* resultArr,
+								  vector<PRECISION_TYPE> finalResults)
 {
 	dynamic_bitset localStartIndex;
 	if(::rank == 0)
@@ -52,7 +52,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 					dynamic_bitset localStartIndex,
 					size_t start,
 					size_t end) {
-		array<double, MAX_NUMBER_QUBITS> results;
+		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> results;
 		results.fill(0);
 
 		for(size_t i = start; i < end; i++) {
@@ -76,7 +76,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 		if(::rank == 0)
 			cout << "\tSingle Threaded\n\n";
 
-		array<double, MAX_NUMBER_QUBITS> results_aux =
+		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> results_aux =
 			func(this->numQubits, localStartIndex, 0, finalResults.size());
 
 		for(unsigned int i = 0; i < MAX_NUMBER_QUBITS; i++) {
@@ -90,8 +90,8 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 		const size_t section_size = finalResults.size() / numThreads;
 		// cout << "states size: " << this->states.size() / 2 << endl;
 
-		future<array<double, MAX_NUMBER_QUBITS>> future_thread_1;
-		future<array<double, MAX_NUMBER_QUBITS>> future_thread_2;
+		future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_1;
+		future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_2;
 
 		// launch threads
 		future_thread_1 = async(launch::async,
@@ -108,7 +108,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 								move(finalResults.size()));
 
 		// array of results
-		array<double, MAX_NUMBER_QUBITS> all_results[numThreads];
+		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> all_results[numThreads];
 
 		// gather results
 		all_results[0] = future_thread_1.get();
@@ -297,7 +297,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 {
 	// Executes pauliX if both control qubits are set to |1>
 	// vector of (stateOTB, value) pairs
-	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
+	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -325,7 +325,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
 			sendStatesOOB(statesOOB);
 			statesOOB.clear();
-			vector<complex<double>> receivedOps = receiveStatesOOB();
+			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 			for(size_t i = 0; i < receivedOps.size(); i += 2) {
 				// operacao especifica ao pauliX
 				this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1];
@@ -334,7 +334,7 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 	}
 
 	sendStatesOOB(statesOOB);
-	vector<complex<double>> receivedOps = receiveStatesOOB();
+	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// operacao especifica ao pauliX
@@ -349,7 +349,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 	// Executes pauliX if control qubit is |1>
 
 	// vector of (stateOOB, value) pairs
-	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
+	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -379,7 +379,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
 			sendStatesOOB(statesOOB);
 			statesOOB.clear();
-			vector<complex<double>> receivedOps = receiveStatesOOB();
+			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 			for(size_t i = 0; i < receivedOps.size(); i += 2) {
 				// operacao especifica ao pauliX
 				this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1];
@@ -388,7 +388,7 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 	}
 
 	sendStatesOOB(statesOOB);
-	vector<complex<double>> receivedOps = receiveStatesOOB();
+	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 		// operacao especifica ao pauliX
@@ -421,9 +421,9 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("--- HADAMARD ---\n\n");
 #endif
-	constexpr double hadamard_const = 1 / 1.414213562373095;
+	constexpr PRECISION_TYPE hadamard_const = 1 / 1.414213562373095;
 
-	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
+	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -467,7 +467,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
 			sendStatesOOB(statesOOB);
 			statesOOB.clear();
-			vector<complex<double>> receivedOps = receiveStatesOOB();
+			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 			for(size_t i = 0; i < receivedOps.size(); i += 2) {
 				this->states[2 * receivedOps[i].real() + 1] +=
 					hadamard_const * receivedOps[i + 1];
@@ -491,7 +491,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	// vector<complex<double>> receivedOps = receivedOpsFuture.get();
 
 	sendStatesOOB(statesOOB);
-	vector<complex<double>> receivedOps = receiveStatesOOB();
+	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 
 #ifdef HADAMARD_DEBUG_LOGS
 	for(size_t i = 0; i < receivedOps.size(); ++i) {
@@ -540,7 +540,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 	appendDebugLog("--- PAULI Y ---\n\n");
 #endif
 	// vector of (stateOOB, value) pairs
-	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
+	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -553,10 +553,15 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
-
+#ifdef USING_DOUBLE
 				state.test(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
+#elif USING_FLOAT
+				state.test(targetQubit)
+					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1if
+					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1if;
+#endif
 
 			} else {
 #ifdef PAULIY_DEBUG_LOGS
@@ -571,25 +576,40 @@ void QubitLayerMPI::pauliY(int targetQubit)
 		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
 			sendStatesOOB(statesOOB);
 			statesOOB.clear();
-			vector<complex<double>> receivedOps = receiveStatesOOB();
+			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 			for(size_t i = 0; i < receivedOps.size(); i += 2) {
+#ifdef USING_DOUBLE
 				this->states[2 * receivedOps[i].real() + 1].real() == 0
 					? this->states[2 * receivedOps[i].real() + 1] =
 						  receivedOps[i + 1] * 1i
 					: this->states[2 * receivedOps[i].real() + 1] =
 						  receivedOps[i + 1] * -1i;
+#elif USING_FLOAT
+				this->states[2 * receivedOps[i].real() + 1].real() == 0
+					? this->states[2 * receivedOps[i].real() + 1] =
+						  receivedOps[i + 1] * 1if
+					: this->states[2 * receivedOps[i].real() + 1] =
+						  receivedOps[i + 1] * -1if;
+#endif
 			}
 			aux = 0;
 		}
 	}
 
 	sendStatesOOB(statesOOB);
-	vector<complex<double>> receivedOps = receiveStatesOOB();
+	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
+#ifdef USING_DOUBLE
 		this->states[2 * receivedOps[i].real() + 1].real() == 0
 			? this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1] * 1i
 			: this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1] * -1i;
+#elif USING_FLOAT
+		this->states[2 * receivedOps[i].real() + 1].real() == 0
+			? this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1] * 1if
+			: this->states[2 * receivedOps[i].real() + 1] =
+				  receivedOps[i + 1] * -1if;
+#endif
 	}
 
 	updateStates();
@@ -606,7 +626,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 #endif
 
 	// vector of (stateOOB, value) pairs
-	vector<tuple<dynamic_bitset, complex<double>>> statesOOB;
+	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -637,7 +657,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
 			sendStatesOOB(statesOOB);
 			statesOOB.clear();
-			vector<complex<double>> receivedOps = receiveStatesOOB();
+			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 			for(size_t i = 0; i < receivedOps.size(); i += 2) {
 				// operacao especifica ao pauliX
 				this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1];
@@ -647,7 +667,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 	}
 
 	sendStatesOOB(statesOOB);
-	vector<complex<double>> receivedOps = receiveStatesOOB();
+	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 
 	for(size_t i = 0; i < receivedOps.size(); i += 2) {
 #ifdef PAULIX_DEBUG_LOGS
@@ -695,7 +715,7 @@ QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
 	this->numQubits = numQubits;
 
 	// populate vector with all (0,0)
-	this->states = vector<complex<double>>(::layerAllocs[::rank], 0);
+	this->states = vector<complex<PRECISION_TYPE>>(::layerAllocs[::rank], 0);
 
 	// Initialze state vector as |0...0>
 	if(::rank == 0)

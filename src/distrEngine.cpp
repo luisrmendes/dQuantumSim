@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
+void sendStatesOOB(vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB)
 {
 	MPI_Request mpi_req;
 	vector<int> ranks;
@@ -19,7 +19,7 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 	}
 
 	int node = -1;
-	vector<complex<double>> msgToSend;
+	vector<complex<PRECISION_TYPE>> msgToSend;
 
 #ifdef HANDLER_STATES_DEBUG
 	// if(statesOOB.size() != 0) {
@@ -37,8 +37,8 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 	// }
 #endif
 
-	map<unsigned int, vector<complex<double>>> mapMsgToSend;
-	map<unsigned int, vector<complex<double>>>::iterator it;
+	map<unsigned int, vector<complex<PRECISION_TYPE>>> mapMsgToSend;
+	map<unsigned int, vector<complex<PRECISION_TYPE>>>::iterator it;
 
 	for(size_t i = 0; i < statesOOB.size(); ++i) {
 		// mudar para dynamic_bitset
@@ -50,7 +50,7 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 
 		// if hasn't found node
 		if(it == mapMsgToSend.end()) {
-			vector<complex<double>> vec;
+			vector<complex<PRECISION_TYPE>> vec;
 			vec.push_back(nodeLocalIndex);
 			vec.push_back(get<1>(statesOOB[i]));
 			mapMsgToSend.insert({node, vec});
@@ -89,7 +89,7 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 		Quanto custa a transmissão no MPI de arrays grandes, talvez
 		valha a pena usar vla
 	*/
-	complex<double> msg[MPI_RECV_BUFFER_SIZE];
+	complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
 
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
@@ -98,7 +98,7 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
 		MPI_Isend(msg,
 				  it->second.size(),
-				  MPI_DOUBLE_COMPLEX,
+				  MPI_PRECISION_TYPE_COMPLEX,
 				  it->first,
 				  it->second.size(),
 				  MPI_COMM_WORLD,
@@ -120,23 +120,23 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<double>>> statesOOB)
 #endif
 
 	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
-	complex<double> end = -1;
+	complex<PRECISION_TYPE> end = -1;
 	for(size_t i = 0; i < ranks.size(); i++) {
 		// exceto a ele proprio
 		if(ranks[i] == ::rank)
 			continue;
 
-		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+		MPI_Send(&end, 1, MPI_PRECISION_TYPE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
 	}
 
 	return;
 }
 
-vector<complex<double>> receiveStatesOOB()
+vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 {
 	// Constroi um vetor com as operacoes recebidas
-	vector<complex<double>> receivedOperations;
-	complex<double> msg[MPI_RECV_BUFFER_SIZE];
+	vector<complex<PRECISION_TYPE>> receivedOperations;
+	complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
 	msg[0] = 0;
 	MPI_Status status;
 
@@ -147,7 +147,7 @@ vector<complex<double>> receiveStatesOOB()
 
 		MPI_Recv(&msg,
 				 MPI_RECV_BUFFER_SIZE,
-				 MPI_DOUBLE_COMPLEX,
+				 MPI_PRECISION_TYPE_COMPLEX,
 				 node,
 				 MPI_ANY_TAG,
 				 MPI_COMM_WORLD,

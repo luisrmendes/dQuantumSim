@@ -1,4 +1,5 @@
 #include "_utils.h"
+#include "macros.h"
 #include <iostream>
 
 using namespace std;
@@ -15,7 +16,7 @@ vector<dynamic_bitset> calculateLayerLimits(vector<size_t> layerAllocs) {
 	return layerLimits;
 }
 
-stringstream getFormattedQubitLayer(vector<complex<double>> states)
+stringstream getFormattedQubitLayer(vector<complex<PRECISION_TYPE>> states)
 {
 	stringstream result;
 	for(size_t i = 0; i < states.size(); i++) {
