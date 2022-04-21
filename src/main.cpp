@@ -1,15 +1,16 @@
 #include "QubitLayerMPI.h"
+#include "_macros.h"
 #include "_utils.h"
 #include "consoleUtils.h"
 #include "debug.h"
 #include "dynamic_bitset.h"
 #include "flags.h"
-#include "macros.h"
 #include "mpi.h"
 #include "parser.h"
 #include "utilsMPI.h"
 #include <filesystem>
 #include <iostream>
+#include <unistd.h>
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
 #include <bitset>
 constexpr int numQubitsMPI = 10;
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
 
 	vector<unsigned int> instructions;
 	// if(::rank == 0)
-		instructions = sourceParser(argv[1]);
+	instructions = sourceParser(argv[1]);
 
 	// instructionsHandlerMPI(instructions, ::rank, ::size);
 

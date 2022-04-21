@@ -2,7 +2,7 @@
 #include "consoleUtils.h"
 #include "dynamic_bitset.h"
 #include "flags.h"
-#include "macros.h"
+#include "_macros.h"
 #include "mpi.h"
 #include "utilsMPI.h"
 #include <algorithm>

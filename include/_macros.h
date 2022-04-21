@@ -1,3 +1,5 @@
+#ifndef _MACROS_H
+#define _MACROS_H
 #include "mpi.h"
 
 #define LOCK_STEP_DISTR_THRESHOLD 100000
@@ -11,9 +13,12 @@
 #define MPI_PRECISION_TYPE OMPI_PREDEFINED_GLOBAL(MPI_Datatype, ompi_mpi_double)
 #define PRECISION_TYPE	   double
 
-#elif USING_FLOAT
+// #elif USING_FLOAT
+#else
 #define MPI_PRECISION_TYPE_COMPLEX                                                  \
 	OMPI_PREDEFINED_GLOBAL(MPI_Datatype, ompi_mpi_c_float_complex)
 #define MPI_PRECISION_TYPE OMPI_PREDEFINED_GLOBAL(MPI_Datatype, ompi_mpi_float)
 #define PRECISION_TYPE	   float
+#endif
+
 #endif

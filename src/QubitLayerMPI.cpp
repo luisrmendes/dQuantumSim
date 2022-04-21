@@ -1,9 +1,9 @@
 #include "QubitLayerMPI.h"
+#include "_macros.h"
 #include "_utils.h"
 #include "debug.h"
 #include "distrEngine.h"
 #include "flags.h"
-#include "macros.h"
 #include "mpi.h"
 #include "utilsMPI.h"
 #include <future>
@@ -85,27 +85,23 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 	} else {
 		if(::rank == 0)
 			cout << "\tMulti Threaded\n\n";
+
 		// unsigned int numThreads = std::thread::hardware_concurrency();
 		const unsigned int numThreads = 2;
 		const size_t section_size = finalResults.size() / numThreads;
-		// cout << "states size: " << this->states.size() / 2 << endl;
 
 		future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_1;
 		future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_2;
 
 		// launch threads
-		future_thread_1 = async(launch::async,
-								move(func),
-								move(this->numQubits),
-								move(localStartIndex),
-								move(0),
-								move(section_size));
+		future_thread_1 = async(
+			launch::async, func, this->numQubits, localStartIndex, 0, section_size);
 		future_thread_2 = async(launch::async,
-								move(func),
-								move(this->numQubits),
-								move(localStartIndex + section_size),
-								move(section_size),
-								move(finalResults.size()));
+								func,
+								this->numQubits,
+								localStartIndex + section_size,
+								section_size,
+								finalResults.size());
 
 		// array of results
 		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> all_results[numThreads];
@@ -266,32 +262,6 @@ bool QubitLayerMPI::checkStateOOB(dynamic_bitset state)
 
 	return state < this->globalStartIndex || state > this->globalEndIndex;
 }
-
-#ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
-#include <bitset>
-constexpr int numQubitsMPI = 32;
-void QubitLayerMPI::measure()
-{
-	int localStartIndex = getLocalStartIndex();
-	size_t j = 0;
-
-	while(j < this->states.size()) {
-		float result = pow(abs(this->states[j]), 2); // not sure...
-
-		appendDebugLog("Node ",
-					   ::rank,
-					   ": |",
-					   bitset<numQubitsMPI>(localStartIndex / 2),
-					   "> -> ",
-					   result,
-					   "\n");
-
-		localStartIndex += 2;
-		j += 2;
-	}
-	appendDebugLog("\n");
-}
-#endif
 
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {

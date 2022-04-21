@@ -2,7 +2,7 @@
 #define QUBITLAYERMPI_H
 
 #include "dynamic_bitset.h"
-#include "macros.h"
+#include "_macros.h"
 #include <complex>
 #include <vector>
 

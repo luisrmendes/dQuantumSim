@@ -2,7 +2,7 @@
 #define UTILSMPI_H
 
 #include "dynamic_bitset.h"
-#include "macros.h"
+#include "_macros.h"
 #include <vector>
 
 extern int rank;
