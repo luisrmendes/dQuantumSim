@@ -26,7 +26,7 @@ class QubitLayerMPI
 	 * @param numQubits Number of qubits 
 	 */
 	QubitLayerMPI(unsigned int numQubits);
-	qubitLayer getStates() { return this->states; }
+	qubitLayer& getStates() { return this->states; }
 	dynamic_bitset getGlobalStartIndex() { return this->globalStartIndex; }
 	dynamic_bitset getGlobalEndIndex() { return this->globalEndIndex; }
 

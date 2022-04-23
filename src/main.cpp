@@ -8,6 +8,7 @@
 #include "mpi.h"
 #include "parser.h"
 #include "utilsMPI.h"
+#include <complex>
 #include <filesystem>
 #include <iostream>
 #include <unistd.h>
@@ -15,11 +16,21 @@
 #include <bitset>
 constexpr int numQubitsMPI = 10;
 #endif
+#include <algorithm>
+#include <set>
 #include <unistd.h>
 
 int rank, size;
 std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
 std::vector<dynamic_bitset> layerLimits; // layer limits per node
+
+struct Com_D_Cmp {
+	constexpr bool operator()(const std::complex<double>& lhs,
+							  const std::complex<double>& rhs) const
+	{
+		return ((lhs.real() < rhs.real()) || lhs.imag() < rhs.imag());
+	}
+};
 
 using namespace std;
 
@@ -104,6 +115,8 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << printBold("Executing operations...\n\n");
 
+	vector<int> num_unique_values;
+
 	for(size_t i = 1; i < instructions.size(); i++) {
 #ifdef MEASURE_DEBUG_LOGS
 		qL.measure();
@@ -121,6 +134,7 @@ int main(int argc, char* argv[])
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
 			MPI_Barrier(MPI_COMM_WORLD);
+
 			break;
 		case 2:
 			qL.pauliY(instructions[i + 1]);
@@ -157,6 +171,9 @@ int main(int argc, char* argv[])
 			cerr << "Unrecognized operation " << instructions[i] << endl;
 			exit(EXIT_FAILURE);
 		}
+		num_unique_values.push_back(set<complex<PRECISION_TYPE>, Com_D_Cmp>(
+										qL.getStates().begin(), qL.getStates().end())
+										.size());
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -165,12 +182,14 @@ int main(int argc, char* argv[])
 		cout << printBold("\nCalculate final results...\n\n");
 
 	std::vector<PRECISION_TYPE> finalResults = qL.calculateFinalResults();
+
 	qL.clearStates();
 
 	if(::rank == 0)
 		cout << printBold("Gathering results...\n");
 
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
+
 	qL.measureQubits(::layerLimits, results, finalResults);
 	gatherResultsMPI(::rank, ::size, instructions[0], results);
 
@@ -186,6 +205,19 @@ int main(int argc, char* argv[])
 #ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
 	qL.measure();
 #endif
+
+	if(::rank == 0) {
+		cout << endl;
+		for(auto i : num_unique_values) {
+			cout << i << " ";
+		}
+		cout << endl << endl;
+
+		cout << printBold(to_string(*max_element(num_unique_values.begin(), num_unique_values.end())))
+			 << endl << endl;
+		// cout << "Number of unique elements: "
+		// 	 << std::set<double>(finalResults.begin(), finalResults.end()).size() << endl << endl;
+	}
 
 	MPI_Finalize();
 
