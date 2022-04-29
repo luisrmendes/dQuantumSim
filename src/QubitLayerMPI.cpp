@@ -48,10 +48,10 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 	else
 		localStartIndex = ::layerLimits[::rank - 1];
 
-	auto func = [&](unsigned int numQubits,
-					dynamic_bitset localStartIndex,
-					size_t start,
-					size_t end) {
+	auto get_results = [&](unsigned int numQubits,
+						   dynamic_bitset localStartIndex,
+						   size_t start,
+						   size_t end) {
 		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> results;
 		results.fill(0);
 
@@ -77,7 +77,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 			cout << "\tSingle Threaded\n\n";
 
 		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> results_aux =
-			func(this->numQubits, localStartIndex, 0, finalResults.size());
+			get_results(this->numQubits, localStartIndex, 0, finalResults.size());
 
 		for(unsigned int i = 0; i < MAX_NUMBER_QUBITS; i++) {
 			resultArr[i] += results_aux[i];
@@ -94,10 +94,14 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 		future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_2;
 
 		// launch threads
-		future_thread_1 = async(
-			launch::async, func, this->numQubits, localStartIndex, 0, section_size);
+		future_thread_1 = async(launch::async,
+								get_results,
+								this->numQubits,
+								localStartIndex,
+								0,
+								section_size);
 		future_thread_2 = async(launch::async,
-								func,
+								get_results,
 								this->numQubits,
 								localStartIndex + section_size,
 								section_size,
@@ -138,7 +142,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 	// unsigned int section_increments = 0;
 	// for(size_t i = 0; i < numThreads; i++) {
 	// 	future_array[i] = async(launch::async,
-	// 							&func,
+	// 							&get_results,
 	// 							move(this->numQubits),
 	// 							move(localStartIndex),
 	// 							move(section_increments),
@@ -391,7 +395,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("--- HADAMARD ---\n\n");
 #endif
-	constexpr PRECISION_TYPE hadamard_const = 1 / 1.414213562373095;
+	constexpr PRECISION_TYPE hadamard_const = 0.7071067811865475244008;
+	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
 
 	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
 

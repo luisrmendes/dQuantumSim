@@ -207,10 +207,10 @@ int main(int argc, char* argv[])
 #endif
 
 	if(::rank == 0) {
-		cout << endl;
-		for(auto i : num_unique_values) {
-			cout << i << " ";
-		}
+		// cout << endl;
+		// for(auto i : num_unique_values) {
+		// 	cout << i << " ";
+		// }
 		cout << endl << endl;
 
 		cout << printBold(to_string(*max_element(num_unique_values.begin(), num_unique_values.end())))
