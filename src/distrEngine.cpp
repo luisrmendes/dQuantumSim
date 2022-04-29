@@ -1,6 +1,5 @@
 #include "distrEngine.h"
 #include "consoleUtils.h"
-#include "dynamic_bitset.h"
 #include "flags.h"
 #include "_macros.h"
 #include "mpi.h"
@@ -10,7 +9,7 @@
 
 using namespace std;
 
-void sendStatesOOB(vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB)
+void sendStatesOOB(vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB)
 {
 	MPI_Request mpi_req;
 	vector<int> ranks;
@@ -41,7 +40,6 @@ void sendStatesOOB(vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> states
 	map<unsigned int, vector<complex<PRECISION_TYPE>>>::iterator it;
 
 	for(size_t i = 0; i < statesOOB.size(); ++i) {
-		// mudar para dynamic_bitset
 		node = getNodeOfState(get<0>(statesOOB[i]));
 		uint64_t nodeLocalIndex =
 			getLocalIndexFromGlobalState(get<0>(statesOOB[i]), node);
@@ -164,7 +162,7 @@ vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 	return receivedOperations;
 }
 
-int getNodeOfState(dynamic_bitset state)
+int getNodeOfState(uint64_t state)
 {
 	size_t i = 0;
 	while(i < ::layerLimits.size()) {

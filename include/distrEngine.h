@@ -1,7 +1,6 @@
 #ifndef DISTRENGINE_H
 #define DISTRENGINE_H
 
-#include "dynamic_bitset.h"
 #include "_macros.h"
 #include <complex>
 #include <vector>
@@ -9,7 +8,7 @@
 extern int rank;
 extern int size;
 extern std::vector<size_t> layerAllocs;
-extern std::vector<dynamic_bitset> layerLimits;
+extern std::vector<uint64_t> layerLimits;
 
 /**
  * Handles states Out Of Bounds for each process.
@@ -19,7 +18,7 @@ extern std::vector<dynamic_bitset> layerLimits;
  * @returns Vector with (state, intended_value) received operations
  */
 void sendStatesOOB(
-	std::vector<std::tuple<dynamic_bitset, std::complex<PRECISION_TYPE>>> statesOOB);
+	std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>> statesOOB);
 
 std::vector<std::complex<PRECISION_TYPE>> receiveStatesOOB();
 
@@ -28,7 +27,7 @@ std::vector<std::complex<PRECISION_TYPE>> receiveStatesOOB();
  * @param state 
  * @returns The node that contains the state
  */
-int getNodeOfState(dynamic_bitset state);
+int getNodeOfState(uint64_t state);
 
 /**
  * WARN: 3 qubits (vector size 16) +4 processes  

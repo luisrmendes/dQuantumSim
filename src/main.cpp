@@ -3,7 +3,6 @@
 #include "_utils.h"
 #include "consoleUtils.h"
 #include "debug.h"
-#include "dynamic_bitset.h"
 #include "flags.h"
 #include "mpi.h"
 #include "parser.h"
@@ -21,8 +20,8 @@ constexpr int numQubitsMPI = 10;
 #include <unistd.h>
 
 int rank, size;
-std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
-std::vector<dynamic_bitset> layerLimits; // layer limits per node
+std::vector<size_t> layerAllocs; 	// layer allocation number, input and output pairs
+std::vector<uint64_t> layerLimits; 	// layer limits per node
 
 struct Com_D_Cmp {
 	constexpr bool operator()(const std::complex<double>& lhs,

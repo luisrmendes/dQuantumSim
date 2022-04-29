@@ -1,14 +1,16 @@
 #include "_utils.h"
 #include "_macros.h"
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
-vector<dynamic_bitset> calculateLayerLimits(vector<size_t> layerAllocs) {
-	vector<dynamic_bitset> layerLimits(layerAllocs.size());
+vector<uint64_t> calculateLayerLimits(vector<size_t> layerAllocs)
+{
+	vector<uint64_t> layerLimits(layerAllocs.size());
 
-	dynamic_bitset aux = 0;
-	for (size_t i = 0; i < layerLimits.size(); i++) {
+	uint64_t aux = 0;
+	for(size_t i = 0; i < layerLimits.size(); i++) {
 		aux += layerAllocs[i] / 2;
 		layerLimits[i] = aux;
 	}
@@ -61,10 +63,13 @@ vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount)
 	}
 
 	// Check if layer alloc size is bigger than std_max
-	for(size_t i = 0; i < result.size(); ++i){
-		if (result[i] >= result.max_size()) {
-			cerr << "Exceeded max_size of vector allocation at node " << i << endl;
-			exit(EXIT_FAILURE); 
+	for(size_t i = 0; i < result.size(); ++i) {
+		if(result[i] >= std::numeric_limits<size_t>::max()) {
+			cerr << "Exceeded max_size of vector ("
+				 << std::numeric_limits<size_t>::max() << ") allocation at node "
+				 << i << " -> " << result[i] << endl;
+
+			exit(EXIT_FAILURE);
 		}
 	}
 

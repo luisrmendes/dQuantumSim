@@ -1,16 +1,15 @@
 #ifndef UTILSMPI_H
 #define UTILSMPI_H
 
-#include "dynamic_bitset.h"
 #include "_macros.h"
 #include <vector>
 
 extern int rank;
 extern int size;
 extern std::vector<size_t> layerAllocs;
-extern std::vector<dynamic_bitset> layerLimits;
+extern std::vector<uint64_t> layerLimits;
 
-size_t getLocalIndexFromGlobalState(dynamic_bitset receivedIndex, int node);
+size_t getLocalIndexFromGlobalState(uint64_t receivedIndex, int node);
 
 void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
 							int rank,

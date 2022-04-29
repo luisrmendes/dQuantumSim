@@ -10,6 +10,8 @@
 
 using namespace std;
 
+#define MASK(N) (0x1ull << N)
+
 vector<PRECISION_TYPE> QubitLayerMPI::calculateFinalResults()
 {
 	// pre-calculate sub-iteration times
@@ -38,18 +40,18 @@ vector<PRECISION_TYPE> QubitLayerMPI::calculateFinalResults()
 	return finalResults;
 }
 
-void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
+void QubitLayerMPI::measureQubits(vector<uint64_t> layerLimits,
 								  PRECISION_TYPE* resultArr,
 								  vector<PRECISION_TYPE> finalResults)
 {
-	dynamic_bitset localStartIndex;
+	uint64_t localStartIndex;
 	if(::rank == 0)
 		localStartIndex = 0;
 	else
 		localStartIndex = ::layerLimits[::rank - 1];
 
 	auto get_results = [&](unsigned int numQubits,
-						   dynamic_bitset localStartIndex,
+						   uint64_t localStartIndex,
 						   size_t start,
 						   size_t end) {
 		array<PRECISION_TYPE, MAX_NUMBER_QUBITS> results;
@@ -61,7 +63,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 				continue;
 			}
 			for(unsigned int j = 0; j < numQubits; j++) {
-				if(localStartIndex.test(j)) {
+				if(localStartIndex & MASK(j)) {
 					results[j] += finalResults[i];
 				}
 			}
@@ -256,7 +258,7 @@ void QubitLayerMPI::measureQubits(vector<dynamic_bitset> layerLimits,
 	// cout << " EXIT" << endl;
 }
 
-bool QubitLayerMPI::checkStateOOB(dynamic_bitset state)
+bool QubitLayerMPI::checkStateOOB(uint64_t state)
 {
 	// true if OOB
 	// size_t lowerBound = ::rank * (this->states.size() / 2);
@@ -271,14 +273,14 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 {
 	// Executes pauliX if both control qubits are set to |1>
 	// vector of (stateOTB, value) pairs
-	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
-			if(state.test(controlQubit1) && state.test(controlQubit2)) {
-				state.flip(targetQubit);
+			uint64_t state = this->globalStartIndex + i;
+			if(state & MASK(controlQubit1) && state & MASK(controlQubit2)) {
+				state = state ^ MASK(targetQubit);
 
 				// if a state is OOB, store tuple (state, intended_value) to a vector
 				if(!checkStateOOB(state)) {
@@ -323,14 +325,14 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 	// Executes pauliX if control qubit is |1>
 
 	// vector of (stateOOB, value) pairs
-	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
-			if(state.test(controlQubit)) {
-				state.flip(targetQubit);
+			uint64_t state = this->globalStartIndex + i;
+			if(state & MASK(controlQubit)) {
+				state = state ^ MASK(targetQubit);
 
 				// if a state is OOB, store tuple (state, intended_value) to a vector
 				if(!checkStateOOB(state)) {
@@ -377,9 +379,9 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 	// Executes pauliZ if control qubit is |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
-			if(state.test(controlQubit)) {
-				state.test(targetQubit)
+			uint64_t state = this->globalStartIndex + i;
+			if(state & MASK(controlQubit)) {
+				state & MASK(targetQubit)
 					? this->states[2 * i + 1] = -this->states[2 * i]
 					: this->states[2 * i + 1] = this->states[2 * i];
 			} else {
@@ -398,12 +400,12 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	constexpr PRECISION_TYPE hadamard_const = 0.7071067811865475244008;
 	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
 
-	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
-			(state.test(targetQubit))
+			uint64_t state = this->globalStartIndex + i;
+			(state & MASK(targetQubit))
 				? this->states[2 * i + 1] -= hadamard_const * this->states[2 * i]
 				: this->states[2 * i + 1] += hadamard_const * this->states[2 * i];
 		}
@@ -412,8 +414,8 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
-			state.flip(targetQubit);
+			uint64_t state = this->globalStartIndex + i;
+			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
@@ -492,9 +494,9 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
+			uint64_t state = this->globalStartIndex + i;
 
-			state.test(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
+			state & MASK(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
 									: this->states[2 * i + 1] = this->states[2 * i];
 
 #ifdef PAULIZ_DEBUG_LOGS
@@ -515,25 +517,25 @@ void QubitLayerMPI::pauliY(int targetQubit)
 	appendDebugLog("--- PAULI Y ---\n\n");
 #endif
 	// vector of (stateOOB, value) pairs
-	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
+			uint64_t state = this->globalStartIndex + i;
 			// if |0>, scalar 1i applies to |1>
 			// if |1>, scalar -1i aclear();
 			// probabily room for optimization here
-			state.flip(targetQubit);
+			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
 #ifdef USING_DOUBLE
-				state.test(targetQubit)
+				state & MASK(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 #elif USING_FLOAT
-				state.test(targetQubit)
+				state & MASK(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1if
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1if;
 #endif
@@ -601,13 +603,13 @@ void QubitLayerMPI::pauliX(int targetQubit)
 #endif
 
 	// vector of (stateOOB, value) pairs
-	vector<tuple<dynamic_bitset, complex<PRECISION_TYPE>>> statesOOB;
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
 	size_t aux = 0;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			dynamic_bitset state = this->globalStartIndex + i;
-			state.flip(targetQubit);
+			uint64_t state = this->globalStartIndex + i;
+			state = state ^ MASK(targetQubit);
 
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
@@ -697,7 +699,7 @@ QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
 		this->states[0] = 1;
 
 	// calculate global indexes
-	dynamic_bitset sum = 0;
+	uint64_t sum = 0;
 	for(int i = 0; i < ::rank; i++) {
 		sum += ::layerAllocs[i] / 2;
 	}

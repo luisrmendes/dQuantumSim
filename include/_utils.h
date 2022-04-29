@@ -1,7 +1,6 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 
-#include "dynamic_bitset.h"
 #include "_macros.h"
 #include <complex>
 #include <sstream>
@@ -27,6 +26,6 @@ std::vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount);
  * @param layerAllocs Vector containing the vector layer size for each node
  * @returns Vector of dynamic_bitsets
  */
-std::vector<dynamic_bitset> calculateLayerLimits(std::vector<size_t> layerAllocs);
+std::vector<uint64_t> calculateLayerLimits(std::vector<size_t> layerAllocs);
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef QUBITLAYERMPI_H
 #define QUBITLAYERMPI_H
 
-#include "dynamic_bitset.h"
 #include "_macros.h"
 #include <complex>
 #include <vector>
@@ -17,8 +16,8 @@ class QubitLayerMPI
   private:
 	qubitLayer states;
 	unsigned int numQubits;
-	dynamic_bitset globalStartIndex;
-	dynamic_bitset globalEndIndex;
+	uint64_t globalStartIndex;
+	uint64_t globalEndIndex;
 
   public:
 	/**
@@ -27,8 +26,8 @@ class QubitLayerMPI
 	 */
 	QubitLayerMPI(unsigned int numQubits);
 	qubitLayer& getStates() { return this->states; }
-	dynamic_bitset getGlobalStartIndex() { return this->globalStartIndex; }
-	dynamic_bitset getGlobalEndIndex() { return this->globalEndIndex; }
+	uint64_t getGlobalStartIndex() { return this->globalStartIndex; }
+	uint64_t getGlobalEndIndex() { return this->globalEndIndex; }
 
 	void setStates(qubitLayer states) { this->states = states; }
 	void clearStates()
@@ -63,7 +62,7 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(size_t i);
 
-	void measureQubits(std::vector<dynamic_bitset> layerLimits,
+	void measureQubits(std::vector<uint64_t> layerLimits,
 					   PRECISION_TYPE* result,
 					   std::vector<PRECISION_TYPE> finalResults);
 
@@ -73,7 +72,7 @@ class QubitLayerMPI
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	*/
-	bool checkStateOOB(dynamic_bitset state);
+	bool checkStateOOB(uint64_t state);
 
 	/**
 	 * Calculates the square of each state amplitude, 
