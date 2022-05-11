@@ -39,7 +39,7 @@ def main():
 
     for i in range(np):
         # Send command
-        cmd = "mpirun --mca opal_warn_on_missing_libcuda 0 -np " + str(i+1) + " ./simulator " + \
+        cmd = "mpirun --mca opal_warn_on_missing_libcuda 0 --oversubscribe -np " + str(i+1) + " ./simulator " + \
             myqasmFile + \
             " | awk '{print $4}' | sed -r 's/[^0-9]*//g' | tr '\n' ' ' "
         cmdOutput = subprocess.check_output(cmd, shell=True)
