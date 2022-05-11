@@ -1,10 +1,19 @@
 #pragma once
-#ifndef OPERATIONS_H
-#define OPERATIONS_H
+#ifndef MATRIXOPERATIONS_H
+#define MATRIXOPERATIONS_H
 
 #include <complex>
 #include <variant>
 #include <vector>
+#include <array>
+
+std::vector<std::complex<double>>
+tensorMultiplication(std::vector<std::complex<double>> state1,
+					 std::vector<std::complex<double>> state2);
+
+std::vector<std::complex<double>>
+tensorMultiplication(std::vector<std::complex<double>> state1,
+					 std::array<std::complex<double>, 2> state2);
 
 /**
  * Applies the matrix multiplication

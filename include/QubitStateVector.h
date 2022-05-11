@@ -1,9 +1,7 @@
 #pragma once
-#ifndef MULTIQUBIT_H
-#define MULTIQUBIT_H
+#ifndef QUBITSTATEVECTOR_H
+#define QUBITSTATEVECTOR_H
 
-#include "Qubit.h"
-#include "operations.h"
 #include <complex>
 #include <iostream>
 #include <math.h>
@@ -13,23 +11,22 @@
 /**
  * Defines entangled qubits
  */
-class MultiQubit
+class QubitStateVector
 {
   private:
 	std::vector<std::complex<double>> state;
+	int numQubits;
 
   public:
-	MultiQubit(std::vector<std::complex<double>> state) { this->state = state; };
+	QubitStateVector(int numQubits);
 	void setState(std::vector<std::complex<double>> state) { this->state = state; };
 	std::vector<std::complex<double>> getState() { return this->state; };
 	void printState();
 
-	/**
-	 * Applies tensor multiplication between two qubits
-	 * Only applies to size 2 vectors (qubit state)
-	 */
-	static MultiQubit tensorMultiplication(Qubit q1, Qubit q2);
-
+	void pauliX(int targetQubit);
+	void pauliY(int targetQubit);
+	void pauliZ(int targetQubit);
+	void hadamard(int targetQubit);
 	void controlledNot();
 };
 
