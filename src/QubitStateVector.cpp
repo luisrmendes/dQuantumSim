@@ -31,6 +31,11 @@ void QubitStateVector::pauliX(int targetQubit)
 {
 	complex<double> unitary[] = {0, 1, 1, 0};
 
+	// construct the unitary matrix with the identity of the other qubits
+	// targetQubit = 3
+	complex<double> identity[] = {1, 0, 0, 1};
+	complex<double> identity2[] = {1, 0, 0, 1};
+
 	this->state = matrixMultiplication(this->state, unitary, 2);
 }
 

@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 	printf("\n");
 
 	// Initialize both qubits as |0>
-	QubitStateVector qsv(1);
+	QubitStateVector qsv(2);
 
 	qsv.printState();
 	qsv.pauliY(0);
