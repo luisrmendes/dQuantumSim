@@ -1,7 +1,7 @@
 #include "distrEngine.h"
+#include "_macros.h"
 #include "consoleUtils.h"
 #include "flags.h"
-#include "_macros.h"
 #include "mpi.h"
 #include "utilsMPI.h"
 #include <algorithm>
@@ -83,11 +83,15 @@ void sendStatesOOB(vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB)
 	// appendDebugLog(rank, size, "\n");
 #endif
 
-	/* 	Pode ser ajustado para um vla com o tamanho de it->second
+	/* 	O array abaixo pode ser ajustado para um vla com o tamanho de it->second
 		Quanto custa a transmissão no MPI de arrays grandes, talvez
 		valha a pena usar vla
 	*/
-	complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
+	/**	TODO: Por alguma razão arrays em stack fazem asneira com o q10_grovers 
+	 * 	Vale a pena ver isto numa questão de performance, stack é mais rápida que heap
+	*/
+	// complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
+	complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
 
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
@@ -102,6 +106,8 @@ void sendStatesOOB(vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB)
 				  MPI_COMM_WORLD,
 				  &mpi_req);
 	}
+
+	delete[] msg;
 
 #ifdef HANDLER_STATES_DEBUG
 // appendDebugLog(rank, size, "Sending to node ", node, "\n");
