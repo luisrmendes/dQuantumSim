@@ -6,11 +6,12 @@
 #include "flags.h"
 #include "mpi.h"
 #include "utilsMPI.h"
+#include <array>
 #include <future>
 
-using namespace std;
-
 #define MASK(N) (0x1ull << N)
+
+using namespace std;
 
 vector<PRECISION_TYPE> QubitLayerMPI::calculateFinalResults()
 {

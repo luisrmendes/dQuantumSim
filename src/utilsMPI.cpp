@@ -1,7 +1,7 @@
 #include "utilsMPI.h"
+#include "_macros.h"
 #include "debug.h"
 #include "flags.h"
-#include "_macros.h"
 #include "mpi.h"
 #include <iostream>
 
@@ -30,6 +30,16 @@ void gatherResultsMPI(int rank,
 					  PRECISION_TYPE* finalResults)
 {
 	MPI_Status status;
+	PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];
+
+	// MPI_Gather(finalResults,
+	// 		   numQubits,
+	// 		   MPI_PRECISION_TYPE,
+	// 		   &receivedResults,
+	// 		   numQubits,
+	// 		   MPI_PRECISION_TYPE,
+	// 		   0,
+	// 		   MPI_COMM_WORLD);
 
 	if(rank == 0) {
 		PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];

@@ -133,7 +133,6 @@ int main(int argc, char* argv[])
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
 			MPI_Barrier(MPI_COMM_WORLD);
-
 			break;
 		case 2:
 			qL.pauliY(instructions[i + 1]);
