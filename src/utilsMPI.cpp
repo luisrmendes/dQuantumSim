@@ -75,60 +75,67 @@ gatherResultsMPI(unsigned int numQubits, PRECISION_TYPE* finalResults)
 	// }
 }
 
-void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int size)
+vector<unsigned int> instructionsHandlerMPI(vector<unsigned int> &instructions)
 {
-	if(rank == 0) {
-		vector<int> ranks;
-		for(int i = 0; i < size; i++) {
-			ranks.push_back(i);
-		}
+	size_t num_instructions = instructions.size();
+	unsigned int* instructions_arr = &instructions[0];
+
+	MPI_Bcast(&num_instructions, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
+	MPI_Bcast(instructions_arr, 1, MPI_PRECISION_TYPE, 0, MPI_COMM_WORLD);
+
+	vector<unsigned int> returnInstructions(instructions_arr, instructions_arr + num_instructions);
+	return returnInstructions;
+
+	// 	if(rank == 0) {
+	// 		vector<int> ranks;
+	// 		for(int i = 0; i < size; i++) {
+	// 			ranks.push_back(i);
+	// 		}
+
+	// #ifdef INSTRUCTIONS_HANDLER_LOGS
+	// 		appendDebugLog("Instructions to send: \n");
+	// 		for(size_t i = 0; i < instructions.size(); i++) {
+	// 			appendDebugLog(instructions[i], " ");
+	// 		}
+	// 		appendDebugLog("\n\n");
+	// #endif
+
+	// 		// converter o vetor para array
+	// 		unsigned int* instructions_arr = new unsigned int[instructions.size()];
+	// 		copy(instructions.begin(), instructions.end(), instructions_arr);
+
+	// 		/** TODO: MPI_Broadcast? **/
+	// 		// le, parse e envia as instucoes
+	// 		for(int i = 1; i < size; i++) {
+	// 			MPI_Send(instructions_arr,
+	// 					 instructions.size(),
+	// 					 MPI_INT,
+	// 					 i,
+	// 					 instructions.size(),
+	// 					 MPI_COMM_WORLD);
+	// 		}
+	// 	} else {
+	// 		// espera para receber as instrucoes
+	// 		MPI_Status status;
+	// 		unsigned int instructions_arr[MPI_RECV_BUFFER_SIZE];
+	// 		MPI_Recv(instructions_arr,
+	// 				 MPI_RECV_BUFFER_SIZE,
+	// 				 MPI_INT,
+	// 				 0,
+	// 				 MPI_ANY_TAG,
+	// 				 MPI_COMM_WORLD,
+	// 				 &status);
+
+	// 		for(int i = 0; i < status.MPI_TAG; i++) {
+	// 			instructions.push_back(instructions_arr[i]);
+	// 		}
 
 #ifdef INSTRUCTIONS_HANDLER_LOGS
-		appendDebugLog("Instructions to send: \n");
-		for(size_t i = 0; i < instructions.size(); i++) {
-			appendDebugLog(instructions[i], " ");
-		}
-		appendDebugLog("\n\n");
-#endif
-
-		// converter o vetor para array
-		unsigned int* instructions_arr = new unsigned int[instructions.size()];
-		copy(instructions.begin(), instructions.end(), instructions_arr);
-
-		/** TODO: MPI_Broadcast? **/
-		// le, parse e envia as instucoes
-		for(int i = 1; i < size; i++) {
-			MPI_Send(instructions_arr,
-					 instructions.size(),
-					 MPI_INT,
-					 i,
-					 instructions.size(),
-					 MPI_COMM_WORLD);
-		}
-	} else {
-		// espera para receber as instrucoes
-		MPI_Status status;
-		unsigned int instructions_arr[MPI_RECV_BUFFER_SIZE];
-		MPI_Recv(instructions_arr,
-				 MPI_RECV_BUFFER_SIZE,
-				 MPI_INT,
-				 0,
-				 MPI_ANY_TAG,
-				 MPI_COMM_WORLD,
-				 &status);
-
-		for(int i = 0; i < status.MPI_TAG; i++) {
-			instructions.push_back(instructions_arr[i]);
-		}
-
-#ifdef INSTRUCTIONS_HANDLER_LOGS
-		appendDebugLog("Instructions received: \n");
-		for(size_t i = 0; i < instructions.size(); i++) {
-			appendDebugLog(instructions[i], " ");
-		}
-		appendDebugLog("\n\n");
-#endif
-
-		return;
+	appendDebugLog("Instructions received: \n");
+	for(size_t i = 0; i < instructions.size(); i++) {
+		appendDebugLog(instructions[i], " ");
 	}
+	appendDebugLog("\n\n");
+#endif
+
 }

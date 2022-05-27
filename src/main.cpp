@@ -64,11 +64,8 @@ int main(int argc, char* argv[])
 	appendDebugLog("\n--------------- Node ", ::rank, " logs --------------- \n\n");
 #endif
 
-	vector<unsigned int> instructions;
-	// if(::rank == 0)
-	instructions = sourceParser(argv[1]);
-
-	// instructionsHandlerMPI(instructions, ::rank, ::size);
+	vector<unsigned int> instructions = sourceParser(argv[1]);
+	instructions = instructionsHandlerMPI(instructions);
 
 	if(::rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);

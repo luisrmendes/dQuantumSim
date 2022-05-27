@@ -12,9 +12,7 @@ extern std::vector<uint64_t> layerLimits;
 
 size_t getLocalIndexFromGlobalState(uint64_t receivedIndex, int node);
 
-void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
-							int rank,
-							int size);
+std::vector<unsigned int> instructionsHandlerMPI(std::vector<unsigned int> &instructions);
 
 std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS>
 gatherResultsMPI(unsigned int numQubits, PRECISION_TYPE* finalResults);
