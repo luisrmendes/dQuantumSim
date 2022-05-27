@@ -18,10 +18,11 @@ constexpr int numQubitsMPI = 10;
 #include <algorithm>
 #include <set>
 #include <unistd.h>
+#include <array>
 
 int rank, size;
-std::vector<size_t> layerAllocs; 	// layer allocation number, input and output pairs
-std::vector<uint64_t> layerLimits; 	// layer limits per node
+std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
+std::vector<uint64_t> layerLimits; // layer limits per node
 
 struct Com_D_Cmp {
 	constexpr bool operator()(const std::complex<double>& lhs,
@@ -189,13 +190,16 @@ int main(int argc, char* argv[])
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
 
 	qL.measureQubits(::layerLimits, results, finalResults);
-	gatherResultsMPI(::rank, ::size, instructions[0], results);
+	MPI_Barrier(MPI_COMM_WORLD);
+
+	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults = {0};
+	gatheredResults = gatherResultsMPI(instructions[0], results);
 
 	// print results
 	if(::rank == 0) {
 		cout << "Results: \n";
 		for(size_t i = 0; i < instructions[0]; i++) {
-			cout << "Qubit " << i + 1 << " -> " << results[i] * 100
+			cout << "Qubit " << i + 1 << " -> " << gatheredResults[i] * 100
 				 << "% chance of being ON\n";
 		}
 	}
@@ -211,8 +215,10 @@ int main(int argc, char* argv[])
 		// }
 		cout << endl << endl;
 
-		cout << printBold(to_string(*max_element(num_unique_values.begin(), num_unique_values.end())))
-			 << endl << endl;
+		cout << printBold(to_string(*max_element(num_unique_values.begin(),
+												 num_unique_values.end())))
+			 << endl
+			 << endl;
 		// cout << "Number of unique elements: "
 		// 	 << std::set<double>(finalResults.begin(), finalResults.end()).size() << endl << endl;
 	}

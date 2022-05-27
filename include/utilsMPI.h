@@ -2,6 +2,7 @@
 #define UTILSMPI_H
 
 #include "_macros.h"
+#include <array>
 #include <vector>
 
 extern int rank;
@@ -15,9 +16,7 @@ void instructionsHandlerMPI(std::vector<unsigned int>& instructions,
 							int rank,
 							int size);
 
-void gatherResultsMPI(int rank,
-					  int size,
-					  unsigned int numQubits,
-					  PRECISION_TYPE* finalResults);
+std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS>
+gatherResultsMPI(unsigned int numQubits, PRECISION_TYPE* finalResults);
 
 #endif

@@ -24,45 +24,55 @@ size_t getLocalIndexFromGlobalState(uint64_t receivedIndex, int node)
 	// return (receivedIndex - result).to_ullong();
 }
 
-void gatherResultsMPI(int rank,
-					  int size,
-					  unsigned int numQubits,
-					  PRECISION_TYPE* finalResults)
+std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS>
+gatherResultsMPI(unsigned int numQubits, PRECISION_TYPE* finalResults)
 {
-	MPI_Status status;
-	PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];
+	PRECISION_TYPE* receivedResults = new PRECISION_TYPE[MAX_NUMBER_QUBITS * ::size];
 
-	// MPI_Gather(finalResults,
-	// 		   numQubits,
-	// 		   MPI_PRECISION_TYPE,
-	// 		   &receivedResults,
-	// 		   numQubits,
-	// 		   MPI_PRECISION_TYPE,
-	// 		   0,
-	// 		   MPI_COMM_WORLD);
+	MPI_Gather(finalResults,
+			   numQubits,
+			   MPI_PRECISION_TYPE,
+			   receivedResults,
+			   numQubits,
+			   MPI_PRECISION_TYPE,
+			   0,
+			   MPI_COMM_WORLD);
 
-	if(rank == 0) {
-		PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];
+	std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults = {0};
 
-		/** TODO: MPI_Gather? **/
-		for(int node = 1; node < size; node++) {
-			MPI_Recv(&receivedResults,
-					 numQubits,
-					 MPI_PRECISION_TYPE,
-					 node,
-					 0,
-					 MPI_COMM_WORLD,
-					 &status);
-
-			for(size_t i = 0; i < numQubits; i++) {
-				finalResults[i] += receivedResults[i];
-			}
+	if(::rank == 0) {
+		for(unsigned int i = 0; i < numQubits * ::size; i++) {
+			gatheredResults[i % numQubits] += receivedResults[i];
 		}
-		return;
-	} else {
-		MPI_Send(finalResults, numQubits, MPI_PRECISION_TYPE, 0, 0, MPI_COMM_WORLD);
-		return;
 	}
+
+	delete[] receivedResults;
+	return gatheredResults;
+
+	// -------------------------------------------------------------------
+
+	// if(rank == 0) {
+	// 	PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];
+
+	// 	/** TODO: MPI_Gather? **/
+	// 	for(int node = 1; node < size; node++) {
+	// 		MPI_Recv(&receivedResults,
+	// 				 numQubits,
+	// 				 MPI_PRECISION_TYPE,
+	// 				 node,
+	// 				 0,
+	// 				 MPI_COMM_WORLD,
+	// 				 &status);
+
+	// 		for(size_t i = 0; i < numQubits; i++) {
+	// 			finalResults[i] += receivedResults[i];
+	// 		}
+	// 	}
+	// 	return;
+	// } else {
+	// 	MPI_Send(finalResults, numQubits, MPI_PRECISION_TYPE, 0, 0, MPI_COMM_WORLD);
+	// 	return;
+	// }
 }
 
 void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int size)
@@ -82,7 +92,7 @@ void instructionsHandlerMPI(vector<unsigned int>& instructions, int rank, int si
 #endif
 
 		// converter o vetor para array
-		unsigned int* instructions_arr = new unsigned int[(instructions.size())];
+		unsigned int* instructions_arr = new unsigned int[instructions.size()];
 		copy(instructions.begin(), instructions.end(), instructions_arr);
 
 		/** TODO: MPI_Broadcast? **/
