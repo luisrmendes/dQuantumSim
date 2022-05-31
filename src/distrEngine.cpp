@@ -100,7 +100,7 @@ void sendStatesOOB(vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB)
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
 		MPI_Isend(msg,
 				  it->second.size(),
-				  MPI_PRECISION_TYPE_COMPLEX,
+				  MPI_DOUBLE_COMPLEX,
 				  it->first,
 				  it->second.size(),
 				  MPI_COMM_WORLD,
@@ -130,7 +130,7 @@ void sendStatesOOB(vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB)
 		if(ranks[i] == ::rank)
 			continue;
 
-		MPI_Send(&end, 1, MPI_PRECISION_TYPE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
 	}
 
 	return;
@@ -151,7 +151,7 @@ vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 
 		MPI_Recv(&msg,
 				 MPI_RECV_BUFFER_SIZE,
-				 MPI_PRECISION_TYPE_COMPLEX,
+				 MPI_DOUBLE_COMPLEX,
 				 node,
 				 MPI_ANY_TAG,
 				 MPI_COMM_WORLD,

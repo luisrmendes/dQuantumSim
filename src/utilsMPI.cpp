@@ -31,10 +31,10 @@ gatherResultsMPI(unsigned int numQubits, PRECISION_TYPE* finalResults)
 
 	MPI_Gather(finalResults,
 			   numQubits,
-			   MPI_PRECISION_TYPE,
+			   MPI_DOUBLE,
 			   receivedResults,
 			   numQubits,
-			   MPI_PRECISION_TYPE,
+			   MPI_DOUBLE,
 			   0,
 			   MPI_COMM_WORLD);
 
@@ -81,7 +81,7 @@ vector<unsigned int> instructionsHandlerMPI(vector<unsigned int> &instructions)
 	unsigned int* instructions_arr = &instructions[0];
 
 	MPI_Bcast(&num_instructions, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_COMM_WORLD);
-	MPI_Bcast(instructions_arr, 1, MPI_PRECISION_TYPE, 0, MPI_COMM_WORLD);
+	MPI_Bcast(instructions_arr, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	vector<unsigned int> returnInstructions(instructions_arr, instructions_arr + num_instructions);
 	return returnInstructions;

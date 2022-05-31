@@ -24,13 +24,13 @@ int rank, size;
 std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
 std::vector<uint64_t> layerLimits; // layer limits per node
 
-struct Com_D_Cmp {
-	constexpr bool operator()(const std::complex<double>& lhs,
-							  const std::complex<double>& rhs) const
-	{
-		return ((lhs.real() < rhs.real()) || lhs.imag() < rhs.imag());
-	}
-};
+// struct Com_D_Cmp {
+// 	constexpr bool operator()(const std::complex<double>& lhs,
+// 							  const std::complex<double>& rhs) const
+// 	{
+// 		return ((lhs.real() < rhs.real()) || lhs.imag() < rhs.imag());
+// 	}
+// };
 
 using namespace std;
 
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << printBold("Executing operations...\n\n");
 
-	vector<int> num_unique_values;
+	// vector<int> num_unique_values;
 
 	for(size_t i = 1; i < instructions.size(); i++) {
 #ifdef MEASURE_DEBUG_LOGS
@@ -167,9 +167,9 @@ int main(int argc, char* argv[])
 			cerr << "Unrecognized operation " << instructions[i] << endl;
 			exit(EXIT_FAILURE);
 		}
-		num_unique_values.push_back(set<complex<PRECISION_TYPE>, Com_D_Cmp>(
-										qL.getStates().begin(), qL.getStates().end())
-										.size());
+		// num_unique_values.push_back(set<complex<PRECISION_TYPE>, Com_D_Cmp>(
+		// 								qL.getStates().begin(), qL.getStates().end())
+		// 								.size());
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -205,20 +205,20 @@ int main(int argc, char* argv[])
 	qL.measure();
 #endif
 
-	if(::rank == 0) {
-		// cout << endl;
-		// for(auto i : num_unique_values) {
-		// 	cout << i << " ";
-		// }
-		cout << endl << endl;
+	// if(::rank == 0) {
+	// 	// cout << endl;
+	// 	// for(auto i : num_unique_values) {
+	// 	// 	cout << i << " ";
+	// 	// }
+	// 	cout << endl << endl;
 
-		cout << printBold(to_string(*max_element(num_unique_values.begin(),
-												 num_unique_values.end())))
-			 << endl
-			 << endl;
-		// cout << "Number of unique elements: "
-		// 	 << std::set<double>(finalResults.begin(), finalResults.end()).size() << endl << endl;
-	}
+	// 	cout << printBold(to_string(*max_element(num_unique_values.begin(),
+	// 											 num_unique_values.end())))
+	// 		 << endl
+	// 		 << endl;
+	// 	// cout << "Number of unique elements: "
+	// 	// 	 << std::set<double>(finalResults.begin(), finalResults.end()).size() << endl << endl;
+	// }
 
 	MPI_Finalize();
 
