@@ -177,19 +177,19 @@ int main(int argc, char* argv[])
 	if(::rank == 0)
 		cout << printBold("\nCalculate final results...\n\n");
 
-	std::vector<PRECISION_TYPE> finalResults = qL.calculateFinalResults();
+	qL.calculateStateProbabilities();
 
-	qL.clearStates();
+	// qL.clearStates();
 
 	if(::rank == 0)
 		cout << printBold("Gathering results...\n");
 
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
+	qL.measureQubits(::layerLimits, results);
 
-	qL.measureQubits(::layerLimits, results, finalResults);
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults = {0};
+	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults;
 	gatheredResults = gatherResultsMPI(instructions[0], results);
 
 	// print results
