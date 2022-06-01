@@ -20,8 +20,8 @@ class dynamic_bitset
 	uint64_t to_ullong() const;
 	void flip(const size_t &index);
 	bool test(const size_t &index) const;
-	dynamic_bitset operator+(const dynamic_bitset &b) const;
-	dynamic_bitset operator-(const dynamic_bitset &b) const;
+	dynamic_bitset operator+(dynamic_bitset b) const;
+	dynamic_bitset operator-(dynamic_bitset b) const;
 	void operator>>(const uint64_t &n);
 	void operator<<(const uint64_t &n);
 	std::vector<bool>::reference operator[](const size_t &n);

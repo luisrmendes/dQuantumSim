@@ -124,11 +124,10 @@ bool dynamic_bitset::test(const size_t &index) const
 	// }
 }
 
-dynamic_bitset dynamic_bitset::operator+(const dynamic_bitset &b) const
+dynamic_bitset dynamic_bitset::operator+(dynamic_bitset b) const
 {
 	dynamic_bitset a = *this;
-	dynamic_bitset copy_b = b;
-	normalizeBitsets(&a, &copy_b);
+	normalizeBitsets(&a, &b);
 	dynamic_bitset result;
 
 	bool carry = false;
@@ -147,11 +146,10 @@ dynamic_bitset dynamic_bitset::operator+(const dynamic_bitset &b) const
 	return result;
 }
 
-dynamic_bitset dynamic_bitset::operator-(const dynamic_bitset &b) const
+dynamic_bitset dynamic_bitset::operator-(dynamic_bitset b) const
 {
 	dynamic_bitset a = *this;
-	dynamic_bitset copy_b = b;
-	normalizeBitsets(&a, &copy_b);
+	normalizeBitsets(&a, &b);
 	dynamic_bitset result;
 	bool borrow = false;
 
