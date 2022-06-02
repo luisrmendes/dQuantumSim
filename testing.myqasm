@@ -1,5 +1,22 @@
-init 3
+init 17
 
 hadamard 0
 hadamard 1
 hadamard 2
+hadamard 3
+hadamard 4
+hadamard 5
+hadamard 6
+hadamard 7
+hadamard 8
+hadamard 9
+hadamard 10
+hadamard 11
+hadamard 12
+hadamard 13
+hadamard 14
+hadamard 15
+hadamard 16
+# hadamard 17
+# hadamard 18
+# hadamard 19

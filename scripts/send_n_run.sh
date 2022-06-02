@@ -20,4 +20,4 @@ ssh mendes1@juwels08.fz-juelich.de 'module load Intel/2021.4.0 IntelMPI/2021.4.0
     && cd quantum-simulator-sandbox \
     && make clean \
     && make \
-    && time mpirun -np 20 ./simulator myqasmTests/q33_paulix.myqasm'
+    && time mpirun -np 10 ./simulator myqasmTests/q28_hadamard.myqasm'
