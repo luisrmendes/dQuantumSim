@@ -364,7 +364,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 
-			state& MASK(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
+			state & MASK(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
 									 : this->states[2 * i + 1] = this->states[2 * i];
 
 #ifdef PAULIZ_DEBUG_LOGS
@@ -517,7 +517,7 @@ void QubitLayerMPI::updateStates()
 {
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		this->states[i] = this->states[i + 1];
-		this->states[i + 1] = {0, 0};
+		this->states[i + 1] = 0i;
 	}
 }
 
