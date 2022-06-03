@@ -95,24 +95,21 @@ int main(int argc, char* argv[])
 
 	QubitLayerMPI qL(instructions[0]);
 
-	dynamic_bitset aux = ::layerLimits[::rank];
-	cout << "Rank: " << ::rank << " layerLimits: " << aux.printBitset() << " "
-		 << ::layerLimits[::rank] << " States size: " << qL.getStates().size() << " "
-		 << qL.getStates()[qL.getStates().size()] << " globalStart: " << qL.globalStartIndex << " globalEnd: " << qL.globalEndIndex << endl << endl;
+	// dynamic_bitset aux = ::layerLimits[::rank];
+	// cout << "Rank: " << ::rank << " layerLimits: " << aux.printBitset() << " "
+	// 	 << ::layerLimits[::rank] << " States size: " << qL.getStates().size() << " "
+	// 	 << qL.getStates()[qL.getStates().size()] << " globalStart: " << qL.globalStartIndex << " globalEnd: " << qL.globalEndIndex << endl << endl;
 
-#ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
-	appendDebugLog("Size of States: ", layerAllocs[::rank] / 2, "\n");
-
-	int localStartIndex = qL.getLocalStartIndex();
-	size_t j = 0;
-
-	while(j < qL.getStates().size()) {
-		appendDebugLog("|", std::bitset<numQubitsMPI>(localStartIndex / 2), "> ");
-
-		localStartIndex += 2;
-		j += 2;
-	}
-	appendDebugLog("\n");
+#ifdef STATE_VECTOR_INFO
+	appendDebugLog("--- STATE_VECTOR_INFO ---\n\n");
+	appendDebugLog(
+		"Rank ", ::rank, " Size of State Vector: ", qL.getStates().size(), "\n");
+	appendDebugLog("Rank ", ::rank, " layerAllocs: ", layerAllocs[::rank], "\n");
+	appendDebugLog("Rank ", ::rank, " layerLimits: ", layerLimits[::rank], "\n");
+	appendDebugLog(
+		"Rank ", ::rank, " globalStartIndex: ", qL.globalStartIndex, "\n");
+	appendDebugLog("Rank ", ::rank, " globalEndIndex: ", qL.globalEndIndex, "\n");
+	appendDebugLog("\n--- STATE_VECTOR_INFO ---\n\n");
 #endif
 
 	if(::rank == 0)
@@ -181,14 +178,14 @@ int main(int argc, char* argv[])
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(::rank == 0)
-		cout << printBold("\nCalculate final results...\n\n");
+		cout << printBold("\nCalculate state probabilities...\n\n");
 
 	qL.calculateStateProbabilities();
 
 	// qL.clearStates();
 
 	if(::rank == 0)
-		cout << printBold("Gathering results...\n");
+		cout << printBold("Gathering all results...\n");
 
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
 	qL.measureQubits(::layerLimits, results);

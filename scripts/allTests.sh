@@ -16,10 +16,14 @@ python3 scripts/test.py myqasmTests/q4_test3.myqasm 4 "50 50 100 0"
 python3 scripts/test.py myqasmTests/q5_test1.myqasm 4 "100 0 0 0 0"
 
 # 17 qubit tests
-python3 scripts/test.py myqasmTests/q17_hadamard.myqasm 4 "50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50"
+python3 scripts/test.py myqasmTests/q17_hadamard.myqasm 2 "50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50"
 
 # 20 qubit tests
 python3 scripts/test.py myqasmTests/q20_hadamard.myqasm 4 "50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50"
+
+# 23 qubit tests
+python3 scripts/test.py myqasmTests/q23_paulix.myqasm 26 "100 100 100 100 100 100 \
+100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100"
 
 # 26 qubit tests
 python3 scripts/test.py myqasmTests/q26_paulix.myqasm 26 "100 100 100 100 100 100 \

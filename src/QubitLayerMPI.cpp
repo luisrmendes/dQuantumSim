@@ -3,12 +3,12 @@
 #include "_utils.h"
 #include "debug.h"
 #include "distrEngine.h"
+#include "dynamic_bitset.h"
 #include "flags.h"
 #include "mpi.h"
 #include "utilsMPI.h"
 #include <array>
 #include <future>
-#include "dynamic_bitset.h"
 
 #define MASK(N) (0x1ull << N)
 
@@ -266,10 +266,22 @@ void QubitLayerMPI::hadamard(int targetQubit)
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("--- HADAMARD ---\n\n");
 #endif
-	constexpr PRECISION_TYPE hadamard_const = 0.7071067811865475244008;
 	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
+	constexpr PRECISION_TYPE hadamard_const = 0.7071067811865475244008;
 
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+
+	auto applyReceivedOpsHadamard =
+		[&](const vector<complex<PRECISION_TYPE>>& receivedOps) {
+			for(size_t i = 0; i < receivedOps.size(); i += 2) {
+// #ifdef HADAMARD_DEBUG_LOGS
+// 				dynamic_bitset state2 = receivedOps[i].real() + this->globalStartIndex;
+// 				appendDebugLog("Received |", state2.printBitset(), "> \n");
+// #endif
+				this->states[2 * receivedOps[i].real() + 1] +=
+					hadamard_const * receivedOps[i + 1];
+			}
+		};
 
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -280,7 +292,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 		}
 	}
 
-	size_t aux = 0;
+	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
@@ -288,43 +300,30 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
-// #ifdef HADAMARD_DEBUG_LOGS
-// 				appendDebugLog("Hadamard: Operation on state |",
-// 							   state.printBitset(),
-// 							   ">, local index ",
-// 							   localIndex,
-// 							   "\n");
-// 				for(size_t i = 0; i < this->states.size(); i++) {
-// 					appendDebugLog(this->states[i], "\n");
-// 				}
-// #endif
 				this->states[2 * localIndex + 1] +=
 					hadamard_const * this->states[2 * i];
 			} else {
-#ifdef HADAMARD_DEBUG_LOGS
-				dynamic_bitset state2 = state;
-				appendDebugLog(
-					"Hadamard: State |", state2.printBitset(), "> ", state, " out of bounds!\n");
-#endif
+// #ifdef HADAMARD_DEBUG_LOGS
+// 				dynamic_bitset state2 = state;
+// 				appendDebugLog("Hadamard: State |",
+// 							   state2.printBitset(),
+// 							   "> ",
+// 							   state,
+// 							   " out of bounds!\n");
+// #endif
 				// pair (state, intended_value)
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
 		}
-		aux++;
-		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
+		if(i == limit) {
 			sendStatesOOB(statesOOB);
-			statesOOB.clear();
 			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
-			for(size_t i = 0; i < receivedOps.size(); i += 2) {
-				this->states[2 * receivedOps[i].real() + 1] +=
-					hadamard_const * receivedOps[i + 1];
-			}
-			aux = 0;
+			applyReceivedOpsHadamard(receivedOps);
+
+			statesOOB.clear();
+			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
-#ifdef HADAMARD_DEBUG_LOGS
-	appendDebugLog("\n");
-#endif
 
 	// // if (statesOOB.size() != 0)
 	// future<void> sendStatesFuture;
@@ -339,24 +338,12 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	sendStatesOOB(statesOOB);
 	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
-
-#ifdef HADAMARD_DEBUG_LOGS
-	for(size_t i = 0; i < receivedOps.size(); ++i) {
-		appendDebugLog(receivedOps[i], "\n");
-	}
-#endif
-	for(size_t i = 0; i < receivedOps.size(); i += 2) {
-#ifdef HADAMARD_DEBUG_LOGS
-		appendDebugLog("Local index: ", receivedOps[i].real(), "\n");
-#endif
-		this->states[2 * receivedOps[i].real() + 1] +=
-			hadamard_const * receivedOps[i + 1];
-	}
+	applyReceivedOpsHadamard(receivedOps);
 
 	updateStates();
 
 #ifdef HADAMARD_DEBUG_LOGS
-	appendDebugLog("--- END HADAMARD ---\n\n");
+	appendDebugLog("\n--- END HADAMARD ---\n\n");
 #endif
 }
 
@@ -366,7 +353,7 @@ void QubitLayerMPI::pauliZ(int targetQubit)
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 
-			state & MASK(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
+			state& MASK(targetQubit) ? this->states[2 * i + 1] = -this->states[2 * i]
 									 : this->states[2 * i + 1] = this->states[2 * i];
 
 #ifdef PAULIZ_DEBUG_LOGS
@@ -468,6 +455,9 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 void QubitLayerMPI::pauliX(int targetQubit)
 {
+#ifdef HADAMARD_DEBUG_LOGS
+	appendDebugLog("--- Pauli X ---\n\n");
+#endif
 	// vector of (stateOOB, amplitude) pairs
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 	// statesOOB.reserve(LOCK_STEP_DISTR_THRESHOLD);
@@ -480,7 +470,6 @@ void QubitLayerMPI::pauliX(int targetQubit)
 		};
 
 	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
-
 	for(size_t i = 0; (i < this->states.size() / 2); i++) {
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
@@ -499,7 +488,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 			sendStatesOOB(statesOOB);
 			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 			applyReceivedOpsPauliX(receivedOps);
-		
+
 			statesOOB.clear();
 			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
