@@ -98,13 +98,19 @@ void sendStatesOOB(vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB)
 
 		copy(it->second.begin(), it->second.end(), msg);
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
-		MPI_Isend(msg,
+		// MPI_Isend(msg,
+		// 		  it->second.size(),
+		// 		  MPI_DOUBLE_COMPLEX,
+		// 		  it->first,
+		// 		  it->second.size(),
+		// 		  MPI_COMM_WORLD,
+		// 		  &mpi_req);
+		MPI_Send(msg,
 				  it->second.size(),
 				  MPI_DOUBLE_COMPLEX,
 				  it->first,
 				  it->second.size(),
-				  MPI_COMM_WORLD,
-				  &mpi_req);
+				  MPI_COMM_WORLD);
 	}
 
 	delete[] msg;
