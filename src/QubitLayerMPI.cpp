@@ -8,6 +8,7 @@
 #include "utilsMPI.h"
 #include <array>
 #include <future>
+#include "dynamic_bitset.h"
 
 #define MASK(N) (0x1ull << N)
 
@@ -301,8 +302,9 @@ void QubitLayerMPI::hadamard(int targetQubit)
 					hadamard_const * this->states[2 * i];
 			} else {
 #ifdef HADAMARD_DEBUG_LOGS
+				dynamic_bitset state2 = state;
 				appendDebugLog(
-					"Hadamard: State |", state, "> out of bounds!\n");
+					"Hadamard: State |", state2.printBitset(), "> ", state, " out of bounds!\n");
 #endif
 				// pair (state, intended_value)
 				statesOOB.push_back({state, this->states[2 * i]});

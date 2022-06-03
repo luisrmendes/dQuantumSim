@@ -16,10 +16,10 @@ class QubitLayerMPI
   private:
 	qubitLayer states;
 	unsigned int numQubits;
-	uint64_t globalStartIndex;
-	uint64_t globalEndIndex;
 
   public:
+	uint64_t globalStartIndex;
+	uint64_t globalEndIndex;
 	/**
 	 * Initializes state vector with (0,0)
 	 * @param numQubits Number of qubits 

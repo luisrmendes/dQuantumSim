@@ -15,10 +15,11 @@
 #include <bitset>
 constexpr int numQubitsMPI = 10;
 #endif
+#include "dynamic_bitset.h"
 #include <algorithm>
+#include <array>
 #include <set>
 #include <unistd.h>
-#include <array>
 
 int rank, size;
 std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
@@ -93,6 +94,11 @@ int main(int argc, char* argv[])
 	::layerLimits = calculateLayerLimits(::layerAllocs);
 
 	QubitLayerMPI qL(instructions[0]);
+
+	dynamic_bitset aux = ::layerLimits[::rank];
+	cout << "Rank: " << ::rank << " layerLimits: " << aux.printBitset() << " "
+		 << ::layerLimits[::rank] << " States size: " << qL.getStates().size() << " "
+		 << qL.getStates()[qL.getStates().size()] << " globalStart: " << qL.globalStartIndex << " globalEnd: " << qL.globalEndIndex << endl << endl;
 
 #ifdef GET_STATE_LAYER_INFO_DEBUG_LOGS
 	appendDebugLog("Size of States: ", layerAllocs[::rank] / 2, "\n");
