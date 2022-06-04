@@ -3,6 +3,7 @@
 
 #include "_macros.h"
 #include <complex>
+#include <functional>
 #include <vector>
 
 extern int rank;
@@ -62,8 +63,7 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(size_t i);
 
-	void measureQubits(std::vector<uint64_t> layerLimits,
-					   PRECISION_TYPE* result);
+	void measureQubits(std::vector<uint64_t> layerLimits, PRECISION_TYPE* result);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer
@@ -83,6 +83,12 @@ class QubitLayerMPI
 	 * TODO: How to avoid the spike in memory
 	 */
 	void calculateStateProbabilities();
+
+	void manageDistr(
+		const std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>&
+			statesOOB,
+		const std::function<void(std::vector<std::complex<PRECISION_TYPE>>)>&
+			operationFunc);
 };
 
 #endif

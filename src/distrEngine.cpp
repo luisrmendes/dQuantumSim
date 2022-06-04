@@ -163,24 +163,24 @@ vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 		// 		 MPI_COMM_WORLD,
 		// 		 &mpi_req);
 
-#ifdef RECEIVE_STATES_OOB
-		appendDebugLog("\tRank ",
-					   ::rank,
-					   " received tag ",
-					   status.MPI_TAG,
-					   " from node ",
-					   node,
-					   "\n");
-#endif
+		// #ifdef RECEIVE_STATES_OOB
+		// 		appendDebugLog("\tRank ",
+		// 					   ::rank,
+		// 					   " received tag ",
+		// 					   status.MPI_TAG,
+		// 					   " from node ",
+		// 					   node,
+		// 					   "\n");
+		// #endif
 
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
-#ifdef RECEIVE_STATES_OOB
-			for(size_t i = 0; i < status.MPI_TAG; i++) {
-				appendDebugLog(
-					"\t\tRank ", ::rank, " received operations ", msg[i], "\n");
-			}
-#endif
+			// #ifdef RECEIVE_STATES_OOB
+			// 			for(size_t i = 0; i < status.MPI_TAG; i++) {
+			// 				appendDebugLog(
+			// 					"\t\tRank ", ::rank, " received operations ", msg[i], "\n");
+			// 			}
+			// #endif
 			receivedOperations.reserve(status.MPI_TAG);
 			receivedOperations.insert(
 				receivedOperations.end(), &msg[0], &msg[status.MPI_TAG]);
