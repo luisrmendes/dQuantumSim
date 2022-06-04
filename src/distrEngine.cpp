@@ -8,8 +8,130 @@
 #include "utilsMPI.h"
 #include <algorithm>
 #include <map>
+#include <utility>
 
 using namespace std;
+
+vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesAndAmplitudesOOB)
+{
+#ifdef DISTR_STATES_OOB
+	appendDebugLog("\n\t--- DISTR_STATES_OOB ---\n");
+#endif
+
+	vector<int> ranks(::size);
+	for(int i = 0; i < ::size; i++) ranks[i] = i;
+
+	int node = -1;
+	vector<complex<PRECISION_TYPE>> msgToSend;
+
+	map<unsigned int, vector<complex<PRECISION_TYPE>>> mapMsgToSend;
+	map<unsigned int, vector<complex<PRECISION_TYPE>>>::iterator it;
+
+	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
+		uint64_t state = get<0>(statesAndAmplitudesOOB[i]);
+		complex<PRECISION_TYPE> amplitude = get<1>(statesAndAmplitudesOOB[i]);
+
+		node = getNodeOfState(state);
+		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(state, node);
+
+		it = mapMsgToSend.find(node);
+
+		// if hasn't found node
+		if(it == mapMsgToSend.end()) {
+			vector<complex<PRECISION_TYPE>> statesAndAmplitudes(2);
+			statesAndAmplitudes[0] = nodeLocalIndex;
+			statesAndAmplitudes[1] = amplitude;
+			mapMsgToSend.insert({node, statesAndAmplitudes});
+		}
+		// if already has node, append the nodeLocalIndex,amplitude to the
+		else {
+			it->second.push_back(nodeLocalIndex);
+			it->second.push_back(amplitude);
+		}
+	}
+
+	/* 	O array abaixo pode ser ajustado para um vla com o tamanho de it->second
+		Depende de quanto custa a transmissão no MPI de arrays grandes, talvez
+		valha a pena usar vla
+	*/
+	/**	TODO: Por alguma razão arrays em stack fazem asneira com o q10_grovers 
+	 * 	Vale a pena ver isto numa questão de performance, stack é mais rápida que heap
+	*/
+	// complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
+	complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
+
+	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
+		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
+
+		copy(it->second.begin(), it->second.end(), msg);
+
+		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
+		// MPI_Isend(msg,
+		// 		  it->second.size(),
+		// 		  MPI_DOUBLE_COMPLEX,
+		// 		  it->first,
+		// 		  it->second.size(),
+		// 		  MPI_COMM_WORLD,
+		// 		  &mpi_req);
+		MPI_Send(msg,
+				 it->second.size(),
+				 MPI_DOUBLE_COMPLEX,
+				 it->first,
+				 it->second.size(),
+				 MPI_COMM_WORLD);
+	}
+
+	delete[] msg;
+
+	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
+	complex<PRECISION_TYPE> end = -1;
+	for(size_t i = 0; i < ranks.size(); i++) {
+
+		// exceto a ele proprio
+		if(ranks[i] == ::rank)
+			continue;
+
+		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+	}
+
+	/**
+	 * RECEIVE
+	 */
+	complex<PRECISION_TYPE> recvdMsg[MPI_RECV_BUFFER_SIZE];
+	recvdMsg[0] = 0;
+	MPI_Status status;
+	// MPI_Request mpi_req2;
+
+	vector<complex<PRECISION_TYPE>> receivedOperations;
+
+	/**
+	 * Reversing the order of listening for Sends avoids gridlocking
+	 * WARN: Maybe a better solution could be necessary
+	 */
+	for(int node = ::size - 1; node >= 0; node--) {
+		// exceto a dele proprio
+		if(node == ::rank)
+			continue;
+
+		MPI_Recv(&recvdMsg,
+				 MPI_RECV_BUFFER_SIZE,
+				 MPI_DOUBLE_COMPLEX,
+				 node,
+				 MPI_ANY_TAG,
+				 MPI_COMM_WORLD,
+				 &status);
+
+		// Se mensagem for de uma operacao
+		if(status.MPI_TAG != 0) {
+			receivedOperations.reserve(status.MPI_TAG);
+			receivedOperations.insert(
+				receivedOperations.end(), &recvdMsg[0], &recvdMsg[status.MPI_TAG]);
+		}
+	}
+
+	return receivedOperations;
+}
 
 void sendStatesOOB(
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesAndAmplitudesOOB)
@@ -143,7 +265,7 @@ vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 	 * Reversing the order of listening for Sends avoids gridlocking
 	 * WARN: Maybe a better solution could be necessary
 	 */
-	for(int node = ::size-1; node >= 0; node--) {
+	for(int node = ::size - 1; node >= 0; node--) {
 		// exceto a dele proprio
 		if(node == ::rank)
 			continue;

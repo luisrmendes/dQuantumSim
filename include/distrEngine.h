@@ -39,4 +39,11 @@ int getNodeOfState(uint64_t state);
  */
 std::vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount);
 
+/**
+ * Sends statesOOB and returns received statesOOB
+ */
+std::vector<std::complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
+	std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>
+		statesAndAmplitudesOOB);
+
 #endif

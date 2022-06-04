@@ -20,8 +20,12 @@ void QubitLayerMPI::manageDistr(
 	const function<void(vector<complex<PRECISION_TYPE>>)>& operationFunc)
 {
 
-	sendStatesOOB(statesOOB);
-	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
+	// sendStatesOOB(statesOOB);
+	// vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
+	// operationFunc(receivedOps);
+	// MPI_Barrier(MPI_COMM_WORLD);
+	vector<complex<PRECISION_TYPE>> receivedOps =
+		distributeAndGatherStatesOOB(statesOOB);
 	operationFunc(receivedOps);
 	MPI_Barrier(MPI_COMM_WORLD);
 }
