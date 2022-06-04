@@ -138,7 +138,12 @@ vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 	MPI_Request mpi_req;
 
 	vector<complex<PRECISION_TYPE>> receivedOperations;
-	for(int node = 0; node < ::size; node++) {
+
+	/**
+	 * Reversing the order of listening for Sends avoids gridlocking
+	 * WARN: Maybe a better solution could be necessary
+	 */
+	for(int node = ::size-1; node >= 0; node--) {
 		// exceto a dele proprio
 		if(node == ::rank)
 			continue;
@@ -163,6 +168,7 @@ vector<complex<PRECISION_TYPE>> receiveStatesOOB()
 		// 		 MPI_COMM_WORLD,
 		// 		 &mpi_req);
 
+		// MPI_Wait(&mpi_req, &status);
 		// #ifdef RECEIVE_STATES_OOB
 		// 		appendDebugLog("\tRank ",
 		// 					   ::rank,
