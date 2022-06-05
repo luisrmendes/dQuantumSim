@@ -40,24 +40,15 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	}
 
 	/**
-	 * SEND statesOOB
+	 * SEND statesOOB and RECEIVE incomingStates
 	 */
-	MPI_Request mpi_req;
-	MPI_Request mpi_req2;
-	for(int targetNode = 0; targetNode < ::size; targetNode++) {
-		if(targetNode == ::rank)
-			continue;
+	complex<PRECISION_TYPE> recvBuffer[MPI_RECV_BUFFER_SIZE];
+	vector<complex<PRECISION_TYPE>> receivedOperations;
+
+	auto syncSend = [&](int targetNode) {
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 			complex<PRECISION_TYPE> end = -1;
 			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, targetNode, 0, MPI_COMM_WORLD);
-			// MPI_Isend(&end,
-			// 		  1,
-			// 		  MPI_DOUBLE_COMPLEX,
-			// 		  targetNode,
-			// 		  0,
-			// 		  MPI_COMM_WORLD,
-			// 		  &mpi_req2);
-
 		} else {
 			complex<PRECISION_TYPE>* msg =
 				&localStatesAmplitudesToSend[targetNode][0];
@@ -67,44 +58,60 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 					 targetNode,
 					 localStatesAmplitudesToSend[targetNode].size(),
 					 MPI_COMM_WORLD);
-			// MPI_Isend(msg,
-			// 		  localStatesAmplitudesToSend[targetNode].size(),
-			// 		  MPI_DOUBLE_COMPLEX,
-			// 		  targetNode,
-			// 		  localStatesAmplitudesToSend[targetNode].size(),
-			// 		  MPI_COMM_WORLD,
-			// 		  &mpi_req);
 		}
-	}
+	};
 
-	/**
-	 * RECEIVE
-	 * Reversing the order of Recv's for Sends avoids deadlock
-	 * TODO: Maybe a better solution
-	 */
-	complex<PRECISION_TYPE> recvBuffer[MPI_RECV_BUFFER_SIZE];
-	MPI_Status status;
-	vector<complex<PRECISION_TYPE>> receivedOperations;
+	auto asyncSend = [&](int targetNode) {
+		MPI_Request mpi_req;
+		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
+			complex<PRECISION_TYPE> end = -1;
+			MPI_Isend(&end,
+					  1,
+					  MPI_DOUBLE_COMPLEX,
+					  targetNode,
+					  0,
+					  MPI_COMM_WORLD,
+					  &mpi_req);
+		} else {
+			complex<PRECISION_TYPE>* msg =
+				&localStatesAmplitudesToSend[targetNode][0];
 
-	for(int node = ::size - 1; node >= 0; node--) {
-		// exceto a dele proprio
-		if(node == ::rank)
-			continue;
+			MPI_Isend(msg,
+					  localStatesAmplitudesToSend[targetNode].size(),
+					  MPI_DOUBLE_COMPLEX,
+					  targetNode,
+					  localStatesAmplitudesToSend[targetNode].size(),
+					  MPI_COMM_WORLD,
+					  &mpi_req);
+		}
+	};
 
+	auto syncReceive = [&](int targetNode) {
+		MPI_Status status;
 		MPI_Recv(&recvBuffer,
 				 MPI_RECV_BUFFER_SIZE,
 				 MPI_DOUBLE_COMPLEX,
-				 node,
+				 targetNode,
 				 MPI_ANY_TAG,
 				 MPI_COMM_WORLD,
 				 &status);
-
-		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
 			receivedOperations.reserve(status.MPI_TAG);
 			receivedOperations.insert(receivedOperations.end(),
 									  &recvBuffer[0],
 									  &recvBuffer[status.MPI_TAG]);
+		}
+	};
+
+	for(int targetNode = 0; targetNode < ::size; targetNode++) {
+		if(targetNode == ::rank)
+			continue;
+		if(::rank % 2 == 0) {
+			syncSend(targetNode);
+			syncReceive(targetNode);
+		} else {
+			syncSend(targetNode);
+			syncReceive(targetNode);
 		}
 	}
 
