@@ -9,25 +9,31 @@
 #include <algorithm>
 #include <map>
 #include <utility>
+#include <variant>
 
 using namespace std;
 
 vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesAndAmplitudesOOB)
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesAndAmplitudesOOB)
 {
 #ifdef DISTR_STATES_OOB
 	appendDebugLog("\n\t--- DISTR_STATES_OOB ---\n");
 #endif
 
-	vector<int> ranks(::size);
-	for(int i = 0; i < ::size; i++) ranks[i] = i;
+#ifdef DISTR_STATES_OOB
+	appendDebugLog("\tStatesOOB to send:\n");
+	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
+		appendDebugLog("\t\t(",
+					   get<0>(statesAndAmplitudesOOB[i]),
+					   ",",
+					   get<1>(statesAndAmplitudesOOB[i]),
+					   ")\n");
+	}
+#endif
 
 	MPI_Request mpi_req;
-	int node = -1;
-	vector<complex<PRECISION_TYPE>> msgToSend;
-
-	map<unsigned int, vector<complex<PRECISION_TYPE>>> mapMsgToSend;
-	map<unsigned int, vector<complex<PRECISION_TYPE>>>::iterator it;
+	vector<vector<complex<PRECISION_TYPE>>> localStatesAmplitudesToSend(
+		::size, vector<complex<PRECISION_TYPE>>());
 
 	/**
 	 * Restructure statesOOB into map(node => {localIndex, ampl})
@@ -36,51 +42,72 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		uint64_t state = get<0>(statesAndAmplitudesOOB[i]);
 		complex<PRECISION_TYPE> amplitude = get<1>(statesAndAmplitudesOOB[i]);
 
-		node = getNodeOfState(state);
+		int node = getNodeOfState(state);
 		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(state, node);
 
-		it = mapMsgToSend.find(node);
-
-		// if hasn't found node
-		if(it == mapMsgToSend.end()) {
-			vector<complex<PRECISION_TYPE>> statesAndAmplitudes(2);
-			statesAndAmplitudes[0] = nodeLocalIndex;
-			statesAndAmplitudes[1] = amplitude;
-			mapMsgToSend.insert({node, statesAndAmplitudes});
-		}
-		// if already has node, append the nodeLocalIndex,amplitude to the
-		else {
-			it->second.push_back(nodeLocalIndex);
-			it->second.push_back(amplitude);
-		}
+		localStatesAmplitudesToSend[node].push_back(
+			complex<PRECISION_TYPE>(nodeLocalIndex));
+		localStatesAmplitudesToSend[node].push_back(amplitude);
 	}
 
-	/* 	O array abaixo pode ser ajustado para um vla com o tamanho de it->second
-		Depende de quanto custa a transmissão no MPI de arrays grandes, talvez
-		valha a pena usar vla
-	*/
-	/**	TODO: Por alguma razão arrays em stack fazem asneira com o q10_grovers 
-	 * 	Vale a pena ver isto numa questão de performance, stack é mais rápida que heap
-	*/
-	// complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
-	complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
+#ifdef DISTR_STATES_OOB
+	appendDebugLog("\t localAmplitudesToSend:\n");
+	for(size_t targetNode = 0; targetNode < localStatesAmplitudesToSend.size();
+		targetNode++) {
+		appendDebugLog("\t\t", targetNode, ": \n");
+		for(size_t i = 0; i < localStatesAmplitudesToSend[targetNode].size(); i++) {
+			appendDebugLog(
+				"\t\t\t", localStatesAmplitudesToSend[targetNode][i], "\n");
+		}
+	}
+#endif
 
 	/**
-	 * Send statesOOB
-	 */
-	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
-		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
+	 * O array abaixo pode ser ajustado para um vla com o tamanho de it->second
+	 * Depende de quanto custa a transmissão no MPI de arrays grandes, talvez
+	 * valha a pena usar vla
+	 * WARN: Por alguma razão arrays em stack fazem asneira com o q10_grovers 
+	 * Vale a pena ver isto numa questão de performance, stack é mais rápida que heap
+	*/
+	// complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
+	// complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
 
-		copy(it->second.begin(), it->second.end(), msg);
+	/**
+	 * SEND statesOOB
+	 */
+	for(int targetNode = 0; targetNode < ::size; targetNode++) {
+		if(targetNode == ::rank)
+			continue;
+		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 #ifdef DISTR_STATES_OOB
-		appendDebugLog("\tRank ",
-					   ::rank,
-					   " sending to node ",
-					   it->first,
-					   " statesOOB with size ",
-					   it->second.size(),
-					   "\n");
+			appendDebugLog(
+				"\tRank ", ::rank, " sending to node ", targetNode, " close!\n");
 #endif
+			complex<PRECISION_TYPE> end = -1;
+			MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, targetNode, 0, MPI_COMM_WORLD);
+
+		} else {
+			complex<PRECISION_TYPE>* msg = &localStatesAmplitudesToSend[targetNode][0];
+#ifdef DISTR_STATES_OOB
+			appendDebugLog("\tRank ",
+						   ::rank,
+						   " sending to node ",
+						   targetNode,
+						   " statesOOB with size ",
+						   localStatesAmplitudesToSend[targetNode].size(),
+						   "\n");
+			for(int i = 0; i < localStatesAmplitudesToSend[targetNode].size(); i++) {
+				appendDebugLog("\t\t", msg[i], "\n");
+			}
+#endif
+			MPI_Send(msg,
+					 localStatesAmplitudesToSend[targetNode].size(),
+					 MPI_DOUBLE_COMPLEX,
+					 targetNode,
+					 localStatesAmplitudesToSend[targetNode].size(),
+					 MPI_COMM_WORLD);
+		}
+
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
 		// MPI_Isend(msg,
 		// 		  it->second.size(),
@@ -89,45 +116,31 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		// 		  it->second.size(),
 		// 		  MPI_COMM_WORLD,
 		// 		  &mpi_req);
-		MPI_Send(msg,
-				 it->second.size(),
-				 MPI_DOUBLE_COMPLEX,
-				 it->first,
-				 it->second.size(),
-				 MPI_COMM_WORLD);
 	}
-
-	delete[] msg;
+	// delete[] msg;
 
 	/**
 	 * Envia mensagem -1 para todos os ranks que nao receberam uma operacao
 	 */
-	complex<PRECISION_TYPE> end = -1;
-	for(size_t i = 0; i < ranks.size(); i++) {
+	// complex<PRECISION_TYPE> end = -1;
+	// for(size_t i = 0; i < ranks.size(); i++) {
 
-		// exceto a ele proprio
-		if(ranks[i] == ::rank)
-			continue;
+	// 	// exceto a ele proprio
+	// 	if(ranks[i] == ::rank)
+	// 		continue;
 
-#ifdef DISTR_STATES_OOB
-		appendDebugLog(
-			"\tRank ", ::rank, " sending to node ", ranks[i], " close!\n");
-#endif
-
-		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
-		// MPI_Isend(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
-	}
+	// 	MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+	// 	// MPI_Isend(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+	// }
 
 	/**
 	 * RECEIVE
 	 */
-	complex<PRECISION_TYPE> recvdMsg[MPI_RECV_BUFFER_SIZE];
-	recvdMsg[0] = 0;
+	complex<PRECISION_TYPE> recvBuffer[MPI_RECV_BUFFER_SIZE];
+	// recvBuffer[0] = 0;
 	MPI_Status status;
 	// MPI_Request mpi_req2;
-
 	vector<complex<PRECISION_TYPE>> receivedOperations;
-
 	/**
 	 * Reversing the order of listening for Sends avoids gridlocking
 	 * WARN: Maybe a better solution could be necessary
@@ -137,12 +150,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		if(node == ::rank)
 			continue;
 
-#ifdef DISTR_STATES_OOB
-		appendDebugLog(
-			"\tRank ", ::rank, " waiting for message from node ", node, "\n");
-#endif
-
-		MPI_Recv(&recvdMsg,
+		MPI_Recv(recvBuffer,
 				 MPI_RECV_BUFFER_SIZE,
 				 MPI_DOUBLE_COMPLEX,
 				 node,
@@ -150,11 +158,25 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 				 MPI_COMM_WORLD,
 				 &status);
 
+#ifdef DISTR_STATES_OOB
+		appendDebugLog("\tRank ",
+					   ::rank,
+					   " received from ",
+					   node,
+					   " tag ",
+					   status.MPI_TAG,
+					   "\n");
+		for(int i = 0; i < status.MPI_TAG; i++) {
+			appendDebugLog("\t\t", recvBuffer[i], "\n");
+		}
+#endif
+
 		// Se mensagem for de uma operacao
 		if(status.MPI_TAG != 0) {
 			receivedOperations.reserve(status.MPI_TAG);
-			receivedOperations.insert(
-				receivedOperations.end(), &recvdMsg[0], &recvdMsg[status.MPI_TAG]);
+			receivedOperations.insert(receivedOperations.end(),
+									  &recvBuffer[0],
+									  &recvBuffer[status.MPI_TAG]);
 		}
 	}
 

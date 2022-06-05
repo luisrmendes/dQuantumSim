@@ -16,7 +16,7 @@
 using namespace std;
 
 void QubitLayerMPI::manageDistr(
-	const vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesOOB,
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesOOB,
 	const function<void(vector<complex<PRECISION_TYPE>>)>& operationFunc)
 {
 
