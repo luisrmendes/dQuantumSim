@@ -21,9 +21,9 @@ def main():
     expectedResult = bytes(expectedResult, 'utf-8')
     expectedResult = expectedResult.split()
 
-    for i in range(1, np):
+    for i in range(np):
         # Send command
-        cmd = "mpirun --mca opal_warn_on_missing_libcuda 0 --oversubscribe -np " + str(i+1) + " ./simulator " + \
+        cmd = "mpirun -np " + str(i+1) + " ./simulator " + \
             myqasmFile + \
             " | awk '{print $4}' | sed -r 's/[^0-9]*//g' | tr '\n' ' ' "
         cmdOutput = subprocess.check_output(cmd, shell=True)
@@ -38,10 +38,10 @@ def main():
                 errors.append(j)
 
         for j in range(len(errors)):
-            print(R + "Error in qubit " + str(errors[j]) + " np = " + str(i) + W)
+            print(R + "Error in qubit " + str(errors[j]) + " np = " + str(i+1) + W)
 
         if len(errors) == 0:
-            print(G + "No errors np = " + str(i) + W)
+            print(G + "No errors np = " + str(i+1) + W)
 
 
 main()

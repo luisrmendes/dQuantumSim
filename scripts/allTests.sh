@@ -15,8 +15,8 @@ python3 scripts/test.py myqasmTests/q4_test3.myqasm 4 "50 50 100 0"
 # 5 qubit tests
 python3 scripts/test.py myqasmTests/q5_test1.myqasm 4 "100 0 0 0 0"
 
-# 10 qubit tests grover
-python3 scripts/test.py myqasmTests/q10_grovers.myqasm 6 "99973 99973 99973 99973 99973 99973 99973 99973 99973 0"
+# 11 qubit tests grover
+python3 scripts/test.py myqasmTests/q11_grovers.myqasm 6 "99973 99973 99973 99973 99973 99973 99973 99973 99973 99973 0"
 
 # 17 qubit tests
 python3 scripts/test.py myqasmTests/q17_hadamard.myqasm 6 "50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50"
