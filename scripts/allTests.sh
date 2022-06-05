@@ -24,11 +24,16 @@ python3 scripts/test.py myqasmTests/q20_hadamard.myqasm 6 "50 50 50 50 50 50 50 
 # 23 qubit tests
 python3 scripts/test.py myqasmTests/q23_paulix.myqasm 6 "100 100 100 100 100 100 \
 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100"
+python3 scripts/test.py myqasmTests/q23_hadamard.myqasm 6 "50 50 50 50 50 50 \
+50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50"
 
 # 26 qubit tests
 python3 scripts/test.py myqasmTests/q26_paulix.myqasm 6 "100 100 100 100 100 100 \
 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100 100"
 python3 scripts/test.py myqasmTests/q26_test2.myqasm 6 "100 100 100 100 100 100 \
 100 100 100 50 100 100 100 100 100 100 100 50 100 100 100 100 100 100 100 50"
+python3 scripts/test.py myqasmTests/q26_hadamard.myqasm 6 "50 50 50 50 50 50 \
+50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50"
+
 
 exit 0
