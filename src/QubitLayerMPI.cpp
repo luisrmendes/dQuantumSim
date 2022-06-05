@@ -27,7 +27,7 @@ void QubitLayerMPI::manageDistr(
 	vector<complex<PRECISION_TYPE>> receivedOps =
 		distributeAndGatherStatesOOB(statesOOB);
 	operationFunc(receivedOps);
-	MPI_Barrier(MPI_COMM_WORLD);
+	// MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void QubitLayerMPI::calculateStateProbabilities()
