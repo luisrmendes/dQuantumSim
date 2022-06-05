@@ -361,7 +361,18 @@ void QubitLayerMPI::pauliY(int targetQubit)
 	// vector of (stateOOB, value) pairs
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
-	size_t aux = 0;
+	auto applyReceivedOpsPauliY =
+		[&](const vector<complex<PRECISION_TYPE>>& receivedOps) {
+			for(size_t i = 0; i < receivedOps.size(); i += 2) {
+				this->states[2 * receivedOps[i].real() + 1].real() == 0
+					? this->states[2 * receivedOps[i].real() + 1] =
+						  receivedOps[i + 1] * 1i
+					: this->states[2 * receivedOps[i].real() + 1] =
+						  receivedOps[i + 1] * -1i;
+			}
+		};
+
+	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
@@ -372,16 +383,9 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
-#ifdef USING_DOUBLE
-				state& MASK(targetQubit)
+				state & MASK(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
-#elif USING_FLOAT
-				state& MASK(targetQubit)
-					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1if
-					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1if;
-#endif
-
 			} else {
 #ifdef PAULIY_DEBUG_LOGS
 				appendDebugLog(
@@ -391,45 +395,15 @@ void QubitLayerMPI::pauliY(int targetQubit)
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
 		}
-		aux++;
-		if(aux == LOCK_STEP_DISTR_THRESHOLD) {
-			sendStatesOOB(statesOOB);
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsPauliY);
+
 			statesOOB.clear();
-			vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
-			for(size_t i = 0; i < receivedOps.size(); i += 2) {
-#ifdef USING_DOUBLE
-				this->states[2 * receivedOps[i].real() + 1].real() == 0
-					? this->states[2 * receivedOps[i].real() + 1] =
-						  receivedOps[i + 1] * 1i
-					: this->states[2 * receivedOps[i].real() + 1] =
-						  receivedOps[i + 1] * -1i;
-#elif USING_FLOAT
-				this->states[2 * receivedOps[i].real() + 1].real() == 0
-					? this->states[2 * receivedOps[i].real() + 1] =
-						  receivedOps[i + 1] * 1if
-					: this->states[2 * receivedOps[i].real() + 1] =
-						  receivedOps[i + 1] * -1if;
-#endif
-			}
-			aux = 0;
+			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
 
-	sendStatesOOB(statesOOB);
-	vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
-
-	for(size_t i = 0; i < receivedOps.size(); i += 2) {
-#ifdef USING_DOUBLE
-		this->states[2 * receivedOps[i].real() + 1].real() == 0
-			? this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1] * 1i
-			: this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1] * -1i;
-#elif USING_FLOAT
-		this->states[2 * receivedOps[i].real() + 1].real() == 0
-			? this->states[2 * receivedOps[i].real() + 1] = receivedOps[i + 1] * 1if
-			: this->states[2 * receivedOps[i].real() + 1] =
-				  receivedOps[i + 1] * -1if;
-#endif
-	}
+	manageDistr(statesOOB, applyReceivedOpsPauliY);
 
 	updateStates();
 
