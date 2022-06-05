@@ -22,12 +22,16 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	vector<int> ranks(::size);
 	for(int i = 0; i < ::size; i++) ranks[i] = i;
 
+	MPI_Request mpi_req;
 	int node = -1;
 	vector<complex<PRECISION_TYPE>> msgToSend;
 
 	map<unsigned int, vector<complex<PRECISION_TYPE>>> mapMsgToSend;
 	map<unsigned int, vector<complex<PRECISION_TYPE>>>::iterator it;
 
+	/**
+	 * Restructure statesOOB into map(node => {localIndex, ampl})
+	 */
 	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
 		uint64_t state = get<0>(statesAndAmplitudesOOB[i]);
 		complex<PRECISION_TYPE> amplitude = get<1>(statesAndAmplitudesOOB[i]);
@@ -61,11 +65,22 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	// complex<PRECISION_TYPE> msg[MPI_RECV_BUFFER_SIZE];
 	complex<double>* msg = new complex<double>[MPI_RECV_BUFFER_SIZE];
 
+	/**
+	 * Send statesOOB
+	 */
 	for(auto it = mapMsgToSend.begin(); it != mapMsgToSend.end(); ++it) {
 		ranks.erase(remove(ranks.begin(), ranks.end(), it->first), ranks.end());
 
 		copy(it->second.begin(), it->second.end(), msg);
-
+#ifdef DISTR_STATES_OOB
+		appendDebugLog("\tRank ",
+					   ::rank,
+					   " sending to node ",
+					   it->first,
+					   " statesOOB with size ",
+					   it->second.size(),
+					   "\n");
+#endif
 		// Send the array to the intended node, MPI_TAG = tamanho da mensagem
 		// MPI_Isend(msg,
 		// 		  it->second.size(),
@@ -84,7 +99,9 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 
 	delete[] msg;
 
-	// envia mensagem -1 para todos os ranks que nao receberam uma operacao
+	/**
+	 * Envia mensagem -1 para todos os ranks que nao receberam uma operacao
+	 */
 	complex<PRECISION_TYPE> end = -1;
 	for(size_t i = 0; i < ranks.size(); i++) {
 
@@ -92,7 +109,13 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		if(ranks[i] == ::rank)
 			continue;
 
+#ifdef DISTR_STATES_OOB
+		appendDebugLog(
+			"\tRank ", ::rank, " sending to node ", ranks[i], " close!\n");
+#endif
+
 		MPI_Send(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
+		// MPI_Isend(&end, 1, MPI_DOUBLE_COMPLEX, ranks[i], 0, MPI_COMM_WORLD);
 	}
 
 	/**
@@ -114,6 +137,11 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		if(node == ::rank)
 			continue;
 
+#ifdef DISTR_STATES_OOB
+		appendDebugLog(
+			"\tRank ", ::rank, " waiting for message from node ", node, "\n");
+#endif
+
 		MPI_Recv(&recvdMsg,
 				 MPI_RECV_BUFFER_SIZE,
 				 MPI_DOUBLE_COMPLEX,
@@ -130,6 +158,9 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		}
 	}
 
+#ifdef DISTR_STATES_OOB
+	appendDebugLog("\t--- END SEND_STATES_OOB ---\n");
+#endif
 	return receivedOperations;
 }
 
