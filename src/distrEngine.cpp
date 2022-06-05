@@ -79,8 +79,8 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 
 	/**
 	 * RECEIVE
-	 * Reversing the order of Recv's for Sends avoids gridlocking
-	 * WARN: Maybe a better solution could be necessary
+	 * Reversing the order of Recv's for Sends avoids deadlock
+	 * TODO: Maybe a better solution
 	 */
 	complex<PRECISION_TYPE> recvBuffer[MPI_RECV_BUFFER_SIZE];
 	MPI_Status status;
@@ -91,7 +91,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		if(node == ::rank)
 			continue;
 
-		MPI_Recv(recvBuffer,
+		MPI_Recv(&recvBuffer,
 				 MPI_RECV_BUFFER_SIZE,
 				 MPI_DOUBLE_COMPLEX,
 				 node,
