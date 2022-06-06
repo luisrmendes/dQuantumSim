@@ -4,7 +4,7 @@ cd ~/work/bolsa-prace/quantum-simulator-sandbox
 make clean && make
 
 # 3 qubit tests
-python3 scripts/test.py myqasmTests/q3_grovers.myqasm 3 "50 50 0"
+python3 scripts/test.py myqasmTests/q3_grovers.myqasm 3 "100 100 0"
 python3 scripts/test.py myqasmTests/q3_test1.myqasm 3 "100 50 100"
 
 # 4 qubit tests

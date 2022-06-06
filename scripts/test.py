@@ -21,7 +21,7 @@ def main():
     expectedResult = bytes(expectedResult, 'utf-8')
     expectedResult = expectedResult.split()
 
-    for i in range(1, np):
+    for i in range(1, np+1):
         # Send command
         cmd = "mpirun --mca opal_warn_on_missing_libcuda 0 --oversubscribe -np " + str(i+1) + " ./simulator " + \
             myqasmFile + \
