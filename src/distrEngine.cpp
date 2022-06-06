@@ -83,7 +83,8 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	};
 
 	for(int targetNode = 0; targetNode < ::size; targetNode++) {
-		if(targetNode == ::rank) continue;	
+		if(targetNode == ::rank)
+			continue;
 		asyncSend(targetNode);
 		syncReceive(targetNode);
 		MPI_Wait(&req, &status);

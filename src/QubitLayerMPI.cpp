@@ -168,6 +168,12 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 	uint64_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsPauliX);
+
+			statesOOB.clear();
+			limit += LOCK_STEP_DISTR_THRESHOLD;
+		}
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 			if(state & MASK(controlQubit1) && state & MASK(controlQubit2)) {
@@ -187,12 +193,6 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 			} else {
 				this->states[2 * i + 1].real(this->states[2 * i].real());
 			}
-		}
-		if(i == limit) {
-			manageDistr(statesOOB, applyReceivedOpsPauliX);
-
-			statesOOB.clear();
-			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
 
@@ -215,6 +215,12 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 	uint64_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsPauliX);
+
+			statesOOB.clear();
+			limit += LOCK_STEP_DISTR_THRESHOLD;
+		}
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 			if(state & MASK(controlQubit)) {
@@ -235,12 +241,6 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 			} else {
 				this->states[2 * i + 1].real(this->states[2 * i].real());
 			}
-		}
-		if(i == limit) {
-			manageDistr(statesOOB, applyReceivedOpsPauliX);
-
-			statesOOB.clear();
-			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
 
@@ -295,6 +295,11 @@ void QubitLayerMPI::hadamard(int targetQubit)
 
 	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsHadamard);
+			statesOOB.clear();
+			limit += LOCK_STEP_DISTR_THRESHOLD;
+		}
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 			state = state ^ MASK(targetQubit);
@@ -315,11 +320,6 @@ void QubitLayerMPI::hadamard(int targetQubit)
 				// pair (state, intended_value)
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
-		}
-		if(i == limit) {
-			manageDistr(statesOOB, applyReceivedOpsHadamard);
-			statesOOB.clear();
-			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
 
@@ -374,6 +374,12 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsPauliY);
+
+			statesOOB.clear();
+			limit += LOCK_STEP_DISTR_THRESHOLD;
+		}
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 			// if |0>, scalar 1i applies to |1>
@@ -383,7 +389,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
-				state & MASK(targetQubit)
+				state& MASK(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
 			} else {
@@ -394,12 +400,6 @@ void QubitLayerMPI::pauliY(int targetQubit)
 				// pair (state, intended_value)
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
-		}
-		if(i == limit) {
-			manageDistr(statesOOB, applyReceivedOpsPauliY);
-
-			statesOOB.clear();
-			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
 
@@ -430,6 +430,12 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; (i < this->states.size() / 2); i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsPauliX);
+
+			statesOOB.clear();
+			limit += LOCK_STEP_DISTR_THRESHOLD;
+		}
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalStartIndex + i;
 			state = state ^ MASK(targetQubit);
@@ -442,12 +448,6 @@ void QubitLayerMPI::pauliX(int targetQubit)
 				// pair (state, amplitude) ATENCAO
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
-		}
-		if(i == limit) {
-			manageDistr(statesOOB, applyReceivedOpsPauliX);
-
-			statesOOB.clear();
-			limit += LOCK_STEP_DISTR_THRESHOLD;
 		}
 	}
 
