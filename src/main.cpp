@@ -15,6 +15,7 @@
 #include <bitset>
 constexpr int numQubitsMPI = 10;
 #endif
+#include "_macros.h"
 #include "dynamic_bitset.h"
 #include <algorithm>
 #include <array>
@@ -185,13 +186,14 @@ int main(int argc, char* argv[])
 	// qL.clearStates();
 
 	if(::rank == 0)
-		cout << printBold("Gathering all results...\n");
-
+		cout << printBold("Calculate qubit probabilities...\n");
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
 	qL.measureQubits(::layerLimits, results);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
+	if(::rank == 0)
+		cout << printBold("Gathering all results...\n\n");
 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults;
 	gatheredResults = gatherResultsMPI(instructions[0], results);
 
