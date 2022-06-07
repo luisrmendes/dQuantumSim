@@ -18,7 +18,6 @@ ssh mendes1@juwels-cluster.fz-juelich.de 'module load Intel/2021.4.0 IntelMPI/20
     && yes | rm -r /p/home/jusers/mendes1/juwels/quantum-simulator-sandbox \
     && tar -xzf /p/home/jusers/mendes1/juwels/quantum.targz \
     && cd quantum-simulator-sandbox >/dev/null 2>&1 \
-    && make clean \
-    && make'
+'
 
 exit 0
