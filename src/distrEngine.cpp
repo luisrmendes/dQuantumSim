@@ -50,7 +50,7 @@ vector<tuple<uint64_t, complex<PRECISION_TYPE>>> distributeAndGatherStatesOOB(
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 			bool end = -1;
 			MPI_Isend(
-				&end, 1 * 8 * 3, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
+				&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
 		} else {
 			tuple<uint64_t, complex<PRECISION_TYPE>>* msg =
 				&localStatesAmplitudesToSend[targetNode][0];
