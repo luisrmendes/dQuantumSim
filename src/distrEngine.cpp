@@ -28,14 +28,13 @@ distributeAndGatherStatesOOB(vector<StateAndAmplitude>& statesAndAmplitudesOOB)
 	 * Vector index points to the target node
 	 */
 	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
-		uint64_t* state = &statesAndAmplitudesOOB[i].state;
-		complex<PRECISION_TYPE>* amplitude = &statesAndAmplitudesOOB[i].amplitude;
+		uint64_t* state = &statesAndAmplitudesOOB[i].getState();
+		complex<PRECISION_TYPE>* amplitude = &statesAndAmplitudesOOB[i].getAmplitude();
 
 		int node = getNodeOfState(*state);
 		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(*state, node);
 
-		localStatesAmplitudesToSend[node].push_back(
-			StateAndAmplitude(nodeLocalIndex, *amplitude));
+		localStatesAmplitudesToSend[node].push_back({nodeLocalIndex, *amplitude});
 	}
 
 	/**

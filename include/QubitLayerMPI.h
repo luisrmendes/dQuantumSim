@@ -87,7 +87,7 @@ class QubitLayerMPI
 
 	void manageDistr(
 		std::vector<StateAndAmplitude>& statesOOB,
-		const std::function<void(std::vector<StateAndAmplitude>)>& operationFunc);
+		std::function<void(std::vector<StateAndAmplitude>&)> operationFunc);
 };
 
 #endif

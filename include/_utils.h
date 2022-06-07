@@ -9,13 +9,14 @@
 struct StateAndAmplitude {
 	uint64_t state;
 	std::complex<PRECISION_TYPE> amplitude;
-	StateAndAmplitude() {}
-	StateAndAmplitude(const uint64_t& state,
-					  const std::complex<PRECISION_TYPE>& amplitude)
+	StateAndAmplitude(){};
+	StateAndAmplitude(uint64_t& state, std::complex<PRECISION_TYPE>& amplitude)
 	{
 		this->state = state;
 		this->amplitude = amplitude;
-	}
+	};
+	uint64_t& getState() { return this->state; }
+	std::complex<PRECISION_TYPE>& getAmplitude() { return this->amplitude; }
 };
 
 std::stringstream
