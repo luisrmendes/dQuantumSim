@@ -86,7 +86,8 @@ class QubitLayerMPI
 
 	void manageDistr(
 		std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>& statesOOB,
-		const std::function<void(std::vector<std::complex<PRECISION_TYPE>>)>&
+		const std::function<
+			void(std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>)>&
 			operationFunc);
 };
 

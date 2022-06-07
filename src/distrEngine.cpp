@@ -13,15 +13,16 @@
 
 using namespace std;
 
-vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
+vector<tuple<uint64_t, complex<PRECISION_TYPE>>> distributeAndGatherStatesOOB(
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesAndAmplitudesOOB)
 {
 #ifdef DISTR_STATES_OOB
 	appendDebugLog("\n\t--- DISTR_STATES_OOB ---\n");
 #endif
 
-	vector<vector<complex<PRECISION_TYPE>>> localStatesAmplitudesToSend(
-		::size, vector<complex<PRECISION_TYPE>>());
+	vector<vector<tuple<uint64_t, complex<PRECISION_TYPE>>>>
+		localStatesAmplitudesToSend(
+			::size, vector<tuple<uint64_t, complex<PRECISION_TYPE>>>());
 
 	/**
 	 * Restructure statesOOB into vector(node => {localIndex, ampl})
@@ -34,30 +35,28 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		int node = getNodeOfState(*state);
 		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(*state, node);
 
-		localStatesAmplitudesToSend[node].push_back(
-			complex<PRECISION_TYPE>(nodeLocalIndex));
-		localStatesAmplitudesToSend[node].push_back(*amplitude);
+		localStatesAmplitudesToSend[node].push_back({nodeLocalIndex, *amplitude});
 	}
 
 	/**
 	 * SEND statesOOB and RECEIVE incomingStates
 	 */
-	complex<PRECISION_TYPE> recvBuffer[MPI_RECV_BUFFER_SIZE];
-	vector<complex<PRECISION_TYPE>> receivedOperations;
+	tuple<uint64_t, complex<PRECISION_TYPE>> recvBuffer[MPI_RECV_BUFFER_SIZE];
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> receivedOperations;
 	MPI_Request req;
 	MPI_Status status;
 
 	auto asyncSend = [&](int targetNode) {
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
-			complex<PRECISION_TYPE> end = -1;
+			bool end = -1;
 			MPI_Isend(
-				&end, 1 * 8 * 2, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
+				&end, 1 * 8 * 3, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
 		} else {
-			complex<PRECISION_TYPE>* msg =
+			tuple<uint64_t, complex<PRECISION_TYPE>>* msg =
 				&localStatesAmplitudesToSend[targetNode][0];
 
 			MPI_Isend(msg,
-					  localStatesAmplitudesToSend[targetNode].size() * 8 * 2,
+					  localStatesAmplitudesToSend[targetNode].size() * 8,
 					  MPI_BYTE,
 					  targetNode,
 					  localStatesAmplitudesToSend[targetNode].size(),
@@ -68,7 +67,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 
 	auto syncReceive = [&](int targetNode) {
 		MPI_Recv(&recvBuffer,
-				 MPI_RECV_BUFFER_SIZE * 8 * 2,
+				 MPI_RECV_BUFFER_SIZE * 8,
 				 MPI_BYTE,
 				 targetNode,
 				 MPI_ANY_TAG,
