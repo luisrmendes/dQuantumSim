@@ -13,50 +13,48 @@
 
 using namespace std;
 
-vector<tuple<uint64_t, complex<PRECISION_TYPE>>> distributeAndGatherStatesOOB(
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesAndAmplitudesOOB)
+vector<StateAndAmplitude>
+distributeAndGatherStatesOOB(vector<StateAndAmplitude>& statesAndAmplitudesOOB)
 {
 #ifdef DISTR_STATES_OOB
 	appendDebugLog("\n\t--- DISTR_STATES_OOB ---\n");
 #endif
 
-	vector<vector<tuple<uint64_t, complex<PRECISION_TYPE>>>>
-		localStatesAmplitudesToSend(
-			::size, vector<tuple<uint64_t, complex<PRECISION_TYPE>>>());
+	vector<vector<StateAndAmplitude>> localStatesAmplitudesToSend(
+		::size, vector<StateAndAmplitude>());
 
 	/**
 	 * Restructure statesOOB into vector(node => {localIndex, ampl})
 	 * Vector index points to the target node
 	 */
 	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
-		uint64_t* state = &get<0>(statesAndAmplitudesOOB[i]);
-		complex<PRECISION_TYPE>* amplitude = &get<1>(statesAndAmplitudesOOB[i]);
+		uint64_t* state = &statesAndAmplitudesOOB[i].state;
+		complex<PRECISION_TYPE>* amplitude = &statesAndAmplitudesOOB[i].amplitude;
 
 		int node = getNodeOfState(*state);
 		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(*state, node);
 
-		localStatesAmplitudesToSend[node].push_back({nodeLocalIndex, *amplitude});
+		localStatesAmplitudesToSend[node].push_back(
+			StateAndAmplitude(nodeLocalIndex, *amplitude));
 	}
 
 	/**
 	 * SEND statesOOB and RECEIVE incomingStates
 	 */
-	tuple<uint64_t, complex<PRECISION_TYPE>> recvBuffer[MPI_RECV_BUFFER_SIZE];
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> receivedOperations;
+	StateAndAmplitude recvBuffer[MPI_RECV_BUFFER_SIZE];
+	vector<StateAndAmplitude> receivedOperations;
 	MPI_Request req;
 	MPI_Status status;
 
 	auto asyncSend = [&](int targetNode) {
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 			bool end = -1;
-			MPI_Isend(
-				&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
+			MPI_Isend(&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
 		} else {
-			tuple<uint64_t, complex<PRECISION_TYPE>>* msg =
-				&localStatesAmplitudesToSend[targetNode][0];
-
+			StateAndAmplitude* msg = &localStatesAmplitudesToSend[targetNode][0];
 			MPI_Isend(msg,
-					  localStatesAmplitudesToSend[targetNode].size() * 8 * 3,
+					  localStatesAmplitudesToSend[targetNode].size() * 8 *
+						  3, // bytes per StateAndAmplitude
 					  MPI_BYTE,
 					  targetNode,
 					  localStatesAmplitudesToSend[targetNode].size(),
@@ -67,7 +65,7 @@ vector<tuple<uint64_t, complex<PRECISION_TYPE>>> distributeAndGatherStatesOOB(
 
 	auto syncReceive = [&](int targetNode) {
 		MPI_Recv(&recvBuffer,
-				 MPI_RECV_BUFFER_SIZE * 8 * 3,
+				 MPI_RECV_BUFFER_SIZE * 8 * 3, // bytes per StateAndAmplitude
 				 MPI_BYTE,
 				 targetNode,
 				 MPI_ANY_TAG,

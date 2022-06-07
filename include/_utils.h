@@ -6,6 +6,18 @@
 #include <sstream>
 #include <vector>
 
+struct StateAndAmplitude {
+	uint64_t state;
+	std::complex<PRECISION_TYPE> amplitude;
+	StateAndAmplitude() {}
+	StateAndAmplitude(const uint64_t& state,
+					  const std::complex<PRECISION_TYPE>& amplitude)
+	{
+		this->state = state;
+		this->amplitude = amplitude;
+	}
+};
+
 std::stringstream
 getFormattedQubitLayer(std::vector<std::complex<PRECISION_TYPE>> states);
 

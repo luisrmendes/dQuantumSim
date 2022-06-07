@@ -5,6 +5,7 @@
 #include <complex>
 #include <functional>
 #include <vector>
+#include "_utils.h"
 
 extern int rank;
 extern int size;
@@ -85,10 +86,8 @@ class QubitLayerMPI
 	void calculateStateProbabilities();
 
 	void manageDistr(
-		std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>& statesOOB,
-		const std::function<
-			void(std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>)>&
-			operationFunc);
+		std::vector<StateAndAmplitude>& statesOOB,
+		const std::function<void(std::vector<StateAndAmplitude>)>& operationFunc);
 };
 
 #endif

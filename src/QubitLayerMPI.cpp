@@ -16,17 +16,15 @@
 using namespace std;
 
 void QubitLayerMPI::manageDistr(
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesOOB,
-	const function<void(vector<tuple<uint64_t, complex<PRECISION_TYPE>>>)>&
-		operationFunc)
+	vector<StateAndAmplitude>& statesOOB,
+	const function<void(vector<StateAndAmplitude>)>& operationFunc)
 {
 
 	// sendStatesOOB(statesOOB);
 	// vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
 	// operationFunc(receivedOps);
 	// MPI_Barrier(MPI_COMM_WORLD);
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> receivedOps =
-		distributeAndGatherStatesOOB(statesOOB);
+	vector<StateAndAmplitude> receivedOps = distributeAndGatherStatesOOB(statesOOB);
 	operationFunc(receivedOps);
 	// MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -158,15 +156,13 @@ bool QubitLayerMPI::checkStateOOB(uint64_t state)
 void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubit)
 {
 	// Executes pauliX if both control qubits are set to |1>
-	auto applyReceivedOpsPauliX =
-		[&](const vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& receivedOps) {
-			for(size_t i = 0; i < receivedOps.size(); i++) {
-				this->states[2 * get<0>(receivedOps[i]) + 1] =
-					get<1>(receivedOps[i]);
-			}
-		};
+	auto applyReceivedOpsPauliX = [&](const vector<StateAndAmplitude>& receivedOps) {
+		for(size_t i = 0; i < receivedOps.size(); i++) {
+			this->states[2 * receivedOps[i].state + 1] = receivedOps[i].amplitude;
+		}
+	};
 
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+	vector<StateAndAmplitude> statesOOB;
 
 	uint64_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -206,15 +202,13 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 {
 	// Executes pauliX if control qubit is |1>
-	auto applyReceivedOpsPauliX =
-		[&](const vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& receivedOps) {
-			for(size_t i = 0; i < receivedOps.size(); i++) {
-				this->states[2 * get<0>(receivedOps[i]) + 1] =
-					get<1>(receivedOps[i]);
-			}
-		};
+	auto applyReceivedOpsPauliX = [&](const vector<StateAndAmplitude>& receivedOps) {
+		for(size_t i = 0; i < receivedOps.size(); i++) {
+			this->states[2 * receivedOps[i].state + 1] = receivedOps[i].amplitude;
+		}
+	};
 	// vector of (stateOOB, value) pairs
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+	vector<StateAndAmplitude> statesOOB;
 
 	uint64_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -277,13 +271,13 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
 	constexpr PRECISION_TYPE hadamard_const = 0.7071067811865475244008;
 
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+	vector<StateAndAmplitude> statesOOB;
 
 	auto applyReceivedOpsHadamard =
-		[&](const vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& receivedOps) {
+		[&](const vector<StateAndAmplitude>& receivedOps) {
 			for(size_t i = 0; i < receivedOps.size(); i++) {
-				this->states[2 * get<0>(receivedOps[i]) + 1] +=
-					hadamard_const * get<1>(receivedOps[i]);
+				this->states[2 * receivedOps[i].state + 1] +=
+					hadamard_const * receivedOps[i].amplitude;
 			}
 		};
 
@@ -362,18 +356,17 @@ void QubitLayerMPI::pauliY(int targetQubit)
 	appendDebugLog("--- PAULI Y ---\n\n");
 #endif
 	// vector of (stateOOB, value) pairs
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+	vector<StateAndAmplitude> statesOOB;
 
-	auto applyReceivedOpsPauliY =
-		[&](const vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& receivedOps) {
-			for(size_t i = 0; i < receivedOps.size(); i++) {
-				this->states[2 * get<0>(receivedOps[i]) + 1].real() == 0
-					? this->states[2 * get<0>(receivedOps[i]) + 1] =
-						  get<1>(receivedOps[i]) * 1i
-					: this->states[2 * get<0>(receivedOps[i]) + 1] =
-						  get<1>(receivedOps[i]) * -1i;
-			}
-		};
+	auto applyReceivedOpsPauliY = [&](const vector<StateAndAmplitude>& receivedOps) {
+		for(size_t i = 0; i < receivedOps.size(); i++) {
+			this->states[2 * receivedOps[i].state + 1].real() == 0
+				? this->states[2 * receivedOps[i].state + 1] =
+					  receivedOps[i].amplitude * 1i
+				: this->states[2 * receivedOps[i].state + 1] =
+					  receivedOps[i].amplitude * -1i;
+		}
+	};
 
 	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -421,17 +414,14 @@ void QubitLayerMPI::pauliX(int targetQubit)
 	appendDebugLog("--- PAULI X ---\n\n");
 #endif
 	// vector of (stateOOB, amplitude) pairs
-	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+	vector<StateAndAmplitude> statesOOB;
 	// statesOOB.reserve(LOCK_STEP_DISTR_THRESHOLD);
 
-	auto applyReceivedOpsPauliX =
-		[&](const vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& receivedOps) {
-			for(size_t i = 0; i < receivedOps.size(); i++) {
-				this->states[2 * get<0>(receivedOps[i]) + 1] =
-					get<1>(receivedOps[i]);
-			}
-		};
-
+	auto applyReceivedOpsPauliX = [&](const vector<StateAndAmplitude>& receivedOps) {
+		for(size_t i = 0; i < receivedOps.size(); i++) {
+			this->states[2 * receivedOps[i].state + 1] = receivedOps[i].amplitude;
+		}
+	};
 	size_t limit = LOCK_STEP_DISTR_THRESHOLD;
 	for(size_t i = 0; (i < this->states.size() / 2); i++) {
 		if(i == limit) {

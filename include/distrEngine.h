@@ -2,6 +2,7 @@
 #define DISTRENGINE_H
 
 #include "_macros.h"
+#include "_utils.h"
 #include <complex>
 #include <vector>
 
@@ -30,9 +31,7 @@ std::vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount);
 /**
  * Sends statesOOB and returns received statesOOB
  */
-std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>
-distributeAndGatherStatesOOB(
-	std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>&
-		statesAndAmplitudesOOB);
+std::vector<StateAndAmplitude>
+distributeAndGatherStatesOOB(std::vector<StateAndAmplitude>& statesAndAmplitudesOOB);
 
 #endif
