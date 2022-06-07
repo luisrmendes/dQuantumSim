@@ -49,9 +49,9 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 
 	auto asyncSend = [&](int targetNode) {
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
-			complex<PRECISION_TYPE> end = -1;
+			bool end = -1;
 			MPI_Isend(
-				&end, 1 * 8 * 2, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
+				&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
 		} else {
 			complex<PRECISION_TYPE>* msg =
 				&localStatesAmplitudesToSend[targetNode][0];
