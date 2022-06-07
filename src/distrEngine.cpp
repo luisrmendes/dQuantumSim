@@ -25,18 +25,18 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 
 	/**
 	 * Restructure statesOOB into vector(node => {localIndex, ampl})
-	 * vector index points to the target node
+	 * Vector index points to the target node
 	 */
 	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
-		uint64_t state = get<0>(statesAndAmplitudesOOB[i]);
-		complex<PRECISION_TYPE> amplitude = get<1>(statesAndAmplitudesOOB[i]);
+		uint64_t* state = &get<0>(statesAndAmplitudesOOB[i]);
+		complex<PRECISION_TYPE>* amplitude = &get<1>(statesAndAmplitudesOOB[i]);
 
-		int node = getNodeOfState(state);
-		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(state, node);
+		int node = getNodeOfState(*state);
+		uint64_t nodeLocalIndex = getLocalIndexFromGlobalState(*state, node);
 
 		localStatesAmplitudesToSend[node].push_back(
 			complex<PRECISION_TYPE>(nodeLocalIndex));
-		localStatesAmplitudesToSend[node].push_back(amplitude);
+		localStatesAmplitudesToSend[node].push_back(*amplitude);
 	}
 
 	/**
@@ -51,14 +51,14 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 			complex<PRECISION_TYPE> end = -1;
 			MPI_Isend(
-				&end, 1, MPI_DOUBLE_COMPLEX, targetNode, 0, MPI_COMM_WORLD, &req);
+				&end, 1 * 8 * 2, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
 		} else {
 			complex<PRECISION_TYPE>* msg =
 				&localStatesAmplitudesToSend[targetNode][0];
 
 			MPI_Isend(msg,
-					  localStatesAmplitudesToSend[targetNode].size(),
-					  MPI_DOUBLE_COMPLEX,
+					  localStatesAmplitudesToSend[targetNode].size() * 8 * 2,
+					  MPI_BYTE,
 					  targetNode,
 					  localStatesAmplitudesToSend[targetNode].size(),
 					  MPI_COMM_WORLD,
@@ -68,8 +68,8 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 
 	auto syncReceive = [&](int targetNode) {
 		MPI_Recv(&recvBuffer,
-				 MPI_RECV_BUFFER_SIZE,
-				 MPI_DOUBLE_COMPLEX,
+				 MPI_RECV_BUFFER_SIZE * 8 * 2,
+				 MPI_BYTE,
 				 targetNode,
 				 MPI_ANY_TAG,
 				 MPI_COMM_WORLD,
@@ -96,7 +96,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	return receivedOperations;
 }
 
-int getNodeOfState(uint64_t state)
+int getNodeOfState(const uint64_t& state)
 {
 	size_t i = 0;
 	while(i < ::layerLimits.size()) {

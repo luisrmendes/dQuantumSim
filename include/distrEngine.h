@@ -15,7 +15,7 @@ extern std::vector<uint64_t> layerLimits;
  * @param state 
  * @returns The node that contains the state
  */
-int getNodeOfState(uint64_t state);
+int getNodeOfState(const uint64_t& state);
 
 /**
  * WARN: 3 qubits (vector size 16) +4 processes  
