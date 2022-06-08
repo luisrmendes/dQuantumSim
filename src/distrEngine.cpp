@@ -47,7 +47,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	MPI_Request req;
 	MPI_Status status;
 
-	auto asyncSend = [&](int targetNode) {
+	auto nonBlockingSend = [&](int targetNode) {
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 			bool end = -1;
 			MPI_Isend(
@@ -66,7 +66,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		}
 	};
 
-	auto syncReceive = [&](int targetNode) {
+	auto blockingReceive = [&](int targetNode) {
 		MPI_Recv(&recvBuffer,
 				 MPI_RECV_BUFFER_SIZE * 8 * 2,
 				 MPI_BYTE,
@@ -85,8 +85,8 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	for(int targetNode = 0; targetNode < ::size; targetNode++) {
 		if(targetNode == ::rank)
 			continue;
-		asyncSend(targetNode);
-		syncReceive(targetNode);
+		nonBlockingSend(targetNode);
+		blockingReceive(targetNode);
 		MPI_Wait(&req, &status);
 	}
 
