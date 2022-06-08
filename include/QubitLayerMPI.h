@@ -19,16 +19,16 @@ class QubitLayerMPI
 	unsigned int numQubits;
 
   public:
-	uint64_t globalStartIndex;
-	uint64_t globalEndIndex;
+	uint64_t globalLowerBound;
+	uint64_t globalUpperBound;
 	/**
 	 * Initializes state vector with (0,0)
 	 * @param numQubits Number of qubits 
 	 */
 	QubitLayerMPI(unsigned int numQubits);
 	qubitLayer& getStates() { return this->states; }
-	uint64_t getGlobalStartIndex() { return this->globalStartIndex; }
-	uint64_t getGlobalEndIndex() { return this->globalEndIndex; }
+	uint64_t getGlobalStartIndex() { return this->globalLowerBound; }
+	uint64_t getGlobalEndIndex() { return this->globalUpperBound; }
 
 	void setStates(qubitLayer states) { this->states = states; }
 	void clearStates()
