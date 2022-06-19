@@ -2,7 +2,6 @@
 #include "_macros.h"
 #include "consoleUtils.h"
 #include "debug.h"
-#include "dynamic_bitset.h"
 #include "flags.h"
 #include "mpi.h"
 #include "utilsMPI.h"

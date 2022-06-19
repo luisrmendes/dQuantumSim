@@ -63,7 +63,7 @@ class QubitLayerMPI
 	 */
 	bool checkZeroState(size_t i);
 
-	void measureQubits(std::vector<uint64_t> layerLimits, PRECISION_TYPE* result);
+	void measureQubits(PRECISION_TYPE* result);
 
 	/**
 	 * Checks if state is Out Of Bounds of the state layer

@@ -3,7 +3,6 @@
 #include "_utils.h"
 #include "debug.h"
 #include "distrEngine.h"
-#include "dynamic_bitset.h"
 #include "flags.h"
 #include "mpi.h"
 #include "utilsMPI.h"
@@ -55,8 +54,7 @@ void QubitLayerMPI::calculateStateProbabilities()
 	}
 }
 
-void QubitLayerMPI::measureQubits(vector<uint64_t> layerLimits,
-								  PRECISION_TYPE* results)
+void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 {
 	uint64_t localStartIndex;
 	if(::rank == 0)

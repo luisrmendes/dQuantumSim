@@ -1,12 +1,12 @@
 CXX = mpicxx
-CXXFLAGS = -std=c++17 -Wall -pedantic -m64 -c -pipe -O3
+CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -m64 -c -pipe -O3
 PROJ_NAME = simulator
 
 OBJS_DIR := obj
 SRCS_DIR := src
 INC_DIR := include
 SRCS_FILES := $(SRCS_DIR)/main.cpp $(SRCS_DIR)/QubitLayerMPI.cpp \
-$(SRCS_DIR)/_utils.cpp $(SRCS_DIR)/parser.cpp $(SRCS_DIR)/dynamic_bitset.cpp \
+$(SRCS_DIR)/_utils.cpp $(SRCS_DIR)/parser.cpp \
 $(SRCS_DIR)/utilsMPI.cpp $(SRCS_DIR)/distrEngine.cpp $(SRCS_DIR)/consoleUtils.cpp 
 
 OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
