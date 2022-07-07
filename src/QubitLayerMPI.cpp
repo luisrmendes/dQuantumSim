@@ -270,7 +270,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 	appendDebugLog("--- HADAMARD ---\n\n");
 #endif
 	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
-	constexpr PRECISION_TYPE hadamard_const = 0.7071067811865475244008;
+	static const PRECISION_TYPE hadamard_const = 1 / sqrt(2);
 
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 

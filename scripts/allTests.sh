@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd ~/work/bolsa-prace/quantum-simulator-sandbox
-make clean && make
+make clean && make -j 8
 
 # 3 qubit tests
 python3 scripts/test.py myqasmTests/q3_grovers.myqasm 3 "100 100 0"

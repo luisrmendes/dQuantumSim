@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
 		cout << "Results: \n";
 		for(size_t i = 0; i < instructions[0]; i++) {
 			cout << "Qubit " << i + 1 << " -> " << gatheredResults[i] * 100
-				 << "% chance of being ON\n";
+				 << "% chance of being |1>\n";
 		}
 	}
 
