@@ -331,9 +331,12 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 			}
 		};
 
+	/** 
+	 * TODO: experimentar meter esta operação num único loop
+	 */
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
-			this->states[2 * i + 1] = localConst * this->states[2 * i];
+			this->states[2 * i + 1] += localConst * this->states[2 * i];
 		}
 	}
 
@@ -350,18 +353,9 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
-				this->states[2 * localIndex + 1] =
+				this->states[2 * localIndex + 1] +=
 					remoteConst * this->states[2 * i];
 			} else {
-				// #ifdef HADAMARD_DEBUG_LOGS
-				// 				dynamic_bitset state2 = state;
-				// 				appendDebugLog("Hadamard: State |",
-				// 							   state2.printBitset(),
-				// 							   "> ",
-				// 							   state,
-				// 							   " out of bounds!\n");
-				// #endif
-				// pair (state, intended_value)
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
 		}
@@ -371,6 +365,7 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 
 	updateStates();
 }
+
 
 void QubitLayerMPI::hadamard(int targetQubit)
 {

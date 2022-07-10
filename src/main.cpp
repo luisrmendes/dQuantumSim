@@ -100,6 +100,7 @@ int main(int argc, char* argv[])
 	// qL.rotationX(0, 30);
 	qL.sqrtPauliX(0);
 	qL.sqrtPauliX(1);
+	qL.sqrtPauliX(0);
 
 	for(size_t i = 0; i < qL.getStates().size(); i+=2)
 		cout << qL.getStates()[i] << " ";
