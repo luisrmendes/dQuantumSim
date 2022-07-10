@@ -323,7 +323,7 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 	static const complex<PRECISION_TYPE> localConst = {halfConst, halfConst};
 	static const complex<PRECISION_TYPE> remoteConst = {halfConst, -halfConst};
 
-	auto applyReceivedOpsRotationX =
+	auto applyReceivedOpsSqrtPauliX =
 		[&](const vector<complex<PRECISION_TYPE>>& receivedOps) {
 			for(size_t i = 0; i < receivedOps.size(); i += 2) {
 				this->states[2 * receivedOps[i].real() + 1] +=
@@ -343,7 +343,7 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 	size_t limit = LOCKSTEP_THRESHOLD;
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(i == limit) {
-			manageDistr(statesOOB, applyReceivedOpsRotationX);
+			manageDistr(statesOOB, applyReceivedOpsSqrtPauliX);
 			statesOOB.clear();
 			limit += LOCKSTEP_THRESHOLD;
 		}
@@ -361,11 +361,69 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 		}
 	}
 
-	manageDistr(statesOOB, applyReceivedOpsRotationX);
+	manageDistr(statesOOB, applyReceivedOpsSqrtPauliX);
 
 	updateStates();
 }
 
+void QubitLayerMPI::sqrtPauliY(int targetQubit)
+{
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+
+	static const PRECISION_TYPE halfConst = (PRECISION_TYPE) 1 / (PRECISION_TYPE) 2;
+	static const complex<PRECISION_TYPE> auxConst1 = {halfConst, halfConst};
+	static const complex<PRECISION_TYPE> auxConst2 = {-halfConst, -halfConst};
+
+	auto applyReceivedOpsSqrtPauliY =
+		[&](const vector<complex<PRECISION_TYPE>>& receivedOps) {
+			for(size_t i = 0; i < receivedOps.size(); i += 2) {
+				uint64_t state = this->globalLowerBound + receivedOps[i].real();
+
+				(state & MASK(targetQubit))
+					? this->states[2 * receivedOps[i].real() + 1] +=
+					auxConst1 * receivedOps[i + 1]
+					: this->states[2 * receivedOps[i].real() + 1] +=
+					auxConst2 * receivedOps[i + 1];
+			}
+		};
+
+	/** 
+	 * TODO: experimentar meter esta operação num único loop
+	 */
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			this->states[2 * i + 1] += auxConst1 * this->states[2 * i];
+		}
+	}
+
+	size_t limit = LOCKSTEP_THRESHOLD;
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsSqrtPauliY);
+			statesOOB.clear();
+			limit += LOCKSTEP_THRESHOLD;
+		}
+		if(checkZeroState(i)) {
+			uint64_t state = this->globalLowerBound + i;
+			state = state ^ MASK(targetQubit);
+
+			if(!checkStateOOB(state)) {
+				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				(state & MASK(targetQubit))
+					? this->states[2 * localIndex + 1] +=
+					auxConst1 * this->states[2 * i]
+					: this->states[2 * localIndex + 1] +=
+					auxConst2 * this->states[2 * i];
+			} else {
+				statesOOB.push_back({state, this->states[2 * i]});
+			}
+		}
+	}
+
+	manageDistr(statesOOB, applyReceivedOpsSqrtPauliY);
+
+	updateStates();
+}
 
 void QubitLayerMPI::hadamard(int targetQubit)
 {

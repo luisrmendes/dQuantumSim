@@ -47,6 +47,7 @@ class QubitLayerMPI
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
 	void rotationX(int targetQubit, double angle);
 	void sqrtPauliX(int targetQubit);
+	void sqrtPauliY(int targetQubit);
 
 
 	/**

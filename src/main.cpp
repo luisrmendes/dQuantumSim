@@ -98,9 +98,13 @@ int main(int argc, char* argv[])
 	cout << endl;
 	
 	// qL.rotationX(0, 30);
-	qL.sqrtPauliX(0);
+	qL.sqrtPauliY(0);
+	qL.sqrtPauliY(1);
+	qL.sqrtPauliY(0);
 	qL.sqrtPauliX(1);
 	qL.sqrtPauliX(0);
+	qL.hadamard(0);
+	qL.hadamard(1);
 
 	for(size_t i = 0; i < qL.getStates().size(); i+=2)
 		cout << qL.getStates()[i] << " ";
