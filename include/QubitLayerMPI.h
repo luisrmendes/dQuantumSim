@@ -45,6 +45,9 @@ class QubitLayerMPI
 	void controlledZ(int controlQubit, int targetQubit);
 	void controlledX(int controlQubit, int targetQubit);
 	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
+	void rotationX(int targetQubit, double angle);
+	void sqrtPauliX(int targetQubit);
+
 
 	/**
 	 * Prints the state layer vector with the adequate format

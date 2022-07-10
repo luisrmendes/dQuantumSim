@@ -264,6 +264,114 @@ void QubitLayerMPI::controlledZ(int controlQubit, int targetQubit)
 	updateStates();
 }
 
+void QubitLayerMPI::rotationX(int targetQubit, double angle)
+{
+	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
+	PRECISION_TYPE rotationX_const1 = cos(angle);
+	complex<PRECISION_TYPE> rotationX_const2 = -1i * sin(angle);
+
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+
+	auto applyReceivedOpsRotationX =
+		[&](const vector<complex<PRECISION_TYPE>>& receivedOps) {
+			for(size_t i = 0; i < receivedOps.size(); i += 2) {
+				this->states[2 * receivedOps[i].real() + 1] +=
+					rotationX_const2 * receivedOps[i + 1];
+			}
+		};
+
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			uint64_t state = this->globalLowerBound + i;
+			(state & MASK(targetQubit))
+				? this->states[2 * i + 1] -= rotationX_const1 * this->states[2 * i]
+				: this->states[2 * i + 1] += rotationX_const1 * this->states[2 * i];
+		}
+	}
+
+	size_t limit = LOCKSTEP_THRESHOLD;
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsRotationX);
+			statesOOB.clear();
+			limit += LOCKSTEP_THRESHOLD;
+		}
+		if(checkZeroState(i)) {
+			uint64_t state = this->globalLowerBound + i;
+			state = state ^ MASK(targetQubit);
+
+			if(!checkStateOOB(state)) {
+				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				this->states[2 * localIndex + 1] +=
+					rotationX_const2 * this->states[2 * i];
+			} else {
+				statesOOB.push_back({state, this->states[2 * i]});
+			}
+		}
+	}
+
+	manageDistr(statesOOB, applyReceivedOpsRotationX);
+
+	updateStates();
+}
+
+void QubitLayerMPI::sqrtPauliX(int targetQubit)
+{
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
+
+	static const PRECISION_TYPE halfConst = (PRECISION_TYPE) 1 / (PRECISION_TYPE) 2;
+	static const complex<PRECISION_TYPE> localConst = {halfConst, halfConst};
+	static const complex<PRECISION_TYPE> remoteConst = {halfConst, -halfConst};
+
+	auto applyReceivedOpsRotationX =
+		[&](const vector<complex<PRECISION_TYPE>>& receivedOps) {
+			for(size_t i = 0; i < receivedOps.size(); i += 2) {
+				this->states[2 * receivedOps[i].real() + 1] +=
+					remoteConst * receivedOps[i + 1];
+			}
+		};
+
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			this->states[2 * i + 1] = localConst * this->states[2 * i];
+		}
+	}
+
+	size_t limit = LOCKSTEP_THRESHOLD;
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(i == limit) {
+			manageDistr(statesOOB, applyReceivedOpsRotationX);
+			statesOOB.clear();
+			limit += LOCKSTEP_THRESHOLD;
+		}
+		if(checkZeroState(i)) {
+			uint64_t state = this->globalLowerBound + i;
+			state = state ^ MASK(targetQubit);
+
+			if(!checkStateOOB(state)) {
+				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				this->states[2 * localIndex + 1] =
+					remoteConst * this->states[2 * i];
+			} else {
+				// #ifdef HADAMARD_DEBUG_LOGS
+				// 				dynamic_bitset state2 = state;
+				// 				appendDebugLog("Hadamard: State |",
+				// 							   state2.printBitset(),
+				// 							   "> ",
+				// 							   state,
+				// 							   " out of bounds!\n");
+				// #endif
+				// pair (state, intended_value)
+				statesOOB.push_back({state, this->states[2 * i]});
+			}
+		}
+	}
+
+	manageDistr(statesOOB, applyReceivedOpsRotationX);
+
+	updateStates();
+}
+
 void QubitLayerMPI::hadamard(int targetQubit)
 {
 #ifdef HADAMARD_DEBUG_LOGS
