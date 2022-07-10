@@ -425,6 +425,23 @@ void QubitLayerMPI::sqrtPauliY(int targetQubit)
 	updateStates();
 }
 
+void QubitLayerMPI::sqrtPauliZ(int targetQubit)
+{
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			uint64_t state = this->globalLowerBound + i;
+
+			state & MASK(targetQubit) ? this->states[2 * i + 1] = 1i * this->states[2 * i]
+									 : this->states[2 * i + 1] = this->states[2 * i];
+
+#ifdef PAULIZ_DEBUG_LOGS
+			appendDebugLog("State vector before update: ", getStateVector());
+#endif
+		}
+	}
+	updateStates();
+}
+
 void QubitLayerMPI::hadamard(int targetQubit)
 {
 #ifdef HADAMARD_DEBUG_LOGS

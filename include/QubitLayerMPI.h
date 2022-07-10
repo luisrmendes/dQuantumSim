@@ -48,6 +48,7 @@ class QubitLayerMPI
 	void rotationX(int targetQubit, double angle);
 	void sqrtPauliX(int targetQubit);
 	void sqrtPauliY(int targetQubit);
+	void sqrtPauliZ(int targetQubit);
 
 
 	/**
