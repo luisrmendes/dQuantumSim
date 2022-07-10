@@ -103,6 +103,8 @@ int main(int argc, char* argv[])
 	qL.sqrtPauliZ(0);
 	qL.sqrtPauliX(0);
 	qL.sqrtPauliY(1);
+	qL.tGate(0);
+	qL.tGate(1);
 
 	for(size_t i = 0; i < qL.getStates().size(); i+=2)
 		cout << qL.getStates()[i] << " ";

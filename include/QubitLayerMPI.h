@@ -49,6 +49,7 @@ class QubitLayerMPI
 	void sqrtPauliX(int targetQubit);
 	void sqrtPauliY(int targetQubit);
 	void sqrtPauliZ(int targetQubit);
+	void tGate(int targetQubit);
 
 
 	/**

@@ -7,6 +7,7 @@
 #include "mpi.h"
 #include "utilsMPI.h"
 #include <array>
+#include <cmath>
 #include <functional>
 #include <future>
 
@@ -319,7 +320,7 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 {
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
-	static const PRECISION_TYPE halfConst = (PRECISION_TYPE) 1 / (PRECISION_TYPE) 2;
+	static const PRECISION_TYPE halfConst = (PRECISION_TYPE)1 / (PRECISION_TYPE)2;
 	static const complex<PRECISION_TYPE> localConst = {halfConst, halfConst};
 	static const complex<PRECISION_TYPE> remoteConst = {halfConst, -halfConst};
 
@@ -370,7 +371,7 @@ void QubitLayerMPI::sqrtPauliY(int targetQubit)
 {
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
-	static const PRECISION_TYPE halfConst = (PRECISION_TYPE) 1 / (PRECISION_TYPE) 2;
+	static const PRECISION_TYPE halfConst = (PRECISION_TYPE)1 / (PRECISION_TYPE)2;
 	static const complex<PRECISION_TYPE> auxConst1 = {halfConst, halfConst};
 	static const complex<PRECISION_TYPE> auxConst2 = {-halfConst, -halfConst};
 
@@ -381,9 +382,9 @@ void QubitLayerMPI::sqrtPauliY(int targetQubit)
 
 				(state & MASK(targetQubit))
 					? this->states[2 * receivedOps[i].real() + 1] +=
-					auxConst1 * receivedOps[i + 1]
+					  auxConst1 * receivedOps[i + 1]
 					: this->states[2 * receivedOps[i].real() + 1] +=
-					auxConst2 * receivedOps[i + 1];
+					  auxConst2 * receivedOps[i + 1];
 			}
 		};
 
@@ -409,11 +410,10 @@ void QubitLayerMPI::sqrtPauliY(int targetQubit)
 
 			if(!checkStateOOB(state)) {
 				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
-				(state & MASK(targetQubit))
-					? this->states[2 * localIndex + 1] +=
-					auxConst1 * this->states[2 * i]
-					: this->states[2 * localIndex + 1] +=
-					auxConst2 * this->states[2 * i];
+				(state & MASK(targetQubit)) ? this->states[2 * localIndex + 1] +=
+											  auxConst1 * this->states[2 * i]
+											: this->states[2 * localIndex + 1] +=
+											  auxConst2 * this->states[2 * i];
 			} else {
 				statesOOB.push_back({state, this->states[2 * i]});
 			}
@@ -431,12 +431,26 @@ void QubitLayerMPI::sqrtPauliZ(int targetQubit)
 		if(checkZeroState(i)) {
 			uint64_t state = this->globalLowerBound + i;
 
-			state & MASK(targetQubit) ? this->states[2 * i + 1] = 1i * this->states[2 * i]
-									 : this->states[2 * i + 1] = this->states[2 * i];
+			state& MASK(targetQubit)
+				? this->states[2 * i + 1] = 1i * this->states[2 * i]
+				: this->states[2 * i + 1] = this->states[2 * i];
+		}
+	}
+	updateStates();
+}
 
-#ifdef PAULIZ_DEBUG_LOGS
-			appendDebugLog("State vector before update: ", getStateVector());
-#endif
+void QubitLayerMPI::tGate(int targetQubit)
+{
+	static const complex<PRECISION_TYPE> tConst =
+		exp((1i * (PRECISION_TYPE)M_PI) / (PRECISION_TYPE)4);
+
+	for(size_t i = 0; i < this->states.size() / 2; i++) {
+		if(checkZeroState(i)) {
+			uint64_t state = this->globalLowerBound + i;
+
+			state& MASK(targetQubit)
+				? this->states[2 * i + 1] = tConst * this->states[2 * i]
+				: this->states[2 * i + 1] = this->states[2 * i];
 		}
 	}
 	updateStates();
