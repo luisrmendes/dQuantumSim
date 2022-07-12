@@ -7,14 +7,10 @@
 #include "mpi.h"
 #include "parser.h"
 #include "utilsMPI.h"
+#include <array>
 #include <complex>
 #include <filesystem>
 #include <iostream>
-#include <unistd.h>
-#include "_macros.h"
-#include <algorithm>
-#include <array>
-#include <set>
 #include <unistd.h>
 
 int rank, size;
@@ -104,7 +100,8 @@ int main(int argc, char* argv[])
 	appendDebugLog("Rank ", ::rank, " layerLimits: ", layerLimits[::rank], "\n");
 	appendDebugLog(
 		"Rank ", ::rank, " globalStartIndex: ", qL.getGlobalStartIndex(), "\n");
-	appendDebugLog("Rank ", ::rank, " globalEndIndex: ", qL.getGlobalEndIndex(), "\n");
+	appendDebugLog(
+		"Rank ", ::rank, " globalEndIndex: ", qL.getGlobalEndIndex(), "\n");
 	appendDebugLog("\n--- STATE_VECTOR_INFO ---\n\n");
 #endif
 
@@ -127,45 +124,54 @@ int main(int argc, char* argv[])
 		case 1:
 			qL.pauliX(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 2:
 			qL.pauliY(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 3:
 			qL.pauliZ(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 4:
 			qL.hadamard(instructions[i + 1]);
 			i += 1;
-			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 5:
 			qL.controlledX(instructions[i + 1], instructions[i + 2]);
 			i += 2;
-			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 6:
 			qL.controlledZ(instructions[i + 1], instructions[i + 2]);
 			i += 2;
-			MPI_Barrier(MPI_COMM_WORLD);
 			break;
 		case 7:
 			qL.toffoli(
 				instructions[i + 1], instructions[i + 2], instructions[i + 3]);
 			i += 3;
-			MPI_Barrier(MPI_COMM_WORLD);
+			break;
+		case 8:
+			qL.sqrtPauliX(instructions[i + 1]);
+			i += 1;
+			break;
+		case 9:
+			qL.sqrtPauliY(instructions[i + 1]);
+			i += 1;
+			break;
+		case 10:
+			qL.sGate(instructions[i + 1]);
+			i += 1;
+			break;
+		case 11:
+			qL.tGate(instructions[i + 1]);
+			i += 1;
 			break;
 		default:
 			cerr << "Unrecognized operation " << instructions[i] << endl;
 			exit(EXIT_FAILURE);
 		}
+		MPI_Barrier(MPI_COMM_WORLD);
 	}
-
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -184,7 +190,7 @@ int main(int argc, char* argv[])
 
 	if(::rank == 0)
 		cout << printBold("Gathering all results...\n\n");
-	
+
 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults;
 	gatheredResults = gatherResultsMPI(instructions[0], results);
 

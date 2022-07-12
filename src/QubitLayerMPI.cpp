@@ -6,10 +6,7 @@
 #include "flags.h"
 #include "mpi.h"
 #include "utilsMPI.h"
-#include <array>
 #include <cmath>
-#include <functional>
-#include <future>
 
 #define MASK(N) (0x1ull << N)
 
@@ -425,7 +422,7 @@ void QubitLayerMPI::sqrtPauliY(int targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::sqrtPauliZ(int targetQubit)
+void QubitLayerMPI::sGate(int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {

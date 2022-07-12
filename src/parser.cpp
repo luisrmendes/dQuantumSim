@@ -20,6 +20,14 @@ unsigned int getCodeOfInstruction(std::string line)
 		return 6;
 	if(line == "toffoli")
 		return 7;
+	if(line == "sqrtX")
+		return 8;
+	if(line == "sqrtY")
+		return 9;
+	if(line == "s")
+		return 10;
+	if(line == "t")
+		return 11;
 	else
 		return -1;
 }
@@ -27,7 +35,8 @@ unsigned int getCodeOfInstruction(std::string line)
 int checkValidInstruction(std::string line)
 {
 	if(line == "pauliX" || line == "pauliY" || line == "pauliZ" ||
-	   line == "hadamard") {
+	   line == "hadamard" || line == "sqrtX" || line == "sqrtY" || line == "s" ||
+	   line == "t") {
 		return 1;
 	} else if(line == "controlledX" || line == "controlledZ") {
 		return 2;
