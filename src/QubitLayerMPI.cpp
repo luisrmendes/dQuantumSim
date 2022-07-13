@@ -84,9 +84,6 @@ void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 
 	// decide if multithreading of singlethreading
 
-	if(::rank == 0)
-		cout << "\tSingle Threaded\n\n";
-
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		if(this->states[i] == 0i) {
 			localStartIndex += 1;

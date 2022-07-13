@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 	qL.calculateStateProbabilities();
 
 	if(::rank == 0)
-		cout << printBold("Calculate qubit probabilities...\n");
+		cout << printBold("Calculate qubit probabilities...\n\n");
 
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
 	qL.measureQubits(results);
