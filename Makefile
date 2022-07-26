@@ -1,32 +1,29 @@
-CXX = mpicxx
-CXXFLAGS = -std=c++17 -Wall -Wextra -pedantic -m64 -c -pipe -O0
-PROJ_NAME = simulator
+PROG := dqsim
+IDIR := include
+SDIR := src
+ODIR := obj
 
-OBJS_DIR := obj
-SRCS_DIR := src
-INC_DIR := include
-SRCS_FILES := $(SRCS_DIR)/main.cpp $(SRCS_DIR)/QubitLayerMPI.cpp \
-$(SRCS_DIR)/_utils.cpp $(SRCS_DIR)/parser.cpp \
-$(SRCS_DIR)/utilsMPI.cpp $(SRCS_DIR)/distrEngine.cpp $(SRCS_DIR)/consoleUtils.cpp 
+CC := mpicxx
+CPPFLAGS := -I$(IDIR) -std=c++17 -Wall \
+-Wextra -pedantic -m64 -pipe -O3
+LDFLAGS := 
 
-OBJS_FILES = $(patsubst $(SRCS_DIR)/%.cpp,$(OBJS_DIR)/%.o,$(SRCS_FILES))
+DEPS := $(wildcard $(IDIR)/*.h)
 
-.PHONY: all clean test
+_SRC := $(wildcard $(SDIR)/*.cpp)
+_OBJ := $(_SRC:.cpp=.o)
+OBJ := $(subst $(SDIR),$(ODIR),$(_OBJ))
 
-all: simulator
+$(PROG): $(OBJ)
+	$(CC) -o $@ $^ $(CPPFLAGS) $(LDFLAGS) $(TARGETS)
 
-simulator: $(OBJS_FILES)
-	$(CXX) $(OBJS_FILES) $(LDFLAGS) -o $@
+$(OBJ): $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
+	$(CC) -c -o $@ $< $(CPPFLAGS) $(LDFLAGS) $(TARGETS)
 
-
-$(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp
-	@mkdir -p obj
-	$(CXX) $(CXXFLAGS) -I$(INC_DIR) $< -o $@
-
-test:
-	@echo "SRC FILES = '$(SRCS_FILES)'"
-	@echo "OBJ FILES = '$(OBJS_FILES)'"
+.PHONY: clean
 
 clean:
-	rm -f $(OBJS_DIR)/*.o
-	rm -f simulator
+	rm -rf $(ODIR)
+	rm -f $(PROG)
+
+$(info $(shell mkdir -p $(ODIR)))

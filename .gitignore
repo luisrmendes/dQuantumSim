@@ -1,5 +1,4 @@
-simulator
-mpi_sim
+dqsim
 logs/
 obj/
 quantum.targz
