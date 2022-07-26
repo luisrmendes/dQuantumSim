@@ -1,7 +1,7 @@
-#ifndef DISTRENGINE_H
-#define DISTRENGINE_H
+#ifndef DISTRENGINE_HPP
+#define DISTRENGINE_HPP
 
-#include "_macros.h"
+#include "constants.hpp"
 #include <complex>
 #include <vector>
 

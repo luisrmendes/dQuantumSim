@@ -1,11 +1,11 @@
-#include "QubitLayerMPI.h"
-#include "_macros.h"
-#include "_utils.h"
-#include "debug.h"
-#include "distrEngine.h"
-#include "flags.h"
+#include "QubitLayerMPI.hpp"
+#include "constants.hpp"
+#include "_utils.hpp"
+#include "debug.hpp"
+#include "distrEngine.hpp"
+#include "debugLogFlags.hpp"
 #include "mpi.h"
-#include "utilsMPI.h"
+#include "utilsMPI.hpp"
 #include <cmath>
 
 #define MASK(N) (0x1ull << N)

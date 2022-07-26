@@ -1,13 +1,9 @@
-#ifndef _UTILS_H
-#define _UTILS_H
+#ifndef _UTILS_HPP
+#define _UTILS_HPP
 
-#include "_macros.h"
-#include <complex>
-#include <sstream>
+#include "constants.hpp"
+#include <cstdint>
 #include <vector>
-
-std::stringstream
-getFormattedQubitLayer(std::vector<std::complex<PRECISION_TYPE>> states);
 
 /**
  * WARN: 3 qubits (vector size 16) +4 processes  
@@ -17,7 +13,7 @@ getFormattedQubitLayer(std::vector<std::complex<PRECISION_TYPE>> states);
  * @param nodeCount Number of nodes running in the mpi environment
  * @returns Size of the layer for each node ordered by node rank
  */
-std::vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount);
+std::vector<std::size_t> calculateLayerAlloc(int qubitCount, int nodeCount);
 
 /**
  * Returns a vector with the start global index for each node/process.
@@ -26,6 +22,6 @@ std::vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount);
  * @param layerAllocs Vector containing the vector layer size for each node
  * @returns Vector of dynamic_bitsets
  */
-std::vector<uint64_t> calculateLayerLimits(std::vector<size_t> layerAllocs);
+std::vector<uint64_t> calculateLayerLimits(std::vector<std::size_t> layerAllocs);
 
 #endif

@@ -1,12 +1,12 @@
-#include "QubitLayerMPI.h"
-#include "_macros.h"
-#include "_utils.h"
-#include "consoleUtils.h"
-#include "debug.h"
-#include "flags.h"
+#include "QubitLayerMPI.hpp"
+#include "_utils.hpp"
+#include "consoleUtils.hpp"
+#include "constants.hpp"
+#include "debug.hpp"
+#include "debugLogFlags.hpp"
 #include "mpi.h"
-#include "parser.h"
-#include "utilsMPI.h"
+#include "parser.hpp"
+#include "utilsMPI.hpp"
 #include <array>
 #include <complex>
 #include <filesystem>
@@ -16,14 +16,6 @@
 int rank, size;
 std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
 std::vector<uint64_t> layerLimits; // layer limits per node
-
-// struct Com_D_Cmp {
-// 	constexpr bool operator()(const std::complex<double>& lhs,
-// 							  const std::complex<double>& rhs) const
-// 	{
-// 		return ((lhs.real() < rhs.real()) || lhs.imag() < rhs.imag());
-// 	}
-// };
 
 using namespace std;
 

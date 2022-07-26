@@ -1,9 +1,8 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+#ifndef DEBUG_HPP
+#define DEBUG_HPP
 
 #include <fstream>
 #include <iostream>
-#include <sstream>
 
 extern int rank;
 extern int size;

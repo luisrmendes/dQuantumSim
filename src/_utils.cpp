@@ -1,5 +1,6 @@
-#include "_utils.h"
-#include "_macros.h"
+#include "_utils.hpp"
+#include "constants.hpp"
+#include <cmath>
 #include <iostream>
 #include <limits>
 
@@ -16,20 +17,6 @@ vector<uint64_t> calculateLayerLimits(vector<size_t> layerAllocs)
 	}
 
 	return layerLimits;
-}
-
-stringstream getFormattedQubitLayer(vector<complex<PRECISION_TYPE>> states)
-{
-	stringstream result;
-	for(size_t i = 0; i < states.size(); i++) {
-		result << states[i];
-
-		if(i % 2 == 1)
-			result << " | ";
-	}
-	result << "\n\n";
-
-	return result;
 }
 
 vector<size_t> calculateLayerAlloc(int qubitCount, int nodeCount)

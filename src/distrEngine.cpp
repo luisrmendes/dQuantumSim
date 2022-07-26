@@ -1,10 +1,10 @@
-#include "distrEngine.h"
-#include "_macros.h"
-#include "consoleUtils.h"
-#include "debug.h"
-#include "flags.h"
+#include "distrEngine.hpp"
+#include "constants.hpp"
+#include "consoleUtils.hpp"
+#include "debug.hpp"
+#include "debugLogFlags.hpp"
 #include "mpi.h"
-#include "utilsMPI.h"
+#include "utilsMPI.hpp"
 #include <algorithm>
 #include <map>
 #include <utility>

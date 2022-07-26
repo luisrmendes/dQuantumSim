@@ -1,3 +1,6 @@
+#ifndef LOGFLAGS_HPP
+#define LOGFLAGS_HPP
+
 /**
  * Flags de ficheiros log
  */
@@ -27,3 +30,5 @@
 		RECEIVE_STATES_OOB || DISTR_STATES_OOB
 
 */
+
+#endif

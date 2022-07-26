@@ -1,5 +1,5 @@
-#ifndef CONSOLEUTILS_H
-#define CONSOLEUTILS_H
+#ifndef CONSOLEUTILS_HPP
+#define CONSOLEUTILS_HPP
 
 #include <string>
 

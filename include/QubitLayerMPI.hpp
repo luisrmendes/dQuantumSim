@@ -1,7 +1,7 @@
-#ifndef QUBITLAYERMPI_H
-#define QUBITLAYERMPI_H
+#ifndef QUBITLAYERMPI_HPP
+#define QUBITLAYERMPI_HPP
 
-#include "_macros.h"
+#include "constants.hpp"
 #include <complex>
 #include <functional>
 #include <vector>
