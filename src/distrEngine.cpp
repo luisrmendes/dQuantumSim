@@ -1,6 +1,6 @@
 #include "distrEngine.hpp"
-#include "constants.hpp"
 #include "consoleUtils.hpp"
+#include "constants.hpp"
 #include "debug.hpp"
 #include "debugLogFlags.hpp"
 #include "mpi.h"
@@ -49,8 +49,7 @@ vector<complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 	auto nonBlockingSend = [&](int targetNode) {
 		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
 			bool end = -1;
-			MPI_Isend(
-				&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
+			MPI_Isend(&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
 		} else {
 			complex<PRECISION_TYPE>* msg =
 				&localStatesAmplitudesToSend[targetNode][0];

@@ -22,23 +22,16 @@ using namespace std;
 int main(int argc, char* argv[])
 {
 	if(argc != 2) {
-		cerr << "Usage: ./simulator <file_name>" << endl << endl;
+		cerr << "Usage: ./dqsim <file_name>" << endl << endl;
 		exit(EXIT_FAILURE);
 	}
 
-	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &::size);
-
-	if(::rank == 0) {
-		cout << "\n\n";
-		cout << printBold("      ▓▓  ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
-		cout << printBold("      ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
-		cout << printBold("  ▓▓▓▓▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
-		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓       ▓▓   ▓▓   ▓▓  ▓▓▓  ▓▓ ") << endl;
-		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
-		cout << printBold("             ▓▓                               ") << endl;
-	}
+	/*
+		INITIALISE PHASE
+			- create debug logs
+			- initialise MPI
+			- Output useful information
+	*/
 
 #ifdef OUTPUT_LOGS
 	if(::rank == 0) {
@@ -49,15 +42,33 @@ int main(int argc, char* argv[])
 	appendDebugLog("\n--------------- Node ", ::rank, " logs --------------- \n\n");
 #endif
 
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &::size);
+
+	/*
+		PARSE INSTRUCTIONS
+			- distribute if necessary
+	*/
 	vector<unsigned int> instructions = sourceParser(argv[1]);
-	instructions = instructionsHandlerMPI(instructions);
+	unsigned int numQubits = instructions[0];
+	// Enable if MPI setup does not share environment across nodes
+	// instructions = instructionsHandlerMPI(instructions);
 
 	if(::rank == 0) {
+		cout << "\n\n";
+		cout << printBold("      ▓▓  ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("      ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
+		cout << printBold("  ▓▓▓▓▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
+		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓       ▓▓   ▓▓   ▓▓  ▓▓▓  ▓▓ ") << endl;
+		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("             ▓▓                               ") << endl;
+
 		long pages = sysconf(_SC_PHYS_PAGES);
 		long page_size = sysconf(_SC_PAGE_SIZE);
 		double system_memory = ((pages * page_size) * pow(10, -9)) / 1.073741824;
 		double expected_distributed_memory =
-			2 * 2 * sizeof(PRECISION_TYPE) * pow(2, instructions[0]) * pow(10, -9);
+			2 * 2 * sizeof(PRECISION_TYPE) * pow(2, numQubits) * pow(10, -9);
 
 		cout << "\nAvaliable System Memory: \n\t~" << system_memory << " GB \n\n";
 		if(expected_distributed_memory > system_memory) {
@@ -71,42 +82,29 @@ int main(int argc, char* argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
+	/*
+		INITIALISE QUBIT REGISTER
+			- create debug logs
+			- initialise MPI
+			- Output useful information
+	*/
+
 	if(::rank == 0)
 		cout << printBold("Allocating vector...\n\n");
 
-	::layerAllocs = calculateLayerAlloc(instructions[0], ::size);
+	::layerAllocs = calculateLayerAlloc(numQubits, ::size);
 	::layerLimits = calculateLayerLimits(::layerAllocs);
 
-	QubitLayerMPI qL(instructions[0]);
-
-	// dynamic_bitset aux = ::layerLimits[::rank];
-	// cout << "Rank: " << ::rank << " layerLimits: " << aux.printBitset() << " "
-	// 	 << ::layerLimits[::rank] << " States size: " << qL.getStates().size() << " "
-	// 	 << qL.getStates()[qL.getStates().size()] << " globalStart: " << qL.globalStartIndex << " globalEnd: " << qL.globalEndIndex << endl << endl;
-
-#ifdef STATE_VECTOR_INFO
-	appendDebugLog("--- STATE_VECTOR_INFO ---\n\n");
-	appendDebugLog(
-		"Rank ", ::rank, " Size of State Vector: ", qL.getStates().size(), "\n");
-	appendDebugLog("Rank ", ::rank, " layerAllocs: ", layerAllocs[::rank], "\n");
-	appendDebugLog("Rank ", ::rank, " layerLimits: ", layerLimits[::rank], "\n");
-	appendDebugLog(
-		"Rank ", ::rank, " globalStartIndex: ", qL.getGlobalStartIndex(), "\n");
-	appendDebugLog(
-		"Rank ", ::rank, " globalEndIndex: ", qL.getGlobalEndIndex(), "\n");
-	appendDebugLog("\n--- STATE_VECTOR_INFO ---\n\n");
-#endif
+	QubitLayerMPI qL(numQubits);
 
 	if(::rank == 0)
 		cout << printBold("Executing operations...\n\n");
 
 	for(size_t i = 1; i < instructions.size(); i++) {
-#ifdef MEASURE_DEBUG_LOGS
-		qL.measure();
-#endif
+
+		// Progress output
 		if(::rank == 0) {
-			std::cout << "\x1b[1A"
-					  << "\x1b[2K"; // Delete the entire line
+			std::cout << "\x1b[1A" << "\x1b[2K";
 			cout << "\tProgress: "
 				 << round((float)((float)i / (float)instructions.size()) * 100)
 				 << "%" << endl;
@@ -165,8 +163,6 @@ int main(int argc, char* argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
 
-	MPI_Barrier(MPI_COMM_WORLD);
-
 	if(::rank == 0)
 		cout << printBold("\nCalculate state probabilities...\n\n");
 
@@ -184,20 +180,16 @@ int main(int argc, char* argv[])
 		cout << printBold("Gathering all results...\n\n");
 
 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults;
-	gatheredResults = gatherResultsMPI(instructions[0], results);
+	gatheredResults = gatherResultsMPI(numQubits, results);
 
 	// print results
 	if(::rank == 0) {
 		cout << "Results: \n";
-		for(size_t i = 0; i < instructions[0]; i++) {
+		for(size_t i = 0; i < numQubits; i++) {
 			cout << "Qubit " << i + 1 << " -> " << gatheredResults[i] * 100
 				 << "% chance of being |1>\n";
 		}
 	}
-
-#ifdef MEASURE_STATE_VALUES_DEBUG_LOGS
-	qL.measure();
-#endif
 
 	MPI_Finalize();
 
