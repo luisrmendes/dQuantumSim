@@ -1,8 +1,7 @@
 #include "QubitLayerMPI.hpp"
-#include "constants.hpp"
 #include "_utils.hpp"
+#include "constants.hpp"
 #include "debug.hpp"
-#include "distrEngine.hpp"
 #include "debugLogFlags.hpp"
 #include "mpi.h"
 #include "utilsMPI.hpp"
@@ -55,10 +54,10 @@ void QubitLayerMPI::calculateStateProbabilities()
 void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 {
 	uint64_t localStartIndex;
-	if(::rank == 0)
+	if(this->rank == 0)
 		localStartIndex = 0;
 	else
-		localStartIndex = ::layerLimits[::rank - 1];
+		localStartIndex = this->layerLimits[this->rank - 1];
 
 	// auto get_results = [&](unsigned int numQubits,
 	// 					   uint64_t localStartIndex,
@@ -98,7 +97,7 @@ void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 	}
 
 	// } else {
-	// 	if(::rank == 0)
+	// 	if(this->rank == 0)
 	// 		cout << "\tMulti Threaded\n\n";
 
 	// 	// unsigned int numThreads = std::thread::hardware_concurrency();
@@ -139,8 +138,8 @@ void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 bool QubitLayerMPI::checkStateOOB(uint64_t state)
 {
 	// true if OOB
-	// size_t lowerBound = ::rank * (this->states.size() / 2);
-	// size_t upperBound = (::rank + 1) * (this->states.size() / 2);
+	// size_t lowerBound = this->rank * (this->states.size() / 2);
+	// size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
 	// bool isBigger = state > this->globalUpperBound;
 	// bool isLess = state < this->globalLowerBound;
 
@@ -174,7 +173,8 @@ void QubitLayerMPI::toffoli(int controlQubit1, int controlQubit2, int targetQubi
 
 				// if a state is OOB, store tuple (state, intended_value) to a vector
 				if(!checkStateOOB(state)) {
-					size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+					size_t localIndex =
+						getLocalIndexFromGlobalState(state, this->rank);
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
 #ifdef TOFFOLI_DEBUG_LOGS
@@ -221,7 +221,8 @@ void QubitLayerMPI::controlledX(int controlQubit, int targetQubit)
 
 				// if a state is OOB, store tuple (state, intended_value) to a vector
 				if(!checkStateOOB(state)) {
-					size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+					size_t localIndex =
+						getLocalIndexFromGlobalState(state, this->rank);
 					this->states[2 * localIndex + 1] = this->states[2 * i];
 				} else {
 #ifdef CONTROLLEDX_DEBUG_LOGS
@@ -296,7 +297,7 @@ void QubitLayerMPI::rotationX(int targetQubit, double angle)
 			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				size_t localIndex = getLocalIndexFromGlobalState(state, this->rank);
 				this->states[2 * localIndex + 1] +=
 					rotationX_const2 * this->states[2 * i];
 			} else {
@@ -347,7 +348,7 @@ void QubitLayerMPI::sqrtPauliX(int targetQubit)
 			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				size_t localIndex = getLocalIndexFromGlobalState(state, this->rank);
 				this->states[2 * localIndex + 1] +=
 					remoteConst * this->states[2 * i];
 			} else {
@@ -403,7 +404,7 @@ void QubitLayerMPI::sqrtPauliY(int targetQubit)
 			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				size_t localIndex = getLocalIndexFromGlobalState(state, this->rank);
 				(state & MASK(targetQubit)) ? this->states[2 * localIndex + 1] +=
 											  auxConst1 * this->states[2 * i]
 											: this->states[2 * localIndex + 1] +=
@@ -489,7 +490,7 @@ void QubitLayerMPI::hadamard(int targetQubit)
 			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				size_t localIndex = getLocalIndexFromGlobalState(state, this->rank);
 				this->states[2 * localIndex + 1] +=
 					hadamard_const * this->states[2 * i];
 			} else {
@@ -572,7 +573,7 @@ void QubitLayerMPI::pauliY(int targetQubit)
 			state = state ^ MASK(targetQubit);
 
 			if(!checkStateOOB(state)) {
-				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				size_t localIndex = getLocalIndexFromGlobalState(state, this->rank);
 				state& MASK(targetQubit)
 					? this->states[2 * localIndex + 1] = this->states[2 * i] * 1i
 					: this->states[2 * localIndex + 1] = this->states[2 * i] * -1i;
@@ -625,7 +626,7 @@ void QubitLayerMPI::pauliX(int targetQubit)
 
 			// if a state is OOB, store tuple (state, intended_value) to a vector
 			if(!checkStateOOB(state)) {
-				size_t localIndex = getLocalIndexFromGlobalState(state, ::rank);
+				size_t localIndex = getLocalIndexFromGlobalState(state, this->rank);
 				this->states[2 * localIndex + 1] = this->states[2 * i];
 			} else {
 				// pair (state, amplitude) ATENCAO
@@ -665,23 +666,233 @@ string QubitLayerMPI::printStateVector()
 	return stateVector.str();
 }
 
-QubitLayerMPI::QubitLayerMPI(unsigned int numQubits)
+vector<size_t> QubitLayerMPI::calculateLayerAlloc()
+{
+	size_t layerSize = pow(2, this->numQubits);
+
+	if(layerSize / 2 < (size_t)this->size) {
+		cerr << "Known allocation bug: too many processes for " << this->numQubits
+			 << " qubits" << endl;
+		exit(EXIT_FAILURE);
+	}
+
+	size_t quocient = layerSize / this->size;
+	int remainder = layerSize % this->size;
+
+	vector<size_t> result(this->size, quocient);
+
+	// Spreads the remainder through the vector
+	int i = 0;
+	while(remainder != 0) {
+		result[i] += 1;
+		--remainder;
+		++i;
+	}
+
+	// Duplicate the size of each number
+	for(size_t i = 0; i < result.size(); i++) result[i] *= 2;
+
+	return result;
+}
+
+vector<size_t> QubitLayerMPI::calculateLayerLimits(vector<size_t> layerAllocs)
+{
+	vector<uint64_t> layerLimits(layerAllocs.size());
+
+	uint64_t aux = 0;
+	for(size_t i = 0; i < layerLimits.size(); i++) {
+		aux += layerAllocs[i] / 2;
+		layerLimits[i] = aux;
+	}
+
+	return layerLimits;
+}
+
+size_t QubitLayerMPI::getLocalIndexFromGlobalState(uint64_t receivedIndex, int node)
+{
+	if(node == 0)
+		return receivedIndex;
+
+	return (receivedIndex - this->layerLimits[node - 1]);
+	// dynamic_bitset result = 0;
+
+	// for(size_t i = 0; i < ::layerAllocs.size(); ++i) {
+	// 	if(i == (size_t)node)
+	// 		break;
+	// 	result += (::layerAllocs[i] / 2);
+	// }
+
+	// return (receivedIndex - result).to_ullong();
+}
+
+vector<complex<PRECISION_TYPE>> QubitLayerMPI::distributeAndGatherStatesOOB(
+	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesAndAmplitudesOOB)
+{
+#ifdef DISTR_STATES_OOB
+	appendDebugLog("\n\t--- DISTR_STATES_OOB ---\n");
+#endif
+
+	vector<vector<complex<PRECISION_TYPE>>> localStatesAmplitudesToSend(
+		this->size, vector<complex<PRECISION_TYPE>>());
+
+	/**
+	 * Restructure statesOOB into vector(node => {localIndex, ampl})
+	 * Vector index points to the target node
+	 */
+	for(size_t i = 0; i < statesAndAmplitudesOOB.size(); i++) {
+		uint64_t* state = &get<0>(statesAndAmplitudesOOB[i]);
+		complex<PRECISION_TYPE>* amplitude = &get<1>(statesAndAmplitudesOOB[i]);
+
+		int node = getNodeOfState(*state);
+		uint64_t nodeLocalIndex = this->getLocalIndexFromGlobalState(*state, node);
+
+		localStatesAmplitudesToSend[node].push_back(
+			complex<PRECISION_TYPE>(nodeLocalIndex));
+		localStatesAmplitudesToSend[node].push_back(*amplitude);
+	}
+
+	/**
+	 * SEND statesOOB and RECEIVE incomingStates
+	 */
+	complex<PRECISION_TYPE> recvBuffer[MPI_RECV_BUFFER_SIZE];
+	vector<complex<PRECISION_TYPE>> receivedOperations;
+	MPI_Request req;
+	MPI_Status status;
+
+	auto nonBlockingSend = [&](int targetNode) {
+		if(localStatesAmplitudesToSend[targetNode].size() == 0) {
+			bool end = -1;
+			MPI_Isend(&end, 1, MPI_BYTE, targetNode, 0, MPI_COMM_WORLD, &req);
+		} else {
+			complex<PRECISION_TYPE>* msg =
+				&localStatesAmplitudesToSend[targetNode][0];
+
+			MPI_Isend(msg,
+					  localStatesAmplitudesToSend[targetNode].size() * 8 * 2,
+					  MPI_BYTE,
+					  targetNode,
+					  localStatesAmplitudesToSend[targetNode].size(),
+					  MPI_COMM_WORLD,
+					  &req);
+		}
+	};
+
+	auto blockingReceive = [&](int targetNode) {
+		MPI_Recv(&recvBuffer,
+				 MPI_RECV_BUFFER_SIZE * 8 * 2,
+				 MPI_BYTE,
+				 targetNode,
+				 MPI_ANY_TAG,
+				 MPI_COMM_WORLD,
+				 &status);
+		if(status.MPI_TAG != 0) {
+			receivedOperations.reserve(status.MPI_TAG);
+			receivedOperations.insert(receivedOperations.end(),
+									  &recvBuffer[0],
+									  &recvBuffer[status.MPI_TAG]);
+		}
+	};
+
+	for(int targetNode = 0; targetNode < this->size; targetNode++) {
+		if(targetNode == this->rank)
+			continue;
+		nonBlockingSend(targetNode);
+		blockingReceive(targetNode);
+		MPI_Wait(&req, &status);
+	}
+
+#ifdef DISTR_STATES_OOB
+	appendDebugLog("\t--- END SEND_STATES_OOB ---\n");
+#endif
+	return receivedOperations;
+}
+
+int QubitLayerMPI::getNodeOfState(const uint64_t& state)
+{
+	size_t i = 0;
+	for(; i < this->layerLimits.size(); i++) {
+		if(state < this->layerLimits[i]) {
+			return i;
+		}
+	}
+
+	return i;
+}
+
+std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS>
+QubitLayerMPI::gatherResults(PRECISION_TYPE* finalResults)
+{
+	PRECISION_TYPE* receivedResults =
+		new PRECISION_TYPE[MAX_NUMBER_QUBITS * this->size];
+
+	MPI_Gather(finalResults,
+			   this->numQubits,
+			   MPI_DOUBLE,
+			   receivedResults,
+			   numQubits,
+			   MPI_DOUBLE,
+			   0,
+			   MPI_COMM_WORLD);
+
+	std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults = {0};
+
+	if(this->rank == 0) {
+		for(unsigned int i = 0; i < numQubits * this->size; i++) {
+			gatheredResults[i % numQubits] += receivedResults[i];
+		}
+	}
+
+	delete[] receivedResults;
+	return gatheredResults;
+
+	// -------------------------------------------------------------------
+
+	// if(rank == 0) {
+	// 	PRECISION_TYPE receivedResults[MAX_NUMBER_QUBITS];
+
+	// 	/** TODO: MPI_Gather? **/
+	// 	for(int node = 1; node < size; node++) {
+	// 		MPI_Recv(&receivedResults,
+	// 				 numQubits,
+	// 				 MPI_PRECISION_TYPE,
+	// 				 node,
+	// 				 0,
+	// 				 MPI_COMM_WORLD,
+	// 				 &status);
+
+	// 		for(size_t i = 0; i < numQubits; i++) {
+	// 			finalResults[i] += receivedResults[i];
+	// 		}
+	// 	}
+	// 	return;
+	// } else {
+	// 	MPI_Send(finalResults, numQubits, MPI_PRECISION_TYPE, 0, 0, MPI_COMM_WORLD);
+	// 	return;
+	// }
+}
+
+QubitLayerMPI::QubitLayerMPI(unsigned int numQubits, int rank, int size)
 {
 	this->numQubits = numQubits;
+	this->rank = rank;
+	this->size = size;
+
+	vector<size_t> layerAllocs = this->calculateLayerAlloc();
+	this->layerLimits = this->calculateLayerLimits(layerAllocs);
 
 	// populate vector with all (0,0)
-	this->states = vector<complex<PRECISION_TYPE>>(::layerAllocs[::rank], 0);
+	this->states = vector<complex<PRECISION_TYPE>>(layerAllocs[this->rank], 0);
 
 	// Initialze state vector as |0...0>
-	if(::rank == 0)
+	if(this->rank == 0)
 		this->states[0] = 1;
 
 	// calculate global indexes
 	uint64_t sum = 0;
-	for(int i = 0; i < ::rank; i++) {
-		sum += ::layerAllocs[i] / 2;
+	for(int i = 0; i < this->rank; i++) {
+		sum += layerAllocs[i] / 2;
 	}
 
 	this->globalLowerBound = sum;
-	this->globalUpperBound = sum + (::layerAllocs[::rank] / 2) - 1;
+	this->globalUpperBound = sum + (layerAllocs[this->rank] / 2) - 1;
 }

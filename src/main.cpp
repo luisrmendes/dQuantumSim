@@ -13,10 +13,6 @@
 #include <iostream>
 #include <unistd.h>
 
-int rank, size;
-std::vector<size_t> layerAllocs; // layer allocation number, input and output pairs
-std::vector<uint64_t> layerLimits; // layer limits per node
-
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -34,7 +30,7 @@ int main(int argc, char* argv[])
 	*/
 
 #ifdef OUTPUT_LOGS
-	if(::rank == 0) {
+	if(rank == 0) {
 		filesystem::remove_all("logs");
 		filesystem::create_directory("logs");
 	}
@@ -43,9 +39,21 @@ int main(int argc, char* argv[])
 #endif
 
 	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &::rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &::size);
 
+	int rank, size;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+	if(rank == 0) {
+		cout << "\n\n";
+		cout << printBold("      ▓▓  ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("      ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
+		cout << printBold("  ▓▓▓▓▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
+		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓       ▓▓   ▓▓   ▓▓  ▓▓▓  ▓▓ ") << endl;
+		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
+		cout << printBold("             ▓▓                               ") << endl;
+	}
+	
 	/*
 		PARSE INSTRUCTIONS
 			- distribute if necessary
@@ -55,15 +63,7 @@ int main(int argc, char* argv[])
 	// Enable if MPI setup does not share environment across nodes
 	// instructions = instructionsHandlerMPI(instructions);
 
-	if(::rank == 0) {
-		cout << "\n\n";
-		cout << printBold("      ▓▓  ▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
-		cout << printBold("      ▓▓ ▓▓    ▓▓ ▓▓         ▓▓   ▓▓▓     ▓▓▓ ") << endl;
-		cout << printBold("  ▓▓▓▓▓▓ ▓▓    ▓▓  ▓▓▓▓▓▓    ▓▓   ▓▓ ▓▓ ▓▓ ▓▓ ") << endl;
-		cout << printBold("▓▓    ▓▓ ▓▓    ▓▓       ▓▓   ▓▓   ▓▓  ▓▓▓  ▓▓ ") << endl;
-		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
-		cout << printBold("             ▓▓                               ") << endl;
-
+	if(rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
 		long page_size = sysconf(_SC_PAGE_SIZE);
 		double system_memory = ((pages * page_size) * pow(10, -9)) / 1.073741824;
@@ -89,22 +89,20 @@ int main(int argc, char* argv[])
 			- Output useful information
 	*/
 
-	if(::rank == 0)
+	if(rank == 0)
 		cout << printBold("Allocating vector...\n\n");
 
-	::layerAllocs = calculateLayerAlloc(numQubits, ::size);
-	::layerLimits = calculateLayerLimits(::layerAllocs);
+	QubitLayerMPI qL(numQubits, rank, size);
 
-	QubitLayerMPI qL(numQubits);
-
-	if(::rank == 0)
+	if(rank == 0)
 		cout << printBold("Executing operations...\n\n");
 
 	for(size_t i = 1; i < instructions.size(); i++) {
 
 		// Progress output
-		if(::rank == 0) {
-			std::cout << "\x1b[1A" << "\x1b[2K";
+		if(rank == 0) {
+			std::cout << "\x1b[1A"
+					  << "\x1b[2K";
 			cout << "\tProgress: "
 				 << round((float)((float)i / (float)instructions.size()) * 100)
 				 << "%" << endl;
@@ -163,12 +161,12 @@ int main(int argc, char* argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
 
-	if(::rank == 0)
+	if(rank == 0)
 		cout << printBold("\nCalculate state probabilities...\n\n");
 
 	qL.calculateStateProbabilities();
 
-	if(::rank == 0)
+	if(rank == 0)
 		cout << printBold("Calculate qubit probabilities...\n\n");
 
 	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
@@ -176,14 +174,14 @@ int main(int argc, char* argv[])
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	if(::rank == 0)
+	if(rank == 0)
 		cout << printBold("Gathering all results...\n\n");
 
 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults;
-	gatheredResults = gatherResultsMPI(numQubits, results);
+	gatheredResults = qL.gatherResults(results);
 
 	// print results
-	if(::rank == 0) {
+	if(rank == 0) {
 		cout << "Results: \n";
 		for(size_t i = 0; i < numQubits; i++) {
 			cout << "Qubit " << i + 1 << " -> " << gatheredResults[i] * 100
