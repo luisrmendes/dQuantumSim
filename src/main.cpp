@@ -1,5 +1,4 @@
 #include "QubitLayerMPI.hpp"
-#include "_utils.hpp"
 #include "consoleUtils.hpp"
 #include "constants.hpp"
 #include "debug.hpp"
@@ -8,7 +7,6 @@
 #include "parser.hpp"
 #include "utilsMPI.hpp"
 #include <array>
-#include <complex>
 #include <filesystem>
 #include <iostream>
 #include <unistd.h>
@@ -53,7 +51,7 @@ int main(int argc, char* argv[])
 		cout << printBold(" ▓▓▓▓▓▓▓   ▓▓▓▓▓▓  ▓▓▓▓▓▓  ▓▓▓▓▓▓ ▓▓       ▓▓ ") << endl;
 		cout << printBold("             ▓▓                               ") << endl;
 	}
-	
+
 	/*
 		PARSE INSTRUCTIONS
 			- distribute if necessary
@@ -61,7 +59,7 @@ int main(int argc, char* argv[])
 	vector<unsigned int> instructions = sourceParser(argv[1]);
 	unsigned int numQubits = instructions[0];
 	// Enable if MPI setup does not share environment across nodes
-	// instructions = instructionsHandlerMPI(instructions);
+	// instructions = broadcastInstructions(instructions);
 
 	if(rank == 0) {
 		long pages = sysconf(_SC_PHYS_PAGES);
@@ -169,8 +167,8 @@ int main(int argc, char* argv[])
 	if(rank == 0)
 		cout << printBold("Calculate qubit probabilities...\n\n");
 
-	PRECISION_TYPE results[MAX_NUMBER_QUBITS] = {0}; // array de resultados
-	qL.measureQubits(results);
+	PRECISION_TYPE qubitProbabilities[MAX_NUMBER_QUBITS] = {0}; // array de resultados
+	qL.measureQubits(qubitProbabilities);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 
@@ -178,7 +176,7 @@ int main(int argc, char* argv[])
 		cout << printBold("Gathering all results...\n\n");
 
 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> gatheredResults;
-	gatheredResults = qL.gatherResults(results);
+	gatheredResults = qL.gatherResults(qubitProbabilities);
 
 	// print results
 	if(rank == 0) {

@@ -8,8 +8,8 @@
 // 2^16 = 65536
 
 /* MPI_RECV_BUFFER_SIZE must always be double LOCKSTEP_THRESHOLD */
-#define LOCKSTEP_THRESHOLD      100000
-#define MPI_RECV_BUFFER_SIZE    200000
-#define MAX_NUMBER_QUBITS       100 // used in the arrays on measuring results
+#define LOCKSTEP_THRESHOLD	 100000
+#define MPI_RECV_BUFFER_SIZE 200000
+#define MAX_NUMBER_QUBITS	 100 // used in the arrays on measuring results
 
 #endif

@@ -2,8 +2,6 @@
 #define UTILSMPI_HPP
 
 #include "constants.hpp"
-#include <array>
-#include <cstdint>
 #include <vector>
 
 /**
@@ -14,8 +12,6 @@
  * @return std::vector<unsigned int> 
  */
 std::vector<unsigned int>
-instructionsHandlerMPI(std::vector<unsigned int>& instructions);
-
-
+broadcastInstructions(std::vector<unsigned int>& instructions);
 
 #endif

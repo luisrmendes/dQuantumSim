@@ -1,11 +1,9 @@
 #include "QubitLayerMPI.hpp"
-#include "_utils.hpp"
 #include "constants.hpp"
 #include "debug.hpp"
 #include "debugLogFlags.hpp"
 #include "mpi.h"
 #include "utilsMPI.hpp"
-#include <cmath>
 
 #define MASK(N) (0x1ull << N)
 
@@ -708,12 +706,13 @@ vector<size_t> QubitLayerMPI::calculateLayerLimits(vector<size_t> layerAllocs)
 	return layerLimits;
 }
 
-size_t QubitLayerMPI::getLocalIndexFromGlobalState(uint64_t receivedIndex, int node)
+size_t QubitLayerMPI::getLocalIndexFromGlobalState(uint64_t globalState,
+												   int targetProcess)
 {
-	if(node == 0)
-		return receivedIndex;
+	if(targetProcess == 0)
+		return globalState;
 
-	return (receivedIndex - this->layerLimits[node - 1]);
+	return (globalState - this->layerLimits[targetProcess - 1]);
 	// dynamic_bitset result = 0;
 
 	// for(size_t i = 0; i < ::layerAllocs.size(); ++i) {

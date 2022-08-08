@@ -3,11 +3,10 @@
 #include "debug.hpp"
 #include "debugLogFlags.hpp"
 #include "mpi.h"
-#include <iostream>
 
 using namespace std;
 
-vector<unsigned int> instructionsHandlerMPI(vector<unsigned int>& instructions)
+vector<unsigned int> broadcastInstructions(vector<unsigned int>& instructions)
 {
 	size_t num_instructions = instructions.size();
 	unsigned int* instructions_arr = &instructions[0];

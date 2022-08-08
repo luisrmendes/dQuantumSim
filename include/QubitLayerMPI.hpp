@@ -26,20 +26,41 @@ class QubitLayerMPI
 	 */
 	std::vector<size_t> calculateLayerAlloc();
 
+	/**
+	 * @brief Returns a vector with upper bound limits on the state vector segment
+	 * of each process.
+	 * 
+	 * @param layerAllocs 
+	 * @return std::vector<size_t> 
+	 */
 	std::vector<size_t> calculateLayerLimits(std::vector<size_t> layerAllocs);
 
-	size_t getLocalIndexFromGlobalState(uint64_t receivedIndex, int node);
 	/**
-	 * Sends statesOOB and returns received statesOOB
+	 * @brief Returns the local index of the state indexed in the global state vector context.
+	 * 
+	 * @param globalState 
+	 * @param targetProcess 
+	 * @return size_t 
+	 */
+	size_t getLocalIndexFromGlobalState(uint64_t globalState, int targetProcess);
+
+	/**
+	 * @brief Distributes out-of-bound states and gathers the incoming 
+	 * out-of-bound states. This contains the main distribution mechanism 
+	 * for all operations in the state vector.
+	 * 
+	 * @param statesAndAmplitudesOOB 
+	 * @return std::vector<std::complex<PRECISION_TYPE>> 
 	 */
 	std::vector<std::complex<PRECISION_TYPE>> distributeAndGatherStatesOOB(
 		std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>&
 			statesAndAmplitudesOOB);
 
 	/**
-	 * Gets the node that posesses the state
+	 * @brief Gets the node that contains the state
+	 * 
 	 * @param state 
-	 * @returns The node that contains the state
+	 * @return int
 	 */
 	int getNodeOfState(const uint64_t& state);
 
@@ -48,8 +69,14 @@ class QubitLayerMPI
 	uint64_t globalUpperBound;
 
 	/**
-	 * Initializes state vector with (0,0)
-	 * @param numQubits Number of qubits 
+	 * @brief Construct a qubit layer object. 
+	 * Initializes state vector with (0,0).
+	 * Calculates layer allocations size per process.
+	 * Calculates layer limits and global upper and lower bounds.
+	 * 
+	 * @param numQubits 
+	 * @param rank MPI rank
+	 * @param size MPI size
 	 */
 	QubitLayerMPI(unsigned int numQubits, int rank, int size);
 	qubitLayer& getStates() { return this->states; }
@@ -78,34 +105,43 @@ class QubitLayerMPI
 	void tGate(int targetQubit);
 
 	/**
-	 * Prints the state layer vector with the adequate format
+	 * @brief Prints the state layer vector with the adequate format
 	 */
 	std::string printStateVector();
 
 	/**
-	 * Displays qubit values according to processes rank by outputting the 
+	 * @brief Displays qubit values according to processes rank by outputting the 
 	 * result log of each process.
 	 */
 	void measure();
 
 	/**
-	 * Returns true if state has non-zero real component
+	 * @brief Returns true if state has non-zero real component.
+	 * 
 	 * @param i State vector iterator position
 	 */
 	bool checkZeroState(size_t i);
 
+	/**
+	 * @brief Measures qubit probabilities of state vector segment.
+	 * Must receive an array from which the return values are placed.
+	 * C-style array is used because MPI.
+	 * 
+	 * @param result 
+	 */
 	void measureQubits(PRECISION_TYPE* result);
 
 	/**
-	 * Checks if state is Out Of Bounds of the state layer
-	 * vector of the process
+	 * @brief Checks if state is Out Of Bounds of the state layer
+	 * vector of the process.
+	 * 
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	*/
 	bool checkStateOOB(uint64_t state);
 
 	/**
-	 * Calculates the square of each state amplitude, 
+	 * @brief Calculates the square of each state amplitude, 
 	 * creates a new vector with the results.
 	 * 
 	 * WARN: In this instance, program has two big vectors, may cause 
@@ -115,20 +151,30 @@ class QubitLayerMPI
 	 */
 	void calculateStateProbabilities();
 
+	/**
+	 * @brief Small wrapper for operation distribution.
+	 * 
+	 * TODO: Replace with the common code between operations
+	 * 
+	 * @param statesOOB 
+	 * @param operationFunc 
+	 */
 	void manageDistr(
 		std::vector<std::tuple<uint64_t, std::complex<PRECISION_TYPE>>>& statesOOB,
 		const std::function<void(std::vector<std::complex<PRECISION_TYPE>>)>&
 			operationFunc);
 
 	/**
-	 * @brief 
+	 * @brief Gathers the qubit results from all processes. Receives an array 
+	 * of qubitProbabilities of the current process - this is only used by the 
+	 * rank 0 process that acts as a root for the gather process.
 	 * 
-	 * @param numQubits 
-	 * @param finalResults 
+	 * @param qubitProbabilities Array of qubit probabilities of the own process
+	 * state vector segment
 	 * @return std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS> 
 	 */
 	std::array<PRECISION_TYPE, MAX_NUMBER_QUBITS>
-	gatherResults(PRECISION_TYPE* finalResults);
+	gatherResults(PRECISION_TYPE* qubitProbabilities);
 };
 
 #endif
