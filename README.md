@@ -1,19 +1,24 @@
 # Distributed Quantum Simulator developed at FEUP
 
-This project is an implementation on a distributed quantum simulator using MPI.
-In order to test the results of the instructions, a simpler version of a quantum assembly language was created (myqasm). The simulator takes as input the file name of the quantum assembly code.
+This project implements a parallel and scalable quantum simulator based on the state vector approach. By distributing the workload amongst various machines, we extend the capabilities of quantum simulation. 
+
 
 ## Features
 
-The following operations are implemented:
+The program receives a quantum assembly file as input. This simulator parses a subset of the OpenQASM 2.0 specification.
+The following gate operations are implemented:
 
-- Pauli X
-- Pauli Y
-- Pauli Z
-- Hadamard
-- Controlled X
-- Controlled Z
-- Toffoli
+- Pauli X gate
+- Pauli Y gate
+- Pauli Z gate
+- Hadamard gate
+- Principle Square Root of X gate
+- Principle Square Root of Y gate
+- Principle Square Root of Z gate (S gate)
+- T gate
+- Controlled X gate
+- Controlled Z gate
+- Toffoli gate
 
 ## How to Run
 
@@ -30,75 +35,38 @@ $ cd simulator
 $ make
 
 # Run
-$ mpirun --mca opal_warn_on_missing_libcuda 0 -np <number_of_processes> ./simulator <myqasm_code>
+$ mpirun --mca opal_warn_on_missing_libcuda 0 -np <number_of_processes> ./dqsim <openqasm_file>
 ```
 
-## Example with Grovers Algorithm
+## Example with Grover's Algorithm
 
 ```sh
-mpirun --mca opal_warn_on_missing_libcuda 0 -np 2 ./simulator myqasmTests/q3_grovers.myqasm
+mpirun --mca opal_warn_on_missing_libcuda 0 -np 2 ./dqsim openqasmTests/q3_grovers.openqasm
 ```
 
-There is an example of a implementation of the Grovers algorithm using 3 qubits in the myqasmTests folder (q3_grovers.myqasm), alongside many other test examples.  
+We provide an example of an implementation of Grover's algorithm using three qubits in the "openqasmTests" folder (q3_grovers.openqasm), alongside many other test examples.  
+
 
 ```
 # ---------- Grover's Algorithm in 3 qubits ----------
 
 # Initialize 3 qubit circuit
-init 3
+qreg q[3];
 
-# Init
-hadamard 0
-hadamard 1
-hadamard 2
-
-# Oracle
-pauliX 0
-pauliX 1
-toffoli 0 1 2
-pauliX 0
-pauliX 0
-
-# Grover diffusion
-hadamard 0
-hadamard 1
-hadamard 2
-pauliX 0
-pauliX 1
-controlledZ 0 1
-pauliX 0
-pauliX 1
-hadamard 0
-hadamard 1
-```  
-
-The code is a representation of the algorithm below:
-
-![Grovers Algorithm](docs/Grovers_algorithm_3_qubits.png)
-
-## Myqasm code syntax
-```
-init <number_of_qubits>
-
-<operation> [..., <target_qubit>]
-```
-
-## Operation Documentation
-
-For pauliX, pauliY, pauliZ and hadamard:
-
-```
-<operation> <target_qubit>
-```
-
-For controlledX, controlledZ:
-
-```
-<operation> <control_qubit> <target_qubit>
-```
-
-For toffoli:
-
-```
-<operation> <control_qubit1> <control_qubit2> <target_qubit>
-```
+h q[0];
+h q[1];
+h q[1];
+cx q[0],q[1];
+h q[1];
+h q[0];
+x q[0];
+h q[1];
+x q[1];
+h q[1];
+cx q[0],q[1];
+h q[1];
+x q[0];
+h q[0];
+x q[1];
+h q[1];
+``` 
