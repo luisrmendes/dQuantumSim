@@ -6,44 +6,44 @@ using namespace std;
 
 unsigned int getCodeOfInstruction(std::string line)
 {
-	if(line == "pauliX")
+	if(line == "x")
 		return 1;
-	if(line == "pauliY")
+	if(line == "y")
 		return 2;
-	if(line == "pauliZ")
+	if(line == "z")
 		return 3;
-	if(line == "hadamard")
+	if(line == "h")
 		return 4;
-	if(line == "controlledX")
+	if(line == "cx")
 		return 5;
-	if(line == "controlledZ")
+	if(line == "cz")
 		return 6;
-	if(line == "toffoli")
+	if(line == "ccx")
 		return 7;
-	if(line == "sqrtX")
+	if(line == "sqrtx")
 		return 8;
-	if(line == "sqrtY")
+	if(line == "sqrty")
 		return 9;
 	if(line == "s")
 		return 10;
 	if(line == "t")
 		return 11;
+	if(line == "qreg")
+		return 12;
 	else
 		return -1;
 }
 
-int checkValidInstruction(std::string line)
+int getNumTargetQubitsOfGate(std::string gate)
 {
-	if(line == "pauliX" || line == "pauliY" || line == "pauliZ" ||
-	   line == "hadamard" || line == "sqrtX" || line == "sqrtY" || line == "s" ||
-	   line == "t") {
+	if(gate == "x" || gate == "y" || gate == "z" || gate == "h" || gate == "sqrtx" ||
+	   gate == "sqrty" || gate == "s" || gate == "t") {
 		return 1;
-	} else if(line == "controlledX" || line == "controlledZ") {
+	} else if(gate == "cx" || gate == "cz") {
 		return 2;
-	} else if(line == "toffoli")
+	} else if(gate == "ccx")
 		return 3;
 	else {
-		cerr << "Instruction not recognized: " << line << endl;
 		return -1;
 	}
 }
@@ -54,52 +54,71 @@ vector<unsigned int> sourceParser(char* fileName)
 	ifstream myfile(fileName);
 
 	if(!myfile.is_open()) {
-		perror("Error opening file!\n");
+		cerr << "Error opening file " << fileName << endl;
 		exit(EXIT_FAILURE);
 	}
 
 	vector<unsigned int> instructions;
 
 	string delim = " ";
-	size_t end;
+	size_t end = 0U;
 	size_t start = 0U;
-	do {
-		// parse first line (init)
+
+	auto getNumberOfString = [](string input) {
+		string result;
+		for(size_t i = 0; i < input.length(); i++) {
+			if(isdigit(input[i]))
+				result += input[i];
+		}
+		return stoi(result);
+	};
+
+	// parse the first line, get the first work, ignore comments
+	while(end == std::string::npos || (line[0] == '#') ||
+		  line.substr(start, end - start) != "qreg") {
+		cout << "Parser => skipping line \"" << line << "\"" << endl;
 		getline(myfile, line);
 		end = line.find(delim);
-	} while(end == std::string::npos || (line[0] == '#'));
-
-	if(line.substr(start, end - start) != "init") {
-		cerr << "First line of file must have init <number_of_qubits>" << endl;
-		exit(EXIT_FAILURE);
-	} else {
-		start = end + delim.length();
-		end = line.find(delim);
-		instructions.push_back(stoi(line.substr(start, end - start)));
 	}
+
+	start = end + delim.length();
+	end = line.find(delim);
+	string secondWord = line.substr(start, end - start);
+
+	instructions.push_back(getNumberOfString(secondWord));
 
 	// parse next lines
 	while(getline(myfile, line)) {
+		delim = ";";
 		start = 0U;
 		end = line.find(delim);
 
 		if(end == std::string::npos || (line[0] == '#'))
 			continue;
 
-		int iterations = checkValidInstruction(line.substr(start, end - start));
+		string wholeLine = line.substr(start, end - start);
 
-		if(iterations == -1) {
-			cerr << "Instruction not recognized!" << endl;
-			exit(EXIT_FAILURE);
+		string delimSpace = " ";
+		end = line.find(delimSpace);
+		string firstWord = wholeLine.substr(start, end - start);
+		string secondWord = wholeLine.substr(end - start + 1, wholeLine.length());
+
+		int numTargetQubits = getNumTargetQubitsOfGate(firstWord);
+		if(numTargetQubits == -1) {
+			cerr << "Parser => skipping instruction \"" << firstWord << "\"" << endl;
+			continue;
 		}
 
-		instructions.push_back(
-			getCodeOfInstruction(line.substr(start, end - start)));
+		instructions.push_back(getCodeOfInstruction(firstWord));
 
-		for(int i = 0; i < iterations; i++) {
-			start = end + delim.length();
-			end = line.find(delim, start);
-			instructions.push_back(stoi(line.substr(start, end - start)));
+		start = 0U;
+		for(int i = 0; i < numTargetQubits; i++) {
+			string delimComma = ",";
+			end = secondWord.find(delimComma, start);
+			string qubitArgs = secondWord.substr(start, end - start);
+
+			instructions.push_back(getNumberOfString(qubitArgs));
+			start = end + delimComma.length();
 		}
 	}
 

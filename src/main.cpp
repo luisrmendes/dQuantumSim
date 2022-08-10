@@ -159,15 +159,20 @@ int main(int argc, char* argv[])
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
 
-	if(rank == 0)
+	if(rank == 0) {
+		cout << "\x1b[1A"
+			 << "\x1b[2K";
+		cout << "\tProgress: 100%" << endl;
 		cout << printBold("\nCalculate state probabilities...\n\n");
+	}
 
 	qL.calculateStateProbabilities();
 
 	if(rank == 0)
 		cout << printBold("Calculate qubit probabilities...\n\n");
 
-	PRECISION_TYPE qubitProbabilities[MAX_NUMBER_QUBITS] = {0}; // array de resultados
+	PRECISION_TYPE qubitProbabilities[MAX_NUMBER_QUBITS] = {
+		0}; // array de resultados
 	qL.measureQubits(qubitProbabilities);
 
 	MPI_Barrier(MPI_COMM_WORLD);
