@@ -1,4 +1,5 @@
 #include "QubitLayerMPI.hpp"
+#include "argparse.hpp"
 #include "consoleUtils.hpp"
 #include "constants.hpp"
 #include "debug.hpp"
@@ -13,8 +14,17 @@
 
 using namespace std;
 
+struct MyArgs : public argparse::Args {
+	bool& verbose = flag("v,verbose", "Verbose output");
+	bool& display = flag(
+		"p,print",
+		"Print matrix and its LU components (not recommended for big matrices)");
+};
+
 int main(int argc, char* argv[])
 {
+	MyArgs args = argparse::parse<MyArgs>(argc, argv);
+
 	if(argc != 2) {
 		cerr << "Usage: ./dqsim <file_name>" << endl << endl;
 		exit(EXIT_FAILURE);

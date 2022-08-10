@@ -76,7 +76,7 @@ vector<unsigned int> sourceParser(char* fileName)
 	// parse the first line, get the first work, ignore comments
 	while(end == std::string::npos || (line[0] == '#') ||
 		  line.substr(start, end - start) != "qreg") {
-		cout << "Parser => skipping line \"" << line << "\"" << endl;
+		// cout << "Parser => skipping line \"" << line << "\"" << endl;
 		getline(myfile, line);
 		end = line.find(delim);
 	}
