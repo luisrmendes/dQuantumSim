@@ -12,7 +12,7 @@ scp quantum.targz mendes1@juwels-cluster.fz-juelich.de:~
 #     && cd quantum-simulator-sandbox >/dev/null 2>&1\
 #     && make clean \
 #     && make \
-#     && mpirun -np 2 ./simulator myqasmTests/testing.myqasm'
+#     && mpirun -np 2 ./simulator myqasmTests/testing.openqasm'
 
 ssh mendes1@juwels08.fz-juelich.de 'module load Intel/2021.4.0 IntelMPI/2021.4.0 \
     && yes | rm -r /p/home/jusers/mendes1/juwels/quantum-simulator-sandbox \
@@ -20,53 +20,53 @@ ssh mendes1@juwels08.fz-juelich.de 'module load Intel/2021.4.0 IntelMPI/2021.4.0
     && cd quantum-simulator-sandbox \
     && make clean \
     && make \
-    && (time mpirun -np 1 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 2 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 3 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 4 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 5 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 6 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 7 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 8 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 9 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 10 ./simulator myqasmTests/q30_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 1 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 2 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 3 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 4 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 5 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 6 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 7 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 8 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 9 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 10 ./simulator myqasmTests/q31_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 1 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 2 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 3 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 4 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 5 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 6 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 7 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 8 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 9 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 10 ./simulator myqasmTests/q32_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 1 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 2 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 3 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 4 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 5 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 6 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 7 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 8 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 9 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 10 ./simulator myqasmTests/q33_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 1 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 2 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 3 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 4 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 5 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 6 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 7 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 8 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 9 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt \
-    && (time mpirun -np 10 ./simulator myqasmTests/q34_paulix.myqasm) >> output.txt'
+    && (time mpirun -np 1 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 2 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 3 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 4 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 5 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 6 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 7 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 8 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 9 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 10 ./simulator myqasmTests/q30_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 1 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 2 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 3 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 4 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 5 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 6 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 7 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 8 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 9 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 10 ./simulator myqasmTests/q31_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 1 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 2 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 3 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 4 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 5 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 6 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 7 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 8 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 9 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 10 ./simulator myqasmTests/q32_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 1 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 2 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 3 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 4 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 5 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 6 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 7 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 8 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 9 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 10 ./simulator myqasmTests/q33_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 1 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 2 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 3 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 4 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 5 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 6 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 7 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 8 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 9 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt \
+    && (time mpirun -np 10 ./simulator myqasmTests/q34_paulix.openqasm) >> output.txt'
