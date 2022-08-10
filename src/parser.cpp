@@ -105,7 +105,7 @@ vector<unsigned int> sourceParser(char* fileName)
 
 		int numTargetQubits = getNumTargetQubitsOfGate(firstWord);
 		if(numTargetQubits == -1) {
-			cerr << "Parser => skipping instruction \"" << firstWord << "\"" << endl;
+			// cerr << "Parser => skipping instruction \"" << firstWord << "\"" << endl;
 			continue;
 		}
 
