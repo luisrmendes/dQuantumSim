@@ -1,11 +1,13 @@
 # Distributed Quantum Simulator developed at FEUP
 
-This project implements a parallel and scalable quantum simulator based on the state vector approach. By distributing the workload amongst various machines, we extend the capabilities of quantum simulation. 
+This project implements a parallel and scalable quantum simulator based on the state vector approach. We extend the capabilities of quantum simulation by distributing the workload amongst various computer nodes and take advantage of combined shared memory.
+
+This project is implemented in C++ and strictly conforms with the ISO/IEC 14882:2017 specification for C++17. MPI is used for inter-process communication amongst computer nodes.
 
 
 ## Features
 
-The program receives a quantum assembly file as input. This simulator parses a subset of the OpenQASM 2.0 specification.
+This simulator supports a subset of the OpenQASM 2.0 quantum assembly specification.  
 The following gate operations are implemented:
 
 - Pauli X gate
