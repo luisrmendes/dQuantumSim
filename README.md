@@ -34,7 +34,7 @@ $ git clone git@github.com:lrmendes98/quantum-simulator-sandbox.git
 $ cd quantum-simulator-sandbox
 
 # Compile
-$ make
+$ make -j5
 
 # Run
 $ mpirun --mca opal_warn_on_missing_libcuda 0 -np <number_of_processes> ./dqsim <openqasm_file>
