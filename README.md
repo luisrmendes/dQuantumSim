@@ -26,7 +26,7 @@ Git, gcc, make and openmpi are required
 
 ```sh
 # Clone this repository
-$ git@git.fe.up.pt:quantum-simulator/simulator.git
+$ git clone git@github.com:lrmendes98/quantum-simulator-sandbox.git
 
 # Go into the repository
 $ cd simulator
