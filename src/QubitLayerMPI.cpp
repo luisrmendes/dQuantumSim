@@ -13,40 +13,15 @@ void QubitLayerMPI::manageDistr(
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>>& statesOOB,
 	const function<void(vector<complex<PRECISION_TYPE>>)>& operationFunc)
 {
-
-	// sendStatesOOB(statesOOB);
-	// vector<complex<PRECISION_TYPE>> receivedOps = receiveStatesOOB();
-	// operationFunc(receivedOps);
-	// MPI_Barrier(MPI_COMM_WORLD);
 	vector<complex<PRECISION_TYPE>> receivedOps =
 		distributeAndGatherStatesOOB(statesOOB);
 	operationFunc(receivedOps);
-	// MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void QubitLayerMPI::calculateStateProbabilities()
 {
-	// pre-calculate sub-iteration times
-	// size_t num_sub_iterations = (this->states.size()/2) / iteration_size;
-	// if(num_sub_iterations == 0) {
-	// 	for(size_t i = 0; i < this->states.size(); i += 2) {
-	// 		results[i / 2] = pow(abs(this->states[i]), 2);
-	// 	}
-	// } else {
-	// 	cout << num_sub_iterations << endl;
-	// 	for(uint64_t i = 0; i < num_sub_iterations; i++) {
-	// 		for(size_t j = 0; j < iteration_size; j++) {
-	// 			results[j + (iteration_size * i)] = pow(abs(this->states.at(j * 2)), 2);
-	// 		}
-	// 		this->states.erase(this->states.begin(),
-	// 						   this->states.begin() + iteration_size * 2);
-	// 		this->states.shrink_to_fit();
-	// 	}
-	// }
-
-	for(size_t i = 0; i < this->states.size(); i += 2) {
+	for(size_t i = 0; i < this->states.size(); i += 2)
 		this->states[i] = pow(abs(this->states[i]), 2);
-	}
 }
 
 void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
@@ -56,30 +31,6 @@ void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 		localStartIndex = 0;
 	else
 		localStartIndex = this->layerLimits[this->rank - 1];
-
-	// auto get_results = [&](unsigned int numQubits,
-	// 					   uint64_t localStartIndex,
-	// 					   size_t start,
-	// 					   size_t end) {
-	// 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> results = {0};
-
-	// 	for(size_t i = start; i < end; i++) {
-	// 		if(finalResults[i] == 0) {
-	// 			localStartIndex += 1;
-	// 			continue;
-	// 		}
-	// 		for(unsigned int j = 0; j < numQubits; j++) {
-	// 			if(localStartIndex & MASK(j)) {
-	// 				results[j] += finalResults[i];
-	// 			}
-	// 		}
-	// 		localStartIndex += 1;
-	// 	}
-
-	// 	return results;
-	// };
-
-	// decide if multithreading of singlethreading
 
 	for(size_t i = 0; i < this->states.size(); i += 2) {
 		if(this->states[i] == 0i) {
@@ -93,54 +44,10 @@ void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 		}
 		localStartIndex += 1;
 	}
-
-	// } else {
-	// 	if(this->rank == 0)
-	// 		cout << "\tMulti Threaded\n\n";
-
-	// 	// unsigned int numThreads = std::thread::hardware_concurrency();
-	// 	const unsigned int numThreads = 2;
-	// 	const size_t section_size = finalResults.size() / numThreads;
-
-	// 	future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_1;
-	// 	future<array<PRECISION_TYPE, MAX_NUMBER_QUBITS>> future_thread_2;
-
-	// 	// launch threads
-	// 	future_thread_1 = async(launch::async,
-	// 							get_results,
-	// 							this->numQubits,
-	// 							localStartIndex,
-	// 							0,
-	// 							section_size);
-	// 	future_thread_2 = async(launch::async,
-	// 							get_results,
-	// 							this->numQubits,
-	// 							localStartIndex + section_size,
-	// 							section_size,
-	// 							finalResults.size());
-
-	// 	// array of results
-	// 	array<PRECISION_TYPE, MAX_NUMBER_QUBITS> all_results[numThreads];
-
-	// 	// gather results
-	// 	all_results[0] = future_thread_1.get();
-	// 	all_results[1] = future_thread_2.get();
-
-	// 	for(unsigned int i = 0; i < numQubits; i++) {
-	// 		resultArr[i] += all_results[0][i];
-	// 		resultArr[i] += all_results[1][i];
-	// 	}
-	// }
 }
 
 bool QubitLayerMPI::checkStateOOB(uint64_t state)
 {
-	// true if OOB
-	// size_t lowerBound = this->rank * (this->states.size() / 2);
-	// size_t upperBound = (this->rank + 1) * (this->states.size() / 2);
-	// bool isBigger = state > this->globalUpperBound;
-	// bool isLess = state < this->globalLowerBound;
-
 	return state < this->globalLowerBound || state > this->globalUpperBound;
 }
 
