@@ -16,6 +16,8 @@ class QubitLayerMPI
 	int rank;
 	int size;
 	std::vector<size_t> layerLimits;
+	uint64_t globalLowerBound;
+	uint64_t globalUpperBound;
 
 	/**
 	 * @brief Returns a vector with the size of state vector segment allocation
@@ -33,7 +35,7 @@ class QubitLayerMPI
 	 * @param layerAllocs 
 	 * @return std::vector<size_t> 
 	 */
-	std::vector<size_t> calculateLayerLimits(std::vector<size_t> layerAllocs);
+	std::vector<size_t> calculateLayerLimits(const std::vector<size_t>& layerAllocs);
 
 	/**
 	 * @brief Returns the local index of the state indexed in the global state vector context.
@@ -42,7 +44,8 @@ class QubitLayerMPI
 	 * @param targetProcess 
 	 * @return size_t 
 	 */
-	size_t getLocalIndexFromGlobalState(uint64_t globalState, int targetProcess);
+	size_t getLocalIndexFromGlobalState(const uint64_t& globalState,
+										const int& targetProcess);
 
 	/**
 	 * @brief Distributes out-of-bound states and gathers the incoming 
@@ -65,9 +68,6 @@ class QubitLayerMPI
 	int getNodeOfState(const uint64_t& state);
 
   public:
-	uint64_t globalLowerBound;
-	uint64_t globalUpperBound;
-
 	/**
 	 * @brief Construct a qubit layer object. 
 	 * Initializes state vector with (0,0).
@@ -78,31 +78,39 @@ class QubitLayerMPI
 	 * @param rank MPI rank
 	 * @param size MPI size
 	 */
-	QubitLayerMPI(unsigned int numQubits, int rank, int size);
+	QubitLayerMPI(const unsigned int numQubits, const int rank, const int size);
 	qubitLayer& getStates() { return this->states; }
-	uint64_t getGlobalStartIndex() { return this->globalLowerBound; }
-	uint64_t getGlobalEndIndex() { return this->globalUpperBound; }
+	uint64_t& getGlobalStartIndex() { return this->globalLowerBound; }
+	uint64_t& getGlobalEndIndex() { return this->globalUpperBound; }
+	void setStates(const qubitLayer& states) { this->states = states; }
 
-	void setStates(qubitLayer states) { this->states = states; }
+	void pauliX(const int& targetQubit);
+	void pauliY(const int& targetQubit);
+	void pauliZ(const int& targetQubit);
+	void hadamard(const int& targetQubit);
+	void controlledZ(const int& controlQubit, const int& targetQubit);
+	void controlledX(const int& controlQubit, const int& targetQubit);
+	void toffoli(const int& controlQubit1,
+				 const int& controlQubit2,
+				 const int& targetQubit);
+	void rotationX(const int& targetQubit, const double& angle);
+	void sqrtPauliX(const int& targetQubit);
+	void sqrtPauliY(const int& targetQubit);
+	void sGate(const int& targetQubit);
+	void tGate(const int& targetQubit);
+
 	void clearStates()
 	{
 		this->states.clear();
 		this->states.shrink_to_fit();
 	}
-	void updateStates();
 
-	void pauliX(int targetQubit);
-	void pauliY(int targetQubit);
-	void pauliZ(int targetQubit);
-	void hadamard(int targetQubit);
-	void controlledZ(int controlQubit, int targetQubit);
-	void controlledX(int controlQubit, int targetQubit);
-	void toffoli(int controlQubit1, int controlQubit2, int targetQubit);
-	void rotationX(int targetQubit, double angle);
-	void sqrtPauliX(int targetQubit);
-	void sqrtPauliY(int targetQubit);
-	void sGate(int targetQubit);
-	void tGate(int targetQubit);
+	/**
+	 * @brief copies values from output state to input state;
+	 * sets output states to 0i 
+	 * 
+	 */
+	void updateStates();
 
 	/**
 	 * @brief Prints the state layer vector with the adequate format
@@ -120,7 +128,7 @@ class QubitLayerMPI
 	 * 
 	 * @param i State vector iterator position
 	 */
-	bool checkZeroState(size_t i);
+	bool checkZeroState(const size_t& i);
 
 	/**
 	 * @brief Measures qubit probabilities of state vector segment.
@@ -138,7 +146,7 @@ class QubitLayerMPI
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	*/
-	bool checkStateOOB(uint64_t state);
+	bool checkStateOOB(const uint64_t& state);
 
 	/**
 	 * @brief Calculates the square of each state amplitude, 
