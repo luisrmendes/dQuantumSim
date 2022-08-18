@@ -28,10 +28,10 @@ Git, gcc, make and openmpi are required
 
 ```sh
 # Clone this repository
-$ git clone git@github.com:lrmendes98/quantum-simulator-sandbox.git
+$ git clone git@github.com:lrmendes98/dQuantumSim.git
 
 # Go into the repository
-$ cd quantum-simulator-sandbox
+$ cd dQuantumSim
 
 # Compile
 $ make -j5
