@@ -49,8 +49,8 @@ def main():
             print(G + "No errors np = " + str(i) + W)
 
     if len(errors) != 0:
-        exit(-1)
-    else:
         exit(1)
+    else:
+        exit(0)
 
 main()
