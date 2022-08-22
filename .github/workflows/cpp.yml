@@ -13,13 +13,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
     - name: setup
-      run: sudo apt-get install -y libopenmpi-dev
+      run: sudo apt-get install -y libopenmpi-dev && sudo apt-get install -y make
+
     - name: configure
       run: chmod +x configure && ./configure
+
     - name: make
       run: make
+
     - name: make check
       run: make check
+      
     - name: make distcheck
       run: make distcheck
