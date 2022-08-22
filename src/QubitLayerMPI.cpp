@@ -46,14 +46,14 @@ void QubitLayerMPI::measureQubits(PRECISION_TYPE* results)
 	}
 }
 
-bool QubitLayerMPI::checkStateOOB(const uint64_t& state)
+bool QubitLayerMPI::checkStateOOB(const uint64_t state)
 {
 	return state < this->globalLowerBound || state > this->globalUpperBound;
 }
 
-void QubitLayerMPI::toffoli(const int& controlQubit1,
-							const int& controlQubit2,
-							const int& targetQubit)
+void QubitLayerMPI::toffoli(const int controlQubit1,
+							const int controlQubit2,
+							const int targetQubit)
 {
 	// Executes pauliX if both control qubits are set to |1>
 	auto applyReceivedOpsPauliX =
@@ -101,7 +101,7 @@ void QubitLayerMPI::toffoli(const int& controlQubit1,
 	updateStates();
 }
 
-void QubitLayerMPI::controlledX(const int& controlQubit, const int& targetQubit)
+void QubitLayerMPI::controlledX(const int controlQubit, const int targetQubit)
 {
 	// Executes pauliX if control qubit is |1>
 	auto applyReceivedOpsPauliX =
@@ -149,7 +149,7 @@ void QubitLayerMPI::controlledX(const int& controlQubit, const int& targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::controlledZ(const int& controlQubit, const int& targetQubit)
+void QubitLayerMPI::controlledZ(const int controlQubit, const int targetQubit)
 {
 	// Executes pauliZ if control qubit is |1>
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
@@ -167,7 +167,7 @@ void QubitLayerMPI::controlledZ(const int& controlQubit, const int& targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::rotationX(const int& targetQubit, const double& angle)
+void QubitLayerMPI::rotationX(const int targetQubit, const double angle)
 {
 	// PRECISION_TYPE hadamard_const = 1 / sqrt(2);
 	PRECISION_TYPE rotationX_const1 = cos(angle);
@@ -218,7 +218,7 @@ void QubitLayerMPI::rotationX(const int& targetQubit, const double& angle)
 	updateStates();
 }
 
-void QubitLayerMPI::sqrtPauliX(const int& targetQubit)
+void QubitLayerMPI::sqrtPauliX(const int targetQubit)
 {
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
@@ -269,7 +269,7 @@ void QubitLayerMPI::sqrtPauliX(const int& targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::sqrtPauliY(const int& targetQubit)
+void QubitLayerMPI::sqrtPauliY(const int targetQubit)
 {
 	vector<tuple<uint64_t, complex<PRECISION_TYPE>>> statesOOB;
 
@@ -327,7 +327,7 @@ void QubitLayerMPI::sqrtPauliY(const int& targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::sGate(const int& targetQubit)
+void QubitLayerMPI::sGate(const int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -341,7 +341,7 @@ void QubitLayerMPI::sGate(const int& targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::tGate(const int& targetQubit)
+void QubitLayerMPI::tGate(const int targetQubit)
 {
 	static const complex<PRECISION_TYPE> tConst =
 		exp((1i * (PRECISION_TYPE)M_PI) / (PRECISION_TYPE)4);
@@ -358,7 +358,7 @@ void QubitLayerMPI::tGate(const int& targetQubit)
 	updateStates();
 }
 
-void QubitLayerMPI::hadamard(const int& targetQubit)
+void QubitLayerMPI::hadamard(const int targetQubit)
 {
 #ifdef HADAMARD_DEBUG_LOGS
 	appendDebugLog("--- HADAMARD ---\n\n");
@@ -424,7 +424,7 @@ void QubitLayerMPI::hadamard(const int& targetQubit)
 #endif
 }
 
-void QubitLayerMPI::pauliZ(const int& targetQubit)
+void QubitLayerMPI::pauliZ(const int targetQubit)
 {
 	for(size_t i = 0; i < this->states.size() / 2; i++) {
 		if(checkZeroState(i)) {
@@ -445,7 +445,7 @@ void QubitLayerMPI::pauliZ(const int& targetQubit)
 #endif
 }
 
-void QubitLayerMPI::pauliY(const int& targetQubit)
+void QubitLayerMPI::pauliY(const int targetQubit)
 {
 #ifdef PAULIY_DEBUG_LOGS
 	appendDebugLog("--- PAULI Y ---\n\n");
@@ -504,7 +504,7 @@ void QubitLayerMPI::pauliY(const int& targetQubit)
 #endif
 }
 
-void QubitLayerMPI::pauliX(const int& targetQubit)
+void QubitLayerMPI::pauliX(const int targetQubit)
 {
 #ifdef PAULIX_DEBUG_LOGS
 	appendDebugLog("--- PAULI X ---\n\n");
@@ -550,7 +550,7 @@ void QubitLayerMPI::pauliX(const int& targetQubit)
 #endif
 }
 
-bool QubitLayerMPI::checkZeroState(const size_t& i)
+bool QubitLayerMPI::checkZeroState(const size_t i)
 {
 	return this->states[i * 2] != 0i;
 }
@@ -618,8 +618,8 @@ vector<size_t> QubitLayerMPI::calculateLayerLimits(const vector<size_t>& layerAl
 	return layerLimits;
 }
 
-size_t QubitLayerMPI::getLocalIndexFromGlobalState(const uint64_t& globalState,
-												   const int& targetProcess)
+size_t QubitLayerMPI::getLocalIndexFromGlobalState(const uint64_t globalState,
+												   const int targetProcess)
 {
 	if(targetProcess == 0)
 		return globalState;
@@ -718,7 +718,7 @@ vector<complex<PRECISION_TYPE>> QubitLayerMPI::distributeAndGatherStatesOOB(
 	return receivedOperations;
 }
 
-int QubitLayerMPI::getNodeOfState(const uint64_t& state)
+int QubitLayerMPI::getNodeOfState(const uint64_t state)
 {
 	size_t i = 0;
 	for(; i < this->layerLimits.size(); i++) {

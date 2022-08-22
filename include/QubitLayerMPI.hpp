@@ -44,8 +44,8 @@ class QubitLayerMPI
 	 * @param targetProcess 
 	 * @return size_t 
 	 */
-	size_t getLocalIndexFromGlobalState(const uint64_t& globalState,
-										const int& targetProcess);
+	size_t getLocalIndexFromGlobalState(const uint64_t globalState,
+										const int targetProcess);
 
 	/**
 	 * @brief Distributes out-of-bound states and gathers the incoming 
@@ -65,7 +65,7 @@ class QubitLayerMPI
 	 * @param state 
 	 * @return int
 	 */
-	int getNodeOfState(const uint64_t& state);
+	int getNodeOfState(const uint64_t state);
 
   public:
 	/**
@@ -84,20 +84,20 @@ class QubitLayerMPI
 	uint64_t& getGlobalEndIndex() { return this->globalUpperBound; }
 	void setStates(const qubitLayer& states) { this->states = states; }
 
-	void pauliX(const int& targetQubit);
-	void pauliY(const int& targetQubit);
-	void pauliZ(const int& targetQubit);
-	void hadamard(const int& targetQubit);
-	void controlledZ(const int& controlQubit, const int& targetQubit);
-	void controlledX(const int& controlQubit, const int& targetQubit);
-	void toffoli(const int& controlQubit1,
-				 const int& controlQubit2,
-				 const int& targetQubit);
-	void rotationX(const int& targetQubit, const double& angle);
-	void sqrtPauliX(const int& targetQubit);
-	void sqrtPauliY(const int& targetQubit);
-	void sGate(const int& targetQubit);
-	void tGate(const int& targetQubit);
+	void pauliX(const int targetQubit);
+	void pauliY(const int targetQubit);
+	void pauliZ(const int targetQubit);
+	void hadamard(const int targetQubit);
+	void controlledZ(const int controlQubit, const int targetQubit);
+	void controlledX(const int controlQubit, const int targetQubit);
+	void toffoli(const int controlQubit1,
+				 const int controlQubit2,
+				 const int targetQubit);
+	void rotationX(const int targetQubit, const double angle);
+	void sqrtPauliX(const int targetQubit);
+	void sqrtPauliY(const int targetQubit);
+	void sGate(const int targetQubit);
+	void tGate(const int targetQubit);
 
 	void clearStates()
 	{
@@ -108,7 +108,6 @@ class QubitLayerMPI
 	/**
 	 * @brief copies values from output state to input state;
 	 * sets output states to 0i 
-	 * 
 	 */
 	void updateStates();
 
@@ -128,7 +127,7 @@ class QubitLayerMPI
 	 * 
 	 * @param i State vector iterator position
 	 */
-	bool checkZeroState(const size_t& i);
+	bool checkZeroState(const size_t i);
 
 	/**
 	 * @brief Measures qubit probabilities of state vector segment.
@@ -146,7 +145,7 @@ class QubitLayerMPI
 	 * @param state bitset of the state to check
 	 * @return true if state is OOB, else false
 	*/
-	bool checkStateOOB(const uint64_t& state);
+	bool checkStateOOB(const uint64_t state);
 
 	/**
 	 * @brief Calculates the square of each state amplitude, 
