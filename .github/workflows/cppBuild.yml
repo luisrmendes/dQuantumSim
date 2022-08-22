@@ -29,8 +29,6 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v3
-
     - name: 3-qubit testing
       run: python3 scripts/test.py openqasmTests/q3_grovers.openqasm 3 "100 100 0"
         && python3 scripts/test.py openqasmTests/q3_test1.openqasm 3 "100 50 100"
