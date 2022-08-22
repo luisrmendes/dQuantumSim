@@ -1,4 +1,5 @@
-[![Build and Testing](https://github.com/luisrmendes/dQuantumSim/actions/workflows/buildAndTesting.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/buildAndTesting.yml)
+[![Build with Make](https://github.com/luisrmendes/dQuantumSim/actions/workflows/build.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/build.yml)
+[![Build with Make](https://github.com/luisrmendes/dQuantumSim/actions/workflows/testinn.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/testing.yml)
 
 # Distributed Quantum Simulator developed at FEUP
 
