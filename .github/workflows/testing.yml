@@ -2,12 +2,12 @@ name: Testing
 
 on:
   workflow_run:
-    workflows: ["Build and Testing"]
+    workflows: ["Build"]
     branches: [master]
     types: 
       - completed
   push:
-    branches: ["master"]
+    branches: ["master", "integrated-testing"]
   pull_request:
     branches: ["master"]
 

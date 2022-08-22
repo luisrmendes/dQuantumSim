@@ -1,8 +1,8 @@
-name: Build and Testing
+name: Build
 
 on:
   push:
-    branches: ["master"]
+    branches: ["master", "integrated-testing"]
   pull_request:
     branches: ["master"]
 
