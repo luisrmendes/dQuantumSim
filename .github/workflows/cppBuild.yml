@@ -25,6 +25,7 @@ jobs:
 
   testing:
     name: "Testing"
+    needs: build
     runs-on: self-hosted
 
     steps:
