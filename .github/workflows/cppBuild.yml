@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-
+    name: "Build with Make"
     runs-on: self-hosted
 
     steps:
@@ -22,3 +22,21 @@ jobs:
 
     - name: make
       run: make clean && make -j5
+
+  testing:
+    name: "Testing"
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: 3-qubit testing
+      run: python3 scripts/test.py openqasmTests/q3_grovers.openqasm 3 "100 100 0"
+        && python3 scripts/test.py openqasmTests/q3_test1.openqasm 3 "100 50 100"
+
+    - name: 4-qubit testing
+      run: python3 scripts/test.py openqasmTests/q4_test1.openqasm 4 "0 100 50 100"
+        && python3 scripts/test.py openqasmTests/q4_test2.openqasm 4 "50 100 0 0"
+        && python3 scripts/test.py openqasmTests/q4_test3.openqasm 4 "50 50 100 0"
+
+
