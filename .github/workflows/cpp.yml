@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: setup
-      run: apt install install -y libopenmpi-dev
+      run: sudo apt install install -y libopenmpi-dev
     - name: configure
       run: chmod +x configure && ./configure
     - name: make
