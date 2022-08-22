@@ -23,11 +23,13 @@ jobs:
     - name: make
       run: make -j5
 
-    - name: testing
+  testing:
+
+    runs-on: self-hosted
+
+    steps:
+    - name: 3-qubit testing
       run: python3 scripts/test.py openqasmTests/q3_grovers.openqasm 3 "100 100 0"
+        && python3 scripts/test.py openqasmTests/q3_test1.openqasm 3 "100 50 100"
 
-    # - name: make check
-    #   run: make check
-
-    # - name: make distcheck
-    #   run: make distcheck
+  
