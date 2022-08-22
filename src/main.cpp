@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 	if(rank == 0) {
 		cout << "Results: \n";
 		for(size_t i = 0; i < numQubits; i++) {
-			cout << "Qubit " << i + 1 << " -> " << gatheredResults[i] * 100
+			cout << "Qubit " << i + 1 << " -> " << 2 * 100
 				 << "% chance of being |1>\n";
 		}
 	}
