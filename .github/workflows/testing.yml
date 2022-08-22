@@ -58,7 +58,7 @@ jobs:
 
   twentyPlusQubitTesting:
     name: "Twenty plus qubits testing"
-    needs: ["build", "simpleTesting"]
+    needs: ["simpleTesting"]
     runs-on: self-hosted
 
     steps:
@@ -75,7 +75,7 @@ jobs:
 
   groversTesting:
     name: "Testing with Grover's"
-    needs: ["build", "simpleTesting", "twentyPlusQubitTesting"]
+    needs: ["simpleTesting", "twentyPlusQubitTesting"]
     runs-on: self-hosted
 
     steps:
