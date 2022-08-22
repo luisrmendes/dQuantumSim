@@ -30,7 +30,6 @@ jobs:
 
   simpleTesting:
     name: "Simple testing up to 20 qubits"
-    needs: build
     runs-on: self-hosted
 
     steps:
