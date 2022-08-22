@@ -3,7 +3,7 @@ name: testing
 on:
   workflow_run:
     workflows: ["C++ build with Make"]
-    branches: ["master"]
+    branches: ["master", "integrated-testing"]
     types:
       - completed
 
