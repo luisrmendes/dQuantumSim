@@ -4,7 +4,7 @@ SDIR := src
 ODIR := obj
 
 CC := mpicxx
-CPPFLAGS := -I$(IDIR) -std=c++17 -Wall \
+CPPFLAGS := -I$(IDIR) -std=c++17 -lstdc++fs -Wall \
 -Wextra -pedantic -m64 -pipe -O3
 LDFLAGS := 
 
