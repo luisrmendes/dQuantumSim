@@ -21,15 +21,4 @@ jobs:
       run: chmod +x configure && ./configure
 
     - name: make
-      run: make -j5
-
-  testing:
-
-    runs-on: self-hosted
-
-    steps:
-    - name: 3-qubit testing
-      run: python3 scripts/test.py openqasmTests/q3_grovers.openqasm 3 "100 100 0"
-        && python3 scripts/test.py openqasmTests/q3_test1.openqasm 3 "100 50 100"
-
-  
+      run: make clean && make -j5
