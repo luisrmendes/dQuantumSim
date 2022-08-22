@@ -1,4 +1,4 @@
-[![C++ build with Make](https://github.com/luisrmendes/dQuantumSim/actions/workflows/cppBuild.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/cppBuild.yml)
+[![Build and Testing](https://github.com/luisrmendes/dQuantumSim/actions/workflows/buildAndTesting.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/buildAndTesting.yml)
 
 # Distributed Quantum Simulator developed at FEUP
 

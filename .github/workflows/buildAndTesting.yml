@@ -1,4 +1,4 @@
-name: Build with Make and Testing
+name: Build and Testing
 
 on:
   push:
