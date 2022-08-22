@@ -43,4 +43,9 @@ string printGreenBold(string content)
 	return result;
 }
 
-void clear() { system("clear"); }
+void clear()
+{
+	int result = system("clear");
+	if(result == -1)
+		return;
+}

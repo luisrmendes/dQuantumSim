@@ -1,3 +1,6 @@
+[![Build with Make](https://github.com/luisrmendes/dQuantumSim/actions/workflows/build.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/build.yml)
+[![Testing](https://github.com/luisrmendes/dQuantumSim/actions/workflows/testing.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/testing.yml)
+
 # Distributed Quantum Simulator developed at FEUP
 
 This project implements a parallel and scalable quantum simulator based on the state vector approach. We extend the capabilities of quantum simulation by distributing the workload amongst various computer nodes and take advantage of combined shared memory.

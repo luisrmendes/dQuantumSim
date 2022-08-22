@@ -1,0 +1,24 @@
+name: Build
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build:
+    name: "Build with Make"
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup
+        run: sudo apt-get install -y g++ make libopenmpi-dev openmpi-bin openmpi-common
+
+      - name: configure
+        run: chmod +x configure && ./configure
+
+      - name: make
+        run: make clean && make -j5

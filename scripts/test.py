@@ -11,6 +11,11 @@ B = '\033[34m'  # blue
 P = '\033[35m'  # purple
 
 def main():
+
+    if len(sys.argv) != 4:
+        print("Usage: python test.py <openqasmFile> <np> <arrayOfExpectedResults>")
+        exit(-1)
+
     myqasmFile = sys.argv[1]
     np = int(sys.argv[2])
     expectedResult = sys.argv[3]
@@ -43,5 +48,9 @@ def main():
         if len(errors) == 0:
             print(G + "No errors np = " + str(i) + W)
 
+    if len(errors) != 0:
+        exit(1)
+    else:
+        exit(0)
 
 main()
