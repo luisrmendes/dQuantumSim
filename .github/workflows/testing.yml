@@ -7,7 +7,7 @@ on:
     types: 
       - completed
   push:
-    branches: ["master", "integrated-testing"]
+    branches: ["master"]
   pull_request:
     branches: ["master"]
 
