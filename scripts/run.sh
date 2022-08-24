@@ -5,6 +5,6 @@ if [[ $# -ne 2 ]] ; then
 fi
 
 /usr/bin/mpirun --mca opal_warn_on_missing_libcuda 0 --oversubscribe -np \
-    $1 ~/work/dissertacao/quantum-simulator-sandbox/dqsim $2
+    $1 ./dqsim $2
 
 exit 0
