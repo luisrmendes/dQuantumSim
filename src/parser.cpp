@@ -4,7 +4,7 @@
 
 using namespace std;
 
-unsigned int getCodeOfInstruction(std::string line)
+unsigned int getCodeOfInstruction(const std::string line)
 {
     if(line == "x")
         return 1;
@@ -34,7 +34,7 @@ unsigned int getCodeOfInstruction(std::string line)
         return -1;
 }
 
-int getNumTargetQubitsOfGate(std::string gate)
+int getNumTargetQubitsOfGate(const std::string gate)
 {
     if(gate == "x" || gate == "y" || gate == "z" || gate == "h" || gate == "sqrtx" ||
        gate == "sqrty" || gate == "s" || gate == "t") {
@@ -48,7 +48,7 @@ int getNumTargetQubitsOfGate(std::string gate)
     }
 }
 
-vector<unsigned int> sourceParser(char* fileName)
+vector<unsigned int> sourceParser(const char* fileName)
 {
     string line;
     ifstream myfile(fileName);

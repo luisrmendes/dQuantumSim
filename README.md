@@ -31,7 +31,7 @@ Git, gcc, make and openmpi are required
 
 ```sh
 # Clone this repository
-$ git clone git@github.com:lrmendes98/dQuantumSim.git
+$ git clone git@github.com:luisrmendes/dQuantumSim.git
 
 # Go into the repository
 $ cd dQuantumSim

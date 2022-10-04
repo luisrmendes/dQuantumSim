@@ -11,7 +11,7 @@
  * @param fileName 
  * @return std::vector<unsigned int> 
  */
-std::vector<unsigned int> sourceParser(char* fileName);
+std::vector<unsigned int> sourceParser(const char* fileName);
 
 /**
  * @brief Returns the number of target qubits per instructions.
@@ -19,7 +19,7 @@ std::vector<unsigned int> sourceParser(char* fileName);
  * @param gate 
  * @return int 
  */
-int getNumTargetQubitsOfGate(std::string gate);
+int getNumTargetQubitsOfGate(const std::string gate);
 
 /**
  * @brief Returns the integer code of the quantum assembly instruction.
@@ -27,6 +27,6 @@ int getNumTargetQubitsOfGate(std::string gate);
  * @param line 
  * @return unsigned int 
  */
-unsigned int getCodeOfInstruction(std::string line);
+unsigned int getCodeOfInstruction(const std::string line);
 
 #endif
