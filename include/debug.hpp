@@ -21,28 +21,28 @@ void openAndCleanDebugFiles();
 template <typename... T>
 void appendDebugLog(const T&... args)
 {
-	std::fstream nodeLogFile;
-	std::string nodeFileName = "logs/log";
-	nodeFileName.append(std::to_string(::rank));
-	nodeFileName.append(".txt");
+    std::fstream nodeLogFile;
+    std::string nodeFileName = "logs/log";
+    nodeFileName.append(std::to_string(::rank));
+    nodeFileName.append(".txt");
 
-	nodeLogFile.open(nodeFileName, std::ios::app);
-	if(!nodeLogFile)
-		std::cerr << "file does not exist" << std::endl;
-	((nodeLogFile << args), ...);
-	nodeLogFile.close();
+    nodeLogFile.open(nodeFileName, std::ios::app);
+    if(!nodeLogFile)
+        std::cerr << "file does not exist" << std::endl;
+    ((nodeLogFile << args), ...);
+    nodeLogFile.close();
 
-	// std::fstream globalLogFile;
-	// for(int i = 0; i < size; i++) {
-	// 	if(rank == i) {
-	// 		globalLogFile.open(globalLogFileName, std::ios::app);
-	// 		if(!globalLogFile)
-	// 			std::cerr << "file does not exist" << std::endl;
-	// 		((globalLogFile << args), ...);
-	// 		globalLogFile.close();
-	// 	} else
-	// 		MPI_Barrier(MPI_COMM_WORLD);
-	// }
+    // std::fstream globalLogFile;
+    // for(int i = 0; i < size; i++) {
+    // 	if(rank == i) {
+    // 		globalLogFile.open(globalLogFileName, std::ios::app);
+    // 		if(!globalLogFile)
+    // 			std::cerr << "file does not exist" << std::endl;
+    // 		((globalLogFile << args), ...);
+    // 		globalLogFile.close();
+    // 	} else
+    // 		MPI_Barrier(MPI_COMM_WORLD);
+    // }
 }
 
 /**
@@ -52,8 +52,8 @@ void appendDebugLog(const T&... args)
 template <typename... T>
 void appendResultLog(const T&... args)
 {
-	std::fstream resultLog;
-	((resultLog << args), ...);
+    std::fstream resultLog;
+    ((resultLog << args), ...);
 }
 
 #endif
