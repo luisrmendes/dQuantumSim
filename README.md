@@ -1,11 +1,11 @@
 [![Build with Make](https://github.com/luisrmendes/dQuantumSim/actions/workflows/build.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/build.yml)
 [![Testing](https://github.com/luisrmendes/dQuantumSim/actions/workflows/testing.yml/badge.svg)](https://github.com/luisrmendes/dQuantumSim/actions/workflows/testing.yml)
 
-# Distributed Quantum Simulator developed at FEUP
+# dQuantumSim - Distributed Quantum Simulator
 
 This project implements a parallel and scalable quantum simulator based on the state vector approach. We extend the capabilities of quantum simulation by distributing the workload amongst various computer nodes and take advantage of combined shared memory.
 
-This project is implemented in C++ and strictly conforms with the ISO/IEC 14882:2017 specification for C++17. MPI is used for inter-process communication amongst computer nodes.
+This project is implemented in C++17. MPI is used for inter-process communication amongst computer nodes.
 
 
 ## Features
