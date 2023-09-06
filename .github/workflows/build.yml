@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: setup
-        run: sudo apt-get install -y g++ make libopenmpi-dev openmpi-bin openmpi-common
+        run: sudo pacman -S g++ make libopenmpi-dev openmpi-bin openmpi-common
 
       - name: configure
         run: chmod +x configure && ./configure

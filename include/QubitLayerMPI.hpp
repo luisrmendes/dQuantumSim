@@ -5,6 +5,7 @@
 #include <complex>
 #include <functional>
 #include <vector>
+#include <cstdint>
 
 typedef std::vector<std::complex<PRECISION_TYPE>> qubitLayer;
 
