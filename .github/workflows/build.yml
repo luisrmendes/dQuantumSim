@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: setup
-        run: sudo pacman -S gcc make openmpi
+        run: sudo pacman -S gcc make openmpi --noconfirm
 
       - name: configure
         run: chmod +x configure && ./configure
